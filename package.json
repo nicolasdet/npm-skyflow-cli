@@ -1,0 +1,36 @@
+{
+  "name": "skyflow-cli",
+  "version": "1.0.0",
+  "description": "Best friend of the developer",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/skyflow-io/npm-skyflow-cli.git"
+  },
+  "keywords": [
+    "input", "output", "request",
+    "style", "command", "command line",
+    "cli", "project", "console"
+  ],
+  "author": "Franck DIOMANDE <fkdiomande@gmail.com>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/skyflow-io/npm-skyflow-cli/issues"
+  },
+  "homepage": "https://github.com/skyflow-io/npm-skyflow-cli#readme",
+  "bin": {
+    "skyflow": "./index.js"
+  },
+  "dependencies": {
+    "chalk": "^2.3.2",
+    "fuzzy": "^0.1.3",
+    "inquirer": "^5.1.0",
+    "inquirer-autocomplete-prompt": "^0.12.2",
+    "lodash": "^4.17.5",
+    "minimist": "^1.2.0",
+    "skyflow": "^1.0.1"
+  }
+}
