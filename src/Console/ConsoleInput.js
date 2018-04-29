@@ -1,28 +1,39 @@
 'use strict';
 
-const resolve = require('path').resolve,
-    Helper = require(resolve(__dirname, '..', 'Helper')),
+const Helper = Skyflow.Helper,
     inquirer = require('inquirer'),
     fuzzy = require('fuzzy');
 
 inquirer.registerPrompt('autocomplete', require('inquirer-autocomplete-prompt'));
 
 function resolveOptions(options) {
-    if (Helper.isString(options)) {options = {message: options}}
-    if (!Helper.isObject(options)) {options = {}}
+    if (Helper.isString(options)) {
+        options = {message: options}
+    }
+    if (!Helper.isObject(options)) {
+        options = {}
+    }
     return options
 }
 
 function resolveQuestion(question, options) {
-    if(options['suffix'] !== undefined){question['suffix'] = options['suffix']}
-    if(options['prefix'] !== undefined){question['prefix'] = options['prefix']}
-    if(options['default'] !== undefined){question['default'] = options['default']}
+    if (options['suffix'] !== undefined) {
+        question['suffix'] = options['suffix']
+    }
+    if (options['prefix'] !== undefined) {
+        question['prefix'] = options['prefix']
+    }
+    if (options['default'] !== undefined) {
+        question['default'] = options['default']
+    }
     question['message'] = (options['message'] === undefined) ? '' : options['message'];
 
     const validator = options['validator'];
     if (Helper.getType(validator) === 'Validator') {
         question['validate'] = value => {
-            if (validator.isValid(value)) {return true}
+            if (validator.isValid(value)) {
+                return true
+            }
             return validator.getErrorMessage()
         };
     }
@@ -121,12 +132,12 @@ class ConsoleInput {
         };
         question = resolveQuestion(question, options);
 
-        question['source'] = (answers, input) =>{
+        question['source'] = (answers, input) => {
             input = input || '';
-            return new Promise(function(resolve) {
-                setTimeout(function() {
+            return new Promise(function (resolve) {
+                setTimeout(function () {
                     let fuzzyResult = fuzzy.filter(input, data);
-                    resolve(fuzzyResult.map(function(el) {
+                    resolve(fuzzyResult.map(function (el) {
                         return el.original;
                     }));
                 }, 30);

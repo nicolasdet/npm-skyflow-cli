@@ -4,6 +4,8 @@
 
 require('skyflow');
 
+const resolve = require("path").resolve;
+
 Skyflow.Style = require(resolve(__dirname, 'src', 'Console', 'ConsoleStyle'));
 Skyflow.Input = require(resolve(__dirname, 'src', 'Console', 'ConsoleInput'));
 Skyflow.Output = require(resolve(__dirname, 'src', 'Console', 'ConsoleOutput'));
