@@ -44,7 +44,7 @@ class DefaultCommand {
             .writeln(
                 Skyflow.Package.name.toUpperCase() +
                 ' v' + Skyflow.Package.version +
-                ' - ' + Skyflow.Package.author,
+                ' - Franck DIOMANDE <fkdiomande@gmail.com>',
                 'magenta'
             )
             .writeln('-'.repeat(100), 'magenta', null, 'bold')

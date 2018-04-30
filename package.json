@@ -11,9 +11,15 @@
     "url": "git+https://github.com/skyflow-io/npm-skyflow-cli.git"
   },
   "keywords": [
-    "input", "output", "request",
-    "style", "command", "command line",
-    "cli", "project", "console"
+    "input",
+    "output",
+    "request",
+    "style",
+    "command",
+    "command line",
+    "cli",
+    "project",
+    "console"
   ],
   "author": "Franck DIOMANDE <fkdiomande@gmail.com>",
   "license": "Apache-2.0",
@@ -31,6 +37,6 @@
     "inquirer-autocomplete-prompt": "^0.12.2",
     "lodash": "^4.17.5",
     "minimist": "^1.2.0",
-    "skyflow": "^1.0.1"
+    "skyflow": "^1.0.20"
   }
 }

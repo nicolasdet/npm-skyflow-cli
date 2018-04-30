@@ -6,10 +6,15 @@ require('skyflow');
 
 const resolve = require("path").resolve;
 
+Skyflow.CONFIG_FILE_NAME = 'skyflow.config.js';
 Skyflow.Style = require(resolve(__dirname, 'src', 'Console', 'ConsoleStyle'));
 Skyflow.Input = require(resolve(__dirname, 'src', 'Console', 'ConsoleInput'));
 Skyflow.Output = require(resolve(__dirname, 'src', 'Console', 'ConsoleOutput'));
 Skyflow.Request = require(resolve(__dirname, 'src', 'Console', 'ConsoleRequest'));
+
+if(Skyflow.File.exists(resolve(process.cwd(), Skyflow.CONFIG_FILE_NAME))){
+    Skyflow.CONF = require(resolve(process.cwd(), Skyflow.CONFIG_FILE_NAME));
+}
 
 const DefaultCommand = require(resolve(__dirname, 'src', 'Command', 'DefaultCommand'));
 
