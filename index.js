@@ -2,7 +2,7 @@
 
 'use strict';
 
-require('skyflow');
+require('skyflow-core');
 
 const resolve = require("path").resolve;
 
@@ -11,6 +11,13 @@ Skyflow.Style = require(resolve(__dirname, 'src', 'Console', 'ConsoleStyle'));
 Skyflow.Input = require(resolve(__dirname, 'src', 'Console', 'ConsoleInput'));
 Skyflow.Output = require(resolve(__dirname, 'src', 'Console', 'ConsoleOutput'));
 Skyflow.Request = require(resolve(__dirname, 'src', 'Console', 'ConsoleRequest'));
+Skyflow.Package = require('./package.json');
+Skyflow.React = {
+    containerSample(){
+        let s = resolve(__dirname, 'resources', 'react', 'container');
+        return Skyflow.File.read(s);
+    }
+};
 
 if(Skyflow.File.exists(resolve(process.cwd(), Skyflow.CONFIG_FILE_NAME))){
     Skyflow.CONF = require(resolve(process.cwd(), Skyflow.CONFIG_FILE_NAME));

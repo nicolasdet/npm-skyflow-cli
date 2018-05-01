@@ -1,6 +1,6 @@
 {
   "name": "skyflow-cli",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "Best friend of the developer",
   "main": "index.js",
   "scripts": {
@@ -37,6 +37,6 @@
     "inquirer-autocomplete-prompt": "^0.12.2",
     "lodash": "^4.17.5",
     "minimist": "^1.2.0",
-    "skyflow": "^1.0.20"
+    "skyflow-core": "^1.0.3"
   }
 }

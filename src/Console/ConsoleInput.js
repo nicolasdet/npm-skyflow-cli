@@ -55,7 +55,7 @@ class ConsoleInput {
     input(options, callback) {
 
         options = resolveOptions(options);
-        let question = {type: 'input', name: 'ask'};
+        let question = {type: 'input', name: 'response'};
         question = resolveQuestion(question, options);
         inquirer.prompt([question]).then(callback);
 
@@ -74,7 +74,7 @@ class ConsoleInput {
         options = resolveOptions(options);
         let question = {
             type: (options['multiple'] === true) ? 'checkbox' : 'list',
-            name: (options['multiple'] === true) ? 'choices' : 'choice',
+            name: 'response',
             choices: choices
         };
         question = resolveQuestion(question, options);
@@ -91,7 +91,7 @@ class ConsoleInput {
      * @returns {ConsoleInput}
      */
     confirm(message, defaultValue = true, callback) {
-        let question = {type: 'confirm', name: 'confirm', message: message, default: defaultValue};
+        let question = {type: 'confirm', name: 'response', message: message, default: defaultValue};
         inquirer.prompt([question]).then(callback);
 
         return this
@@ -107,7 +107,7 @@ class ConsoleInput {
     hidden(options, callback, mask = '*') {
 
         options = resolveOptions(options);
-        let question = {type: 'password', name: 'hidden'};
+        let question = {type: 'password', name: 'response'};
         question = resolveQuestion(question, options);
         question['mask'] = mask;
         inquirer.prompt([question]).then(callback);
@@ -127,7 +127,7 @@ class ConsoleInput {
         options = resolveOptions(options);
         let question = {
             type: 'autocomplete',
-            name: 'input',
+            name: 'response',
             suggestOnly: false,
         };
         question = resolveQuestion(question, options);

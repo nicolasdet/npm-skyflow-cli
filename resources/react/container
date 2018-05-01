@@ -1,0 +1,40 @@
+import React from 'react';
+// import ReactDOM from 'react-dom';
+
+class {{name}} extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            // Your states go here
+        };
+        // This binding is necessary to make `this` work in the callback
+        this.handleEvent = this.handleEvent.bind(this);
+    }
+
+    componentDidMount() {
+        // Runs after the component output has been rendered to the DOM
+    }
+
+    componentWillUnmount() {
+        // Runs after the component output has been removed from the DOM
+    }
+
+    handleEvent() {
+        this.setState((prevState, props)=>{
+            return {
+                // Return states you want to update
+            }
+        });
+    }
+
+    render() {
+        return (
+            <div id="{{id}}">
+
+            </div>
+        )
+    }
+}
+
+export default {{name}};

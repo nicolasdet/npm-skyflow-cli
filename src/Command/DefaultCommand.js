@@ -102,7 +102,8 @@ class DefaultCommand {
         }
 
         let s = resolve(__dirname, '..', '..', 'resources', Skyflow.CONFIG_FILE_NAME);
-        fs.createReadStream(s).pipe(fs.createWriteStream(resolve(process.cwd(), Skyflow.CONFIG_FILE_NAME)));
+        let dest = resolve(process.cwd(), Skyflow.CONFIG_FILE_NAME);
+        fs.createReadStream(s).pipe(fs.createWriteStream(dest)); fs.chmodSync(dest, '777');
         Skyflow.Output.success(Skyflow.CONFIG_FILE_NAME + ' was successfully created.');
         return Skyflow
     }
