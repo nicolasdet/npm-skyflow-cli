@@ -1,5 +1,6 @@
 import React from 'react';
 // import ReactDOM from 'react-dom';
+import './{{name}}.scss';
 
 class {{name}} extends React.Component {
 

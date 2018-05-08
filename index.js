@@ -18,8 +18,8 @@ try {
 }
 Skyflow.Package = require('./package.json');
 Skyflow.React = {
-    containerSample(){
-        let s = resolve(__dirname, 'resources', 'react', 'container');
+    sample(){
+        let s = resolve(__dirname, 'resources', 'react', 'sample');
         return Skyflow.File.read(s);
     }
 };

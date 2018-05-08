@@ -1,23 +1,24 @@
 const path = require('path'), resolve = path.resolve,
     CleanWebpackPlugin = require('clean-webpack-plugin'),
     ExtractTextPlugin = require("extract-text-webpack-plugin");
+// const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
     node:{
         fs: 'empty'
     },
     entry: {
-        main: resolve(__dirname, '..', '{{entry-point}}')
+        main: './{{entry-point}}'
     },
     output: {
-        filename: resolve(__dirname, '..', '{{js-output}}'),
+        filename: '{{js-output}}',
         path: resolve(__dirname, '..', '{{output-dir}}')
     },
     module: {
         rules: [
             {
                 test: /\.jsx?$/,
-                exclude: /node_modules/,
+                exclude: /(node_modules|bower_components)/,
                 use: [
                     {
                         loader: 'babel-loader',
@@ -28,7 +29,7 @@ module.exports = {
                 ]
             },
             {
-                test: /\.scss$/,
+                test: /\.s?css$/,
                 use: ExtractTextPlugin.extract({
                     fallback: "style-loader",
                     use: [
@@ -59,8 +60,11 @@ module.exports = {
     },
     plugins: [
         new CleanWebpackPlugin([resolve(__dirname, '..', '{{output-dir}}')]),
+        // new HtmlWebpackPlugin({
+        //     template: path.resolve(__dirname, '..', ''src', 'index.html')
+        // }),
         new ExtractTextPlugin({
-            filename: resolve(__dirname, '..', '{{style-output}}')
+            filename: '{{style-output}}'
         })
     ],
 };

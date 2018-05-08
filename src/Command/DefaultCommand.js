@@ -13,7 +13,7 @@ class DefaultCommand {
             // License
             .writeln(' (' + Skyflow.Package.license + ')', 'green')
             // Author
-            .write('Franck DIOMANDE <fkdiomande@gmail.com>', 'gray');
+            .writeln('Franck DIOMANDE <fkdiomande@gmail.com>', 'gray');
 
         return Skyflow
     }

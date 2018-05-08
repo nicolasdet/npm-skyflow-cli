@@ -48,7 +48,6 @@ function installDependencies() {
     let devDependencies = [
         "clean-webpack-plugin@^0.1.19",
         "css-loader@^0.28.11",
-        "electron@^2.0.0",
         "extract-text-webpack-plugin@^4.0.0-beta.0",
         "file-loader@^1.1.11",
         "html-webpack-plugin@^3.2.0",
@@ -154,20 +153,22 @@ class WebpackCommand {
                                 }, (answer)=>{
                                     watchScriptName = answer.response;
 
-                                    installDependencies();
-
                                     let dir = resolve(process.cwd(), 'webpack');
 
                                     if (!Directory.exists(dir)) {Directory.create(dir)}
 
                                     let configFile = resolve(dir, 'webpack.config.dev.js');
                                     File.create(configFile);
-                                    // fs.chmodSync(configFile, '777');
+                                    if(Skyflow.isLinux()){
+                                        fs.chmodSync(configFile, '777');
+                                    }
                                     File.write(configFile, content);
 
                                     let prodConfigFile = resolve(dir, 'webpack.config.prod.js');
                                     File.create(prodConfigFile);
-                                    // fs.chmodSync(prodConfigFile, '777');
+                                    if(Skyflow.isLinux()){
+                                        fs.chmodSync(prodConfigFile, '777');
+                                    }
                                     File.write(prodConfigFile, prodContent);
 
                                     CurrentPackage['scripts'][devScriptName] = "./node_modules/.bin/webpack" +
@@ -178,6 +179,8 @@ class WebpackCommand {
                                         " --config=webpack/webpack.config.dev.js --watch";
 
                                     File.createJson(resolve(process.cwd(), 'package.json'), CurrentPackage);
+
+                                    installDependencies();
 
                                     Output.newLine();
 
