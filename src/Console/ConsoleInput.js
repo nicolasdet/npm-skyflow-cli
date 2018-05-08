@@ -29,13 +29,18 @@ function resolveQuestion(question, options) {
     question['message'] = (options['message'] === undefined) ? '' : options['message'];
 
     const validator = options['validator'];
-    if (Helper.getType(validator) === 'Validator') {
+    const validatorType = Helper.getType(validator);
+    if (validatorType === 'Validator') {
         question['validate'] = value => {
             if (validator.isValid(value)) {
                 return true
             }
             return validator.getErrorMessage()
         };
+    }
+
+    if (validatorType === 'Function') {
+        question['validate'] = validator;
     }
 
     return question

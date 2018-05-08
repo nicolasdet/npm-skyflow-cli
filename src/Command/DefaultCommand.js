@@ -25,13 +25,13 @@ class DefaultCommand {
             require(resolve(__dirname, '..', '..', 'resources', 'defaultCommands'))
         ];
 
-        if(command){
-            if(commands[0].hasOwnProperty(command)){
+        if (command) {
+            if (commands[0].hasOwnProperty(command)) {
                 let c = [{}, {}];
                 c[0][command] = commands[0][command];
                 commands = c;
             }
-            if(commands[1].hasOwnProperty(command)){
+            if (commands[1].hasOwnProperty(command)) {
                 let c = [{}, {}];
                 c[0][command] = commands[1][command];
                 commands = c;
@@ -50,7 +50,7 @@ class DefaultCommand {
             .writeln('-'.repeat(100), 'magenta', null, 'bold')
             .newLine();
 
-        if(!command){
+        if (!command) {
             // Help
             Skyflow.Output.writeln('-h | --help', 'green', null, 'bold')
                 .writeln('Display help for skyflow CLI')
@@ -96,16 +96,45 @@ class DefaultCommand {
 
     init(options) {
 
-        if(Skyflow.File.exists(Skyflow.CONFIG_FILE_NAME)){
+        if (Skyflow.File.exists(Skyflow.CONFIG_FILE_NAME)) {
             Skyflow.Output.info(Skyflow.CONFIG_FILE_NAME + ' file already exists.');
-            return Skyflow
+            process.exit(1);
         }
 
         let s = resolve(__dirname, '..', '..', 'resources', Skyflow.CONFIG_FILE_NAME);
         let dest = resolve(process.cwd(), Skyflow.CONFIG_FILE_NAME);
-        fs.createReadStream(s).pipe(fs.createWriteStream(dest)); fs.chmodSync(dest, '777');
+        fs.createReadStream(s).pipe(fs.createWriteStream(dest));
+        fs.chmodSync(dest, '777');
         Skyflow.Output.success(Skyflow.CONFIG_FILE_NAME + ' was successfully created.');
-        return Skyflow
+        process.exit(0);
+    }
+
+    install(options) {
+
+        let moduleName = Object.keys(Skyflow.Request.getCommands())[1];
+
+        if (!moduleName) {
+            Skyflow.Output.error('Can not install empty module.');
+            process.exit(1);
+        }
+
+        moduleName = Skyflow.Helper.upperFirst(moduleName);
+        let modulePath = resolve(__dirname, moduleName + 'Command.js');
+
+        if (!Skyflow.File.exists(modulePath)) {
+            Skyflow.Output.error('Module \'' + moduleName + '\' not found.');
+            process.exit(1);
+        }
+
+        let module = require(modulePath);
+
+        if(!Skyflow.Helper.isFunction(module['install'])){
+            Skyflow.Output.error('Install method not found in \'' + moduleName + '\' module.');
+            process.exit(1);
+        }
+
+        module['install'].apply(null, [options]);
+
     }
 
 }

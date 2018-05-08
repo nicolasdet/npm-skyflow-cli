@@ -1,0 +1,75 @@
+const path = require('path'), resolve = path.resolve,
+    CleanWebpackPlugin = require('clean-webpack-plugin'),
+    ExtractTextPlugin = require("extract-text-webpack-plugin");
+// const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+module.exports = {
+    node:{
+       fs: 'empty'
+    },
+    devtool: "source-map",
+    entry: {
+        main: resolve(__dirname, '..', '{{entry-point}}')
+    },
+    output: {
+        filename: resolve(__dirname, '..', '{{js-output}}'),
+        path: resolve(__dirname, '..', '{{output-dir}}')
+    },
+    module: {
+        rules: [
+            {
+                test: /\.jsx?$/,
+                exclude: /node_modules/,
+                use: [
+                    {
+                        loader: 'babel-loader',
+                        options: {
+                            presets: ['@babel/preset-env', '@babel/react'],
+                            sourceMap: true
+                        }
+                    }
+                ]
+            },
+            {
+                test: /\.s?css$/,
+                use: ExtractTextPlugin.extract({
+                    fallback: "style-loader",
+                    use: [
+                        {
+                            loader: 'css-loader',
+                            options: {
+                                sourceMap: true
+                            }
+                        },
+                        {
+                            loader: 'sass-loader',
+                            options: {
+                                sourceMap: true
+                            }
+                        }
+                    ]
+                })
+            },
+            {
+                test: /\.(png|gif|jpg|jpeg|woff|woff2|eot|ttf|otf)$/i,
+                use: [
+                    {
+                        loader: 'file-loader',
+                        options: {
+                            name: '[path][hash].[ext]',
+                        }
+                    }
+                ]
+            },
+        ]
+    },
+    plugins: [
+        new CleanWebpackPlugin([resolve(__dirname, '..', '{{output-dir}}')]),
+        // new HtmlWebpackPlugin({
+        //     template: path.resolve(__dirname, 'src', 'index.html')
+        // }),
+        new ExtractTextPlugin({
+            filename: resolve(__dirname, '..', '{{style-output}}')
+        })
+    ]
+};

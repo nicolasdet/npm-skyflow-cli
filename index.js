@@ -11,6 +11,11 @@ Skyflow.Style = require(resolve(__dirname, 'src', 'Console', 'ConsoleStyle'));
 Skyflow.Input = require(resolve(__dirname, 'src', 'Console', 'ConsoleInput'));
 Skyflow.Output = require(resolve(__dirname, 'src', 'Console', 'ConsoleOutput'));
 Skyflow.Request = require(resolve(__dirname, 'src', 'Console', 'ConsoleRequest'));
+try {
+    Skyflow.CurrentPackage = require(resolve(process.cwd(), 'package.json'));
+}catch (e){
+    Skyflow.CurrentPackage = {};
+}
 Skyflow.Package = require('./package.json');
 Skyflow.React = {
     containerSample(){

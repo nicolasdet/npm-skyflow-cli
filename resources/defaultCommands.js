@@ -13,4 +13,10 @@ module.exports = {
         callback: require(resolve(__dirname, '..','src','Command', 'DefaultCommand')).init
     },
 
+    install: {
+        description: "Install modules or plugins.",
+        since: '1.0.0',
+        callback: require(resolve(__dirname, '..','src','Command', 'DefaultCommand')).install
+    },
+
 };

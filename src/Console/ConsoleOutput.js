@@ -1,4 +1,6 @@
-const resolve = require('path').resolve, Style = require(resolve(__dirname, 'ConsoleStyle'));
+const resolve = require('path').resolve,
+    Style = require(resolve(__dirname, 'ConsoleStyle')),
+    Progress = require('cli-progress');
 
 class ConsoleOutput {
 
@@ -72,20 +74,35 @@ class ConsoleOutput {
         return this;
     }
 
-    error(message) {
-        return this.write('Skyflow error: ', 'red', null, 'bold').writeln(message, 'red');
+    error(message, title = true) {
+        return this.write(title ? 'Skyflow error: ' : '', 'red', null, 'bold').writeln(message, 'red');
     }
 
-    success(message) {
-        return this.write('✓ ', 'green', null, 'bold').writeln(message, 'green');
+    success(message, title = true) {
+        return this.write(title ? '✓ ' : '', 'green', null, 'bold').writeln(message, 'green');
     }
 
-    info(message) {
-        return this.write('Skyflow info: ', 'blue', null, 'bold').writeln(message, 'blue');
+    info(message, title = true) {
+        return this.write(title ? 'Skyflow info: ' : '', 'blue', null, 'bold').writeln(message, 'blue');
     }
 
-    warning(message) {
-        return this.write('Skyflow warning: ', 'yellow', null, 'bold').writeln(message, 'yellow');
+    warning(message, title = true) {
+        return this.write(title ? 'Skyflow warning: ' : '', 'yellow', null, 'bold').writeln(message, 'yellow');
+    }
+
+    /**
+     * Start new progress bar.
+     * @param totalValue
+     * @param startValue
+     * @link https://www.npmjs.com/package/cli-progress
+     */
+    progress(totalValue, startValue = 0) {
+        let P = new Progress.Bar({
+            format: '{bar} {percentage}% | {eta}s | {value}/{total}',
+            stream: process.stdout
+        }, Progress.Presets.shades_classic);
+        P.start(totalValue, startValue);
+        return P;
     }
 
 }
