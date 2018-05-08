@@ -8,7 +8,7 @@ module.exports = {
         fs: 'empty'
     },
     entry: {
-        main: './{{entry-point}}'
+        main: './webpack/webpack.bootstrap.js'
     },
     output: {
         filename: '{{js-output}}',

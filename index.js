@@ -24,9 +24,12 @@ Skyflow.React = {
     }
 };
 
-if(Skyflow.File.exists(resolve(process.cwd(), Skyflow.CONFIG_FILE_NAME))){
-    Skyflow.CONF = require(resolve(process.cwd(), Skyflow.CONFIG_FILE_NAME));
+const configFile = resolve(process.cwd(), Skyflow.CONFIG_FILE_NAME);
+
+if(!Skyflow.File.exists(configFile)){
+    File.copy(resolve(__dirname, 'resources', Skyflow.CONFIG_FILE_NAME), configFile);
 }
+Skyflow.CONF = require(configFile);
 
 const DefaultCommand = require(resolve(__dirname, 'src', 'Command', 'DefaultCommand'));
 

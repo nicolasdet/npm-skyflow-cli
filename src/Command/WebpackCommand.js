@@ -101,104 +101,99 @@ class WebpackCommand {
             prodContent = File.read(resolve(__dirname, '..', '..', 'resources', 'webpack', 'webpack.config.prod'));
 
         askInfo({
-            message: 'Entry point',
-            default: 'index.js',
+            message: 'Output directory',
+            default: 'dist',
         }, (answer) => {
 
-            content = content.replace('{{entry-point}}', answer.response);
-            prodContent = prodContent.replace('{{entry-point}}', answer.response);
+            content = content.replace('{{output-dir}}', answer.response);
+            prodContent = prodContent.replace('{{output-dir}}', answer.response);
+
+            content = content.replace('{{output-dir}}', answer.response);
+            prodContent = prodContent.replace('{{output-dir}}', answer.response);
 
             askInfo({
-                message: 'Output directory',
-                default: 'dist',
+                message: 'JavaScript output file name',
+                default: 'app.js',
             }, (answer) => {
 
-                content = content.replace('{{output-dir}}', answer.response);
-                prodContent = prodContent.replace('{{output-dir}}', answer.response);
-
-                content = content.replace('{{output-dir}}', answer.response);
-                prodContent = prodContent.replace('{{output-dir}}', answer.response);
+                content = content.replace('{{js-output}}', answer.response);
+                prodContent = prodContent.replace('{{js-output}}', answer.response);
 
                 askInfo({
-                    message: 'JavaScript output file name',
-                    default: 'app.js',
+                    message: 'Style output file name',
+                    default: 'app.css',
                 }, (answer) => {
 
-                    content = content.replace('{{js-output}}', answer.response);
-                    prodContent = prodContent.replace('{{js-output}}', answer.response);
+                    content = content.replace('{{style-output}}', answer.response);
+                    prodContent = prodContent.replace('{{style-output}}', answer.response);
 
-                    askInfo({
-                        message: 'Style output file name',
-                        default: 'app.css',
-                    }, (answer) => {
-
-                        content = content.replace('{{style-output}}', answer.response);
-                        prodContent = prodContent.replace('{{style-output}}', answer.response);
+                    askScriptName({
+                        message: 'Development script name',
+                        default: 'dev',
+                    }, (answer)=>{
+                        devScriptName = answer.response;
 
                         askScriptName({
-                            message: 'Development script name',
-                            default: 'dev',
+                            message: 'Production script name',
+                            default: 'build',
                         }, (answer)=>{
-                            devScriptName = answer.response;
+                            prodScriptName = answer.response;
 
                             askScriptName({
-                                message: 'Production script name',
-                                default: 'build',
+                                message: 'Watch script name',
+                                default: 'watch',
                             }, (answer)=>{
-                                prodScriptName = answer.response;
+                                watchScriptName = answer.response;
 
-                                askScriptName({
-                                    message: 'Watch script name',
-                                    default: 'watch',
-                                }, (answer)=>{
-                                    watchScriptName = answer.response;
+                                let dir = resolve(process.cwd(), 'webpack');
 
-                                    let dir = resolve(process.cwd(), 'webpack');
+                                if (!Directory.exists(dir)) {Directory.create(dir)}
 
-                                    if (!Directory.exists(dir)) {Directory.create(dir)}
+                                // Create webpack/webpack.bootstrap.js file
+                                File.copy(resolve(__dirname, '..', '..', 'resources', 'webpack', 'webpack.bootstrap'), resolve(dir, 'webpack.bootstrap.js'));
 
-                                    let configFile = resolve(dir, 'webpack.config.dev.js');
-                                    File.create(configFile);
-                                    if(Skyflow.isLinux()){
-                                        fs.chmodSync(configFile, '777');
-                                    }
-                                    File.write(configFile, content);
+                                // Create webpack/webpack.config.dev.js file
+                                let configFile = resolve(dir, 'webpack.config.dev.js');
+                                File.create(configFile);
+                                if(Skyflow.isLinux()){
+                                    fs.chmodSync(configFile, '777');
+                                }
+                                File.write(configFile, content);
 
-                                    let prodConfigFile = resolve(dir, 'webpack.config.prod.js');
-                                    File.create(prodConfigFile);
-                                    if(Skyflow.isLinux()){
-                                        fs.chmodSync(prodConfigFile, '777');
-                                    }
-                                    File.write(prodConfigFile, prodContent);
+                                // Create webpack/webpack.config.prod.js file
+                                let prodConfigFile = resolve(dir, 'webpack.config.prod.js');
+                                File.create(prodConfigFile);
+                                if(Skyflow.isLinux()){
+                                    fs.chmodSync(prodConfigFile, '777');
+                                }
+                                File.write(prodConfigFile, prodContent);
 
-                                    CurrentPackage['scripts'][devScriptName] = "./node_modules/.bin/webpack" +
-                                        " --mode=development --config=webpack/webpack.config.dev.js";
-                                    CurrentPackage['scripts'][prodScriptName] = "./node_modules/.bin/webpack" +
-                                        " --mode=production --config=webpack/webpack.config.prod.js";
-                                    CurrentPackage['scripts'][watchScriptName] = "./node_modules/.bin/webpack --mode=development" +
-                                        " --config=webpack/webpack.config.dev.js --watch";
+                                CurrentPackage['scripts'][devScriptName] = "./node_modules/.bin/webpack" +
+                                    " --mode=development --config=webpack/webpack.config.dev.js";
+                                CurrentPackage['scripts'][prodScriptName] = "./node_modules/.bin/webpack" +
+                                    " --mode=production --config=webpack/webpack.config.prod.js";
+                                CurrentPackage['scripts'][watchScriptName] = "./node_modules/.bin/webpack --mode=development" +
+                                    " --config=webpack/webpack.config.dev.js --watch";
 
-                                    File.createJson(resolve(process.cwd(), 'package.json'), CurrentPackage);
+                                File.createJson(resolve(process.cwd(), 'package.json'), CurrentPackage);
 
-                                    installDependencies();
+                                installDependencies();
 
-                                    Output.newLine();
+                                Output.newLine();
 
-                                    Output.success('Success !', false);
+                                Output.success('Success !', false);
 
-                                    Output.newLine();
-                                    Output.write('npm run ' + devScriptName);
-                                    Output.success(' ✓', false);
+                                Output.newLine();
+                                Output.write('npm run ' + devScriptName);
+                                Output.success(' ✓', false);
 
-                                    // Output.newLine();
-                                    Output.write('npm run ' + prodScriptName);
-                                    Output.success(' ✓', false);
+                                // Output.newLine();
+                                Output.write('npm run ' + prodScriptName);
+                                Output.success(' ✓', false);
 
-                                    // Output.newLine();
-                                    Output.write('npm run ' + watchScriptName);
-                                    Output.success(' ✓', false);
-
-                                });
+                                // Output.newLine();
+                                Output.write('npm run ' + watchScriptName);
+                                Output.success(' ✓', false);
 
                             });
 

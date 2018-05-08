@@ -9,7 +9,7 @@ module.exports = {
     },
     devtool: "source-map",
     entry: {
-        main: './{{entry-point}}'
+        main: './webpack/webpack.bootstrap.js'
     },
     output: {
         filename: '{{js-output}}',
