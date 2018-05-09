@@ -152,7 +152,7 @@ function installWebpack() {
                             // Create webpack/webpack.config.dev.js file
                             let configFile = resolve(dir, 'webpack.config.dev.js');
                             File.create(configFile);
-                            if(Skyflow.isLinux()){
+                            if(Skyflow.isLinux() || Skyflow.isMac()){
                                 fs.chmodSync(configFile, '777');
                             }
                             File.write(configFile, content);
@@ -160,7 +160,7 @@ function installWebpack() {
                             // Create webpack/webpack.config.prod.js file
                             let prodConfigFile = resolve(dir, 'webpack.config.prod.js');
                             File.create(prodConfigFile);
-                            if(Skyflow.isLinux()){
+                            if(Skyflow.isLinux() || Skyflow.isMac()){
                                 fs.chmodSync(prodConfigFile, '777');
                             }
                             File.write(prodConfigFile, prodContent);

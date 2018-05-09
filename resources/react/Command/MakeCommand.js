@@ -39,7 +39,7 @@ class MakeCommand {
 
                 let filename = resolve(dirname, name + type + '.js');
                 File.create(filename);
-                if (Skyflow.isLinux()) {
+                if (Skyflow.isLinux() || Skyflow.isMac()) {
                     fs.chmodSync(filename, '777');
                 }
                 File.write(filename, sample);
@@ -49,7 +49,7 @@ class MakeCommand {
                 let styleContent = "#" + (name.toLowerCase()) + "-" + lType + " {\n\n}";
                 filename = resolve(dirname, name + type + styleExtension);
                 File.create(filename);
-                if (Skyflow.isLinux()) {
+                if (Skyflow.isLinux() || Skyflow.isMac()) {
                     fs.chmodSync(filename, '777');
                 }
                 File.write(filename, styleContent);
@@ -86,7 +86,7 @@ class MakeCommand {
                 Directory.create(resolve(styleDir, dirname));
 
                 File.create(filename, '');
-                if (Skyflow.isLinux()) {
+                if (Skyflow.isLinux() || Skyflow.isMac()) {
                     fs.chmodSync(filename, '777');
                 }
                 Output.write(response);
