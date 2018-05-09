@@ -113,6 +113,8 @@ class DefaultCommand {
 
     install(options) {
 
+        // Todo: --list
+
         let moduleName = Object.keys(Skyflow.Request.getCommands())[1];
 
         if (!moduleName) {
