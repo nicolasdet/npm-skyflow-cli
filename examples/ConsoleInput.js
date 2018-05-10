@@ -13,6 +13,21 @@ Input.input(
     }
 );
 
+Input.input(
+    {
+        message: object.message,
+        default: object.default,
+        validator: (response)=>{
+            if(!/^[a-z][a-z0-9]*\-?[a-z0-9]+$/i.test(response)){
+                return "Invalid name."
+            }
+            return true
+        }
+    }, answer => {
+        console.log(answer);
+    }
+);
+
 // Choices
 Input.choices(
     {

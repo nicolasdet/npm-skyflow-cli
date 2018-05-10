@@ -6,9 +6,9 @@ module.exports = {
 
     init: {
         description: "Generate skyflow configuration file",
-        options: {
-            '-y': 'Generate without interactive',
-        },
+        // options: {
+        //     '-y': 'Generate without interactive',
+        // },
         since: '1.0.0',
         callback: require(resolve(__dirname, '..','src','Command', 'DefaultCommand')).init
     },

@@ -6,7 +6,12 @@ const File = Skyflow.File,
     Directory = Skyflow.Directory,
     Output = Skyflow.Output;
 
-class ReactCommand {
+class ReactModule {
+
+    getDescription() {
+        return 'Powerful module to develop with React. No configuration is required.' + require('os').EOL +
+            'Generate containers, components and styles.'
+    }
 
     install(options) {
 
@@ -21,4 +26,4 @@ class ReactCommand {
 
 }
 
-module.exports = new ReactCommand();
+module.exports = new ReactModule();
