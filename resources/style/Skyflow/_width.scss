@@ -1,0 +1,36 @@
+@import "../variables";
+
+@for $i from 1 through 100 {
+    ._w-#{$i} {
+        width: unquote("#{$i}%");
+    }
+}
+
+
+// Responsive
+
+$count: length($breakpoints);
+
+@for $i from 1 through $count {
+
+    @if $i % 2 != 0 {
+
+        $breakpoint: nth($breakpoints, $i);
+        $breakpoint-value: nth($breakpoints, $i + 1);
+
+        @media screen and (min-width: #{$breakpoint-value}) {
+
+            @for $i from 1 through 100 {
+                ._#{$breakpoint}-w-#{$i} {
+                    width: unquote("#{$i}%");
+                }
+            }
+
+        }
+
+    }
+
+}
+
+
+

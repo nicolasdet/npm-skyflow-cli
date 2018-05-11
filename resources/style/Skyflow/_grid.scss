@@ -1,0 +1,179 @@
+@import "../variables";
+
+._container {
+
+    width: 100%;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-start;
+
+    // Wrap
+    &._wrap {
+        flex-flow: row wrap
+    }
+    &._no-wrap {
+        flex-flow: row nowrap
+    }
+
+    // Vertical align (children)
+    &._align-top {
+        align-items: flex-start
+    }
+    &._align-center {
+        align-items: center
+    }
+    &._align-bottom {
+        align-items: flex-end
+    }
+
+    // Horizontal align (children)
+    &._pull-left {
+        justify-content: flex-start
+    }
+    &._pull-center {
+        justify-content: center
+    }
+    &._pull-right {
+        justify-content: flex-end
+    }
+
+    // Collapses
+    &._space-between {
+        justify-content: space-between
+    }
+    &._space-around {
+        justify-content: space-around
+    }
+
+    // Vertical box align (align this box)
+    > ._box {
+        &._align-top {
+            align-self: flex-start;
+        }
+        &._align-center {
+            align-self: center;
+        }
+        &._align-bottom {
+            align-self: flex-end;
+        }
+    }
+
+    // Box order
+    @for $i from 1 to ($max-boxes + 1) {
+        > ._box._order-#{$i} {
+            order: $i;
+        }
+    }
+
+}
+
+// Box with same width
+@for $i from 1 to ($max-boxes + 1) {
+    ._container-#{$i} > ._box {
+        width: 100% / $i;
+    }
+}
+
+// Box with different width
+@for $j from 1 through 100 {
+    ._container > ._box-#{$j} {
+        width: unquote("#{$j}%");
+    }
+}
+
+
+
+// Responsive
+$count: length($breakpoints);
+@for $i from 1 through $count {
+
+    @if $i % 2 != 0 {
+
+        $breakpoint: nth($breakpoints, $i);
+        $breakpoint-value: nth($breakpoints, $i + 1);
+        @media screen and (min-width: #{$breakpoint-value}) {
+
+            ._container {
+
+                // Wrap
+                &._#{$breakpoint}-wrap {
+                    flex-flow: row wrap
+                }
+                &._#{$breakpoint}-no-wrap {
+                    flex-flow: row nowrap
+                }
+
+                // Vertical align (children)
+                &._#{$breakpoint}-align-top {
+                    align-items: flex-start
+                }
+                &._#{$breakpoint}-align-center {
+                    align-items: center
+                }
+                &._#{$breakpoint}-align-bottom {
+                    align-items: flex-end
+                }
+
+                // Horizontal align (children)
+                &._#{$breakpoint}-pull-left {
+                    justify-content: flex-start
+                }
+                &._#{$breakpoint}-pull-center {
+                    justify-content: center
+                }
+                &._#{$breakpoint}-pull-right {
+                    justify-content: flex-end
+                }
+
+                // Collapses
+                &._#{$breakpoint}-space-between {
+                    justify-content: space-between
+                }
+                &._#{$breakpoint}-space-around {
+                    justify-content: space-around
+                }
+
+                //
+                > ._box {
+                    &._#{$breakpoint}-align-top {
+                        align-self: flex-start;
+                    }
+                    &._#{$breakpoint}-align-center {
+                        align-self: center;
+                    }
+                    &._#{$breakpoint}-align-bottom {
+                        align-self: flex-end;
+                    }
+                }
+
+                // Box order
+                @for $i from 1 to ($max-boxes + 1) {
+                    > ._box._#{$breakpoint}-order-#{$i} {
+                        order: $i;
+                    }
+                }
+
+            }
+
+            // Box with same width
+            @for $i from 1 to ($max-boxes + 1) {
+                ._#{$breakpoint}-container-#{$i} > ._box {
+                    width: 100% / $i;
+                }
+            }
+
+            // Box with different width
+            @for $j from 1 through 100 {
+                ._container > ._#{$breakpoint}-box-#{$j} {
+                    width: unquote("#{$j}%");
+                }
+            }
+
+        }
+
+    }
+
+}
+
+
+

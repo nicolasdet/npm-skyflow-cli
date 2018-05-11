@@ -139,8 +139,6 @@ class DefaultCommand {
             process.exit(0);
         }
 
-        process.exit(1);
-
         let moduleName = Object.keys(Skyflow.Request.getCommands())[1];
 
         if (!moduleName) {
@@ -149,7 +147,7 @@ class DefaultCommand {
         }
 
         moduleName = Helper.upperFirst(moduleName);
-        let modulePath = resolve(__dirname, '..', 'Module', moduleName + 'Command.js');
+        let modulePath = resolve(__dirname, '..', 'Module', moduleName + 'Module.js');
 
         if (!File.exists(modulePath)) {
             Output.error('Module \'' + moduleName + '\' not found.');
