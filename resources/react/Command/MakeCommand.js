@@ -31,22 +31,35 @@ class MakeCommand {
                 let styleExtension = '.' + Skyflow.getConfig("app.style.extension");
 
                 let sample = Skyflow.React.sample();
-                sample = sample.replace(/{{import}}/g, name + type + styleExtension);
+                sample = sample.replace(/{{importStyle}}/g, name + type + styleExtension);
                 sample = sample.replace(/{{name}}/g, name + type);
                 sample = sample.replace('{{id}}', name.toLowerCase() + '-' + lType);
 
                 Directory.create(dirname);
 
+                // Create container or component class
                 let filename = resolve(dirname, name + type + '.js');
                 File.create(filename);
                 if (Skyflow.isInux()) {
                     fs.chmodSync(filename, '777');
                 }
                 File.write(filename, sample);
-                Output.write(name + path.sep + name + type + ".js");
-                Output.success(" created", false);
+                Output.write(name + path.sep + name + type + '.js');
+                Output.success(' created', false);
 
-                let styleContent = "#" + (name.toLowerCase()) + "-" + lType + " {\n\n}";
+                // Create event class
+                filename = resolve(dirname, name + type + 'Event.js');
+                File.create(filename);
+                if (Skyflow.isInux()) {
+                    fs.chmodSync(filename, '777');
+                }
+                let eventContent = 'class ' + name + type + "Event {\n\n}\n\n" +
+                    "export default (new " + name + type + "Event());";
+                File.write(filename, eventContent);
+                Output.write(name + path.sep + name + type + 'Event.js');
+                Output.success(' created', false);
+
+                let styleContent = '#' + (name.toLowerCase()) + '-' + lType + " {\n\n}";
                 filename = resolve(dirname, name + type + styleExtension);
                 File.create(filename);
                 if (Skyflow.isInux()) {

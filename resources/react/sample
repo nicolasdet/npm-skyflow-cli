@@ -1,6 +1,7 @@
 import React from 'react';
 // import ReactDOM from 'react-dom';
-import './{{import}}';
+import Event from './{{name}}Event';
+import './{{importStyle}}';
 
 class {{name}} extends React.Component {
 
@@ -9,8 +10,6 @@ class {{name}} extends React.Component {
         this.state = {
             // Your states go here
         };
-        // This binding is necessary to make `this` work in the callback
-        this.handleEvent = this.handleEvent.bind(this);
     }
 
     componentDidMount() {
@@ -19,14 +18,6 @@ class {{name}} extends React.Component {
 
     componentWillUnmount() {
         // Runs after the component output has been removed from the DOM
-    }
-
-    handleEvent() {
-        this.setState((prevState, props)=>{
-            return {
-                // Return states you want to update
-            }
-        });
     }
 
     render() {

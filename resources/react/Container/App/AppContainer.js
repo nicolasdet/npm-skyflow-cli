@@ -1,12 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import Event from './AppContainerEvent';
 import './AppContainer.scss';
 
 class AppContainer extends React.Component {
 
     render(){
         return (
-            <div id="app-container">
+            <div>
                 <h1>React skeleton is ready !</h1>
             </div>
         )
@@ -15,5 +16,5 @@ class AppContainer extends React.Component {
 
 ReactDOM.render(
     <AppContainer/>,
-    document.querySelector('body')
+    document.querySelector('#app-container')
 );
