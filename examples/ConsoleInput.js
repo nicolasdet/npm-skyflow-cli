@@ -13,10 +13,11 @@ Input.input(
     }
 );
 
+// Ask with callback as validator
 Input.input(
     {
-        message: object.message,
-        default: object.default,
+        message: 'Enter name',
+        default: 'foo',
         validator: (response)=>{
             if(!/^[a-z][a-z0-9]*\-?[a-z0-9]+$/i.test(response)){
                 return "Invalid name."
@@ -27,6 +28,25 @@ Input.input(
         console.log(answer);
     }
 );
+
+// Multiple ask
+const questions = [
+    {
+        type: 'input', // Available values : input (default) checkbox list confirm password
+        name: 'tvShow',
+        message: "What's your favorite TV show?"
+    },
+    {
+        type: 'confirm', // Available values : input (default) checkbox list confirm password
+        name: 'askAgain',
+        default: true,
+        message: 'Want to enter another TV show favorite (just hit enter for YES)?'
+    }
+];
+
+Skyflow.Input.input(questions, (answers)=>{
+    console.log(answers);
+});
 
 // Choices
 Input.choices(

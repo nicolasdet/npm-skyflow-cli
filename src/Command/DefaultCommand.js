@@ -133,7 +133,6 @@ class DefaultCommand {
                 if (Helper.isFunction(module['getDescription'])) {
                     Output.writeln(module.getDescription(), 'gray')
                 }
-                // Output.newLine()
             });
 
             process.exit(0);

@@ -28,8 +28,8 @@ function resolveQuestion(question, options) {
     }
     question['message'] = (options['message'] === undefined) ? '' : options['message'];
 
-    const validator = options['validator'];
-    const validatorType = Helper.getType(validator);
+    const validator = options['validator'],
+        validatorType = Helper.getType(validator);
     if (validatorType === 'Validator') {
         question['validate'] = value => {
             if (validator.isValid(value)) {
@@ -53,16 +53,22 @@ class ConsoleInput {
 
     /**
      * Input values
-     * @param {Object|String} options Configuration object: {message: '...', default: '...', validator: new Validator()}
+     * @param {Object|String|Array} options
      * @param {Function} callback
      * @returns {ConsoleInput}
      */
     input(options, callback) {
 
-        options = resolveOptions(options);
-        let question = {type: 'input', name: 'response'};
-        question = resolveQuestion(question, options);
-        inquirer.prompt([question]).then(callback);
+        if(!Helper.isArray(options)){options = [options]}
+
+        options = options.map((option)=>{
+            option = resolveOptions(option);
+            let question = {type: (option.type ? option.type : 'input'), name: (option.name ? option.name : 'response')};
+            question = resolveQuestion(question, option);
+            return question;
+        });
+
+        inquirer.prompt(options).then(callback);
 
         return this
     }
