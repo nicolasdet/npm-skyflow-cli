@@ -10,37 +10,8 @@ const fs = require('fs'),
     Validator = Skyflow.Validator;
 let CurrentPackage = Skyflow.CurrentPackage;
 
-function askInfo(object, callback) {
-
-    Input.input(
-        {
-            message: object.message,
-            default: object.default,
-            validator: new Validator(/[\w]+/, 'This value is required.')
-        }, callback
-    );
-
-}
-
-function askScriptName(object, callback) {
-
-    Input.input(
-        {
-            message: object.message,
-            default: object.default,
-            validator: (response)=>{
-                if(!/^[a-z][a-z0-9]*\-?[a-z0-9]+$/i.test(response)){
-                    return "Invalid script name."
-                }
-                if(CurrentPackage['scripts'][response]){
-                    return "Script name already exists."
-                }
-                return true
-            }
-        }, callback
-    );
-
-}
+let InputValidator = new Validator(/[\w]+/, 'This value is required.');
+let ScriptValidator = new Validator(/^[a-z][a-z0-9]*\-?[a-z0-9]+$/i, 'Invalid script name.');
 
 function installDependencies() {
 
@@ -89,119 +60,148 @@ function installWebpack() {
 
     let devScriptName = null,
         prodScriptName = null,
-        watchScriptName = null;
-
-    let content = File.read(resolve(__dirname, '..', '..', 'resources', 'webpack', 'webpack.config.dev')),
+        watchScriptName = null,
+        content = File.read(resolve(__dirname, '..', '..', 'resources', 'webpack', 'webpack.config.dev')),
         prodContent = File.read(resolve(__dirname, '..', '..', 'resources', 'webpack', 'webpack.config.prod'));
 
-    askInfo({
-        message: 'Output directory',
-        default: 'dist',
-    }, (answer) => {
-
-        content = content.replace('{{output-dir}}', answer.response);
-        prodContent = prodContent.replace('{{output-dir}}', answer.response);
-
-        content = content.replace('{{output-dir}}', answer.response);
-        prodContent = prodContent.replace('{{output-dir}}', answer.response);
-
-        askInfo({
+    const questions = [
+        {
+            message: 'Output directory',
+            default: 'dist',
+            validator: (response)=>{
+                if (!InputValidator.isValid(response)) {
+                    return InputValidator.getErrorMessage()
+                }
+                content = content.replace('{{output-dir}}', response);
+                prodContent = prodContent.replace('{{output-dir}}', response);
+                content = content.replace('{{output-dir}}', response);
+                prodContent = prodContent.replace('{{output-dir}}', response);
+                return true
+            }
+        },
+        {
             message: 'JavaScript output file name',
             default: 'app.js',
-        }, (answer) => {
+            validator: (response)=>{
+                if (!InputValidator.isValid(response)) {
+                    return InputValidator.getErrorMessage()
+                }
+                content = content.replace('{{js-output}}', response);
+                prodContent = prodContent.replace('{{js-output}}', response);
+                return true
+            }
+        },
+        {
+            message: 'Style output file name',
+            default: 'app.css',
+            validator: (response)=>{
+                if (!InputValidator.isValid(response)) {
+                    return InputValidator.getErrorMessage()
+                }
+                content = content.replace('{{style-output}}', response);
+                prodContent = prodContent.replace('{{style-output}}', response);
+                return true
+            }
+        },
+        {
+            message: 'Development script name',
+            default: 'dev',
+            validator: (response)=>{
+                if (!ScriptValidator.isValid(response)) {
+                    return InputValidator.getErrorMessage()
+                }
+                if(CurrentPackage['scripts'][response]){
+                    return "Script name already exists."
+                }
+                devScriptName = response;
+                return true
+            }
+        },
+        {
+            message: 'Production script name',
+            default: 'build',
+            validator: (response)=>{
+                if (!ScriptValidator.isValid(response)) {
+                    return InputValidator.getErrorMessage()
+                }
+                if(CurrentPackage['scripts'][response]){
+                    return "Script name already exists."
+                }
+                prodScriptName = response;
+                return true
+            }
+        },
+        {
+            message: 'Watch script name',
+            default: 'watch',
+            validator: (response)=>{
+                if (!ScriptValidator.isValid(response)) {
+                    return InputValidator.getErrorMessage()
+                }
+                if(CurrentPackage['scripts'][response]){
+                    return "Script name already exists."
+                }
+                watchScriptName = response;
+                return true
+            }
+        },
+    ];
 
-            content = content.replace('{{js-output}}', answer.response);
-            prodContent = prodContent.replace('{{js-output}}', answer.response);
+    Input.input(questions, ()=>{
 
-            askInfo({
-                message: 'Style output file name',
-                default: 'app.css',
-            }, (answer) => {
+        let dir = resolve(process.cwd(), 'webpack');
 
-                content = content.replace('{{style-output}}', answer.response);
-                prodContent = prodContent.replace('{{style-output}}', answer.response);
+        if (!Directory.exists(dir)) {Directory.create(dir)}
 
-                askScriptName({
-                    message: 'Development script name',
-                    default: 'dev',
-                }, (answer)=>{
-                    devScriptName = answer.response;
+        // Create webpack/webpack.bootstrap.js file
+        if(!File.exists(resolve(dir, 'webpack.bootstrap.js'))){
+            File.copy(resolve(__dirname, '..', '..', 'resources', 'webpack', 'webpack.bootstrap'), resolve(dir, 'webpack.bootstrap.js'));
+        }
 
-                    askScriptName({
-                        message: 'Production script name',
-                        default: 'build',
-                    }, (answer)=>{
-                        prodScriptName = answer.response;
+        // Create webpack/webpack.config.dev.js file
+        let configFile = resolve(dir, 'webpack.config.dev.js');
+        File.create(configFile);
+        if(Skyflow.isInux()){
+            fs.chmodSync(configFile, '777');
+        }
+        File.write(configFile, content);
 
-                        askScriptName({
-                            message: 'Watch script name',
-                            default: 'watch',
-                        }, (answer)=>{
-                            watchScriptName = answer.response;
+        // Create webpack/webpack.config.prod.js file
+        let prodConfigFile = resolve(dir, 'webpack.config.prod.js');
+        File.create(prodConfigFile);
+        if(Skyflow.isInux()){
+            fs.chmodSync(prodConfigFile, '777');
+        }
+        File.write(prodConfigFile, prodContent);
 
-                            let dir = resolve(process.cwd(), 'webpack');
+        CurrentPackage['scripts'][devScriptName] = "./node_modules/.bin/webpack" +
+            " --mode=development --config=webpack/webpack.config.dev.js";
+        CurrentPackage['scripts'][prodScriptName] = "./node_modules/.bin/webpack" +
+            " --mode=production --config=webpack/webpack.config.prod.js";
+        CurrentPackage['scripts'][watchScriptName] = "./node_modules/.bin/webpack --mode=development" +
+            " --config=webpack/webpack.config.dev.js --watch";
 
-                            if (!Directory.exists(dir)) {Directory.create(dir)}
+        File.createJson(resolve(process.cwd(), 'package.json'), CurrentPackage);
 
-                            // Create webpack/webpack.bootstrap.js file
-                            if(!File.exists(resolve(dir, 'webpack.bootstrap.js'))){
-                                File.copy(resolve(__dirname, '..', '..', 'resources', 'webpack', 'webpack.bootstrap'), resolve(dir, 'webpack.bootstrap.js'));
-                            }
+        installDependencies();
 
-                            // Create webpack/webpack.config.dev.js file
-                            let configFile = resolve(dir, 'webpack.config.dev.js');
-                            File.create(configFile);
-                            if(Skyflow.isInux()){
-                                fs.chmodSync(configFile, '777');
-                            }
-                            File.write(configFile, content);
+        Output.newLine();
 
-                            // Create webpack/webpack.config.prod.js file
-                            let prodConfigFile = resolve(dir, 'webpack.config.prod.js');
-                            File.create(prodConfigFile);
-                            if(Skyflow.isInux()){
-                                fs.chmodSync(prodConfigFile, '777');
-                            }
-                            File.write(prodConfigFile, prodContent);
+        Output.success('Success !', false);
 
-                            CurrentPackage['scripts'][devScriptName] = "./node_modules/.bin/webpack" +
-                                " --mode=development --config=webpack/webpack.config.dev.js";
-                            CurrentPackage['scripts'][prodScriptName] = "./node_modules/.bin/webpack" +
-                                " --mode=production --config=webpack/webpack.config.prod.js";
-                            CurrentPackage['scripts'][watchScriptName] = "./node_modules/.bin/webpack --mode=development" +
-                                " --config=webpack/webpack.config.dev.js --watch";
+        Output.newLine();
+        Output.write('yarn run ' + devScriptName);
+        Output.success(' ✓', false);
 
-                            File.createJson(resolve(process.cwd(), 'package.json'), CurrentPackage);
+        // Output.newLine();
+        Output.write('yarn run ' + prodScriptName);
+        Output.success(' ✓', false);
 
-                            installDependencies();
+        // Output.newLine();
+        Output.write('yarn run ' + watchScriptName);
+        Output.success(' ✓', false);
 
-                            Output.newLine();
-
-                            Output.success('Success !', false);
-
-                            Output.newLine();
-                            Output.write('yarn run ' + devScriptName);
-                            Output.success(' ✓', false);
-
-                            // Output.newLine();
-                            Output.write('yarn run ' + prodScriptName);
-                            Output.success(' ✓', false);
-
-                            // Output.newLine();
-                            Output.write('yarn run ' + watchScriptName);
-                            Output.success(' ✓', false);
-
-                        });
-
-                    });
-
-                });
-
-            });
-
-        });
-
-    });
+    })
 
 }
 
