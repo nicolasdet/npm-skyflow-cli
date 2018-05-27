@@ -7,6 +7,7 @@ require('skyflow-core');
 const resolve = require("path").resolve;
 
 Skyflow.CONFIG_FILE_NAME = 'skyflow.config.js';
+Skyflow.Shell = require(resolve(__dirname, 'src', 'Shell'));
 Skyflow.Style = require(resolve(__dirname, 'src', 'Console', 'ConsoleStyle'));
 Skyflow.Input = require(resolve(__dirname, 'src', 'Console', 'ConsoleInput'));
 Skyflow.Output = require(resolve(__dirname, 'src', 'Console', 'ConsoleOutput'));

@@ -1,5 +1,7 @@
 'use strict';
 
+// https://www.npmjs.com/package/inquirer
+
 const Helper = Skyflow.Helper,
     inquirer = require('inquirer'),
     fuzzy = require('fuzzy');

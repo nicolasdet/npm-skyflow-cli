@@ -2,15 +2,14 @@
 
 const resolve = require('path').resolve;
 
+const DefaultCommand = require(resolve(__dirname, '..','src','Command', 'DefaultCommand'));
+
 module.exports = {
 
     init: {
         description: "Generate skyflow configuration file",
-        // options: {
-        //     '-y': 'Generate without interactive',
-        // },
         since: '1.0.0',
-        callback: require(resolve(__dirname, '..','src','Command', 'DefaultCommand')).init
+        callback: DefaultCommand.init
     },
 
     install: {
@@ -19,7 +18,16 @@ module.exports = {
             '--list': 'List modules or plugins can be installed.',
         },
         since: '1.0.0',
-        callback: require(resolve(__dirname, '..','src','Command', 'DefaultCommand')).install
+        callback: DefaultCommand.install
+    },
+
+    shell: {
+        description: "Enter in shell mode.",
+        options: {
+            '--list': 'List shell can be used.',
+        },
+        since: '1.0.0',
+        callback: DefaultCommand.shell
     },
 
 };

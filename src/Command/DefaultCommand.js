@@ -164,6 +164,57 @@ class DefaultCommand {
 
     }
 
+    shell(options) {
+
+        if(options['list']){
+
+            Output.newLine();
+            Output.writeln('Available shell:', 'blue', null, 'bold');
+            Output.writeln('-'.repeat(50), 'blue', null, 'bold');
+            // Output.newLine();
+
+            let shellsPath = resolve(__dirname, '..', 'Shell');
+            let shells = Directory.read(shellsPath);
+            shells.map((shell)=>{
+
+                let name = shell.replace(/Shell\.js$/, '');
+                Output.write(name, null, null, 'bold');
+                Output.writeln(' -> skyflow shell ' + name.toLowerCase());
+                shell = require(resolve(shellsPath, shell));
+                if (Helper.isFunction(shell['getDescription'])) {
+                    Output.writeln(shell.getDescription(), 'gray')
+                }
+            });
+
+            process.exit(0);
+        }
+
+        let shellName = Object.keys(Skyflow.Request.getCommands())[1];
+
+        if (!shellName) {
+            Output.error('Shell not found.');
+            process.exit(1);
+        }
+
+        shellName = Helper.upperFirst(shellName);
+        let shellPath = resolve(__dirname, '..', 'Shell', shellName + 'Shell.js');
+
+        if (!File.exists(shellPath)) {
+            Output.error('Shell \'' + shellName + '\' not found.');
+            process.exit(1);
+        }
+
+        let shell = require(shellPath);
+
+        if(!Helper.isFunction(shell['run'])){
+            Output.error('Run method not found in \'' + shellName + '\' shell.');
+            process.exit(1);
+        }
+
+        shell['run'].apply(null, [options]);
+
+    }
+
 }
 
 module.exports = new DefaultCommand();
