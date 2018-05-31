@@ -1,8 +1,8 @@
 'use strict';
 
-const {execSync, spawnSync} = require('child_process');
+const {execSync, spawnSync, spawn} = require('child_process');
 
-const Helper = Skyflow.Helper;
+const Helper = Skyflow.Helper, Output = Skyflow.Output;
 
 class Shell {
 
@@ -28,6 +28,19 @@ class Shell {
         }
 
         return this;
+    }
+
+    runAsync(command, options){
+        let cmd = spawn(command + '', options);
+        cmd.stdout.on('data', (data) => {
+            console.log(`stdout: ${data}`);
+        });
+
+        cmd.stderr.on('data', (data) => {
+            Output.writeln(data);
+            // console.log(`stdout: ${data}`);
+        });
+
     }
 
     exec(command){

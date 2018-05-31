@@ -81,6 +81,24 @@ module.exports = {
             '-v': "Remove any anonymous volumes attached to containers.",
         }
     },
+    rmi:{
+        description: "Remove one or more images.",
+        options: {
+            '-f, --force': "Force removal of the image.",
+            '--no-prune':'Do not delete untagged parents'
+        }
+
+    },
+    rmc:{
+        description: "Remove stopped containers.",
+        options: {
+            '--all , -a': "Remove all containers.",
+            '-f, --force': "Force the removal of a running container (uses SIGKILL).",
+            '--link , -l': "Remove the specified link.",
+            '--volumes , -v': "Remove the volumes associated with the container.",
+        }
+
+    },
     up: {
         description: "Builds, (re)creates, starts, and attaches to containers for a service.",
         options: {
@@ -88,7 +106,25 @@ module.exports = {
             '--build': "Build images before starting containers.",
         }
     },
+    'ls [container|image]':{
+        description: "List images and containers.",
+        options: {
+            '--all , -a': "Show all images or containers (default hides intermediate images or just running containers).",
+            '--digests': "Show digests.",
+            '--filter , -f': "Filter output based on conditions provided.",
+            '--format': "Pretty-print images using a Go template.",
+            '--no-trunc': "Don’t truncate output.",
+            '--quiet , -q': "Only show numeric IDs",
+        }
 
+    },
+    '<service>:up': {
+        description: "Builds, (re)creates, starts, and attaches to containers for a service.",
+        options: {
+            '-d, --detach': "Detached mode: Run containers in the background, print new container names.",
+            '--build': "Build images before starting containers.",
+        }
+    },
     '<container|service>:exec': {
         description: "Run arbitrary commands in your services.",
         options: {
@@ -100,8 +136,11 @@ module.exports = {
             '-w, --workdir DIR': "Path to workdir directory for this command.",
         }
     },
-    '<container>:enter': {
-        description: "Get an interactive prompt.",
+    '<container>:sh': {
+        description: "Get an alpine interactive prompt.",
+    },
+    '<container>:bash': {
+        description: "Get an bash interactive prompt.",
     },
     '<service>:pull': {
         description: "Pulls an image associated with a service defined in a docker-compose.yml \n " +
@@ -113,7 +152,6 @@ module.exports = {
             '--include-deps': "Also pull services declared as dependencies.",
         }
     },
-
     '<container>:rm': {
         description: "Stops and removes containers.",
         options: {
