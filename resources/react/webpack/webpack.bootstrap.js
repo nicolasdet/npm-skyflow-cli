@@ -2,7 +2,7 @@
 require('skyflow-core');
 
 // Import configuration from skyflow.config.js
-Skyflow.CONF = require('../skyflow.config');
+Skyflow.Conf = require('../skyflow.config');
 
 // Import styles
 import '../Style/ImportStyle';

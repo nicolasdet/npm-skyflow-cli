@@ -14,10 +14,10 @@ class DefaultCommand {
 
         Output.write(Package.name, 'green')
             .write(' v' + Package.version, 'green')
-            .writeln(' (' + Package.license + ')', 'green')
-            .writeln('Franck DIOMANDE <fkdiomande@gmail.com>', 'gray');
+            .writeln(' (' + Package.license + ')', 'green');
+            // .writeln('Franck DIOMANDE <fkdiomande@gmail.com>', 'gray');
 
-        return Skyflow
+        return 0
     }
 
     help(command) {
@@ -88,29 +88,28 @@ class DefaultCommand {
                 }
 
                 Output.newLine()
-
             }
 
         });
 
-        return Skyflow
+        return 0
     }
 
     init(options) {
 
         if (File.exists(Skyflow.CONFIG_FILE_NAME)) {
-            Output.info(Skyflow.CONFIG_FILE_NAME + ' file already exists.');
-            process.exit(1);
+            Output.info(Skyflow.CONFIG_FILE_NAME + ' file already exists.', false);
+            return 0
         }
 
         let s = resolve(__dirname, '..', '..', 'resources', Skyflow.CONFIG_FILE_NAME);
         let dest = resolve(process.cwd(), Skyflow.CONFIG_FILE_NAME);
-        fs.createReadStream(s).pipe(fs.createWriteStream(dest));
+        File.copy(s, dest);
         if(Skyflow.isInux()){
             fs.chmodSync(dest, '777');
         }
         Output.success(Skyflow.CONFIG_FILE_NAME + ' was successfully created.');
-        process.exit(0);
+        return 0
     }
 
     install(options) {
@@ -135,29 +134,29 @@ class DefaultCommand {
                 }
             });
 
-            process.exit(0);
+            return 0
         }
 
         let moduleName = Object.keys(Skyflow.Request.getCommands())[1];
 
         if (!moduleName) {
-            Output.error('Can not install empty module.');
-            process.exit(1);
+            Output.error('Can not install empty module.', false);
+            return 1
         }
 
         moduleName = Helper.upperFirst(moduleName);
         let modulePath = resolve(__dirname, '..', 'Module', moduleName + 'Module.js');
 
         if (!File.exists(modulePath)) {
-            Output.error('Module \'' + moduleName + '\' not found.');
-            process.exit(1);
+            Output.error('Module ' + moduleName + ' not found.', false);
+            return 1
         }
 
         let module = require(modulePath);
 
         if(!Helper.isFunction(module['install'])){
-            Output.error('Install method not found in \'' + moduleName + '\' module.');
-            process.exit(1);
+            Output.error('Install method not found in ' + moduleName + ' module.', false);
+            return 1
         }
 
         module['install'].apply(null, [options]);
@@ -174,7 +173,8 @@ class DefaultCommand {
             // Output.newLine();
 
             let shellsPath = resolve(__dirname, '..', 'Shell');
-            let shells = Directory.read(shellsPath);
+            let shells = Directory.read(shellsPath, {directory: false, file: true, filter: /Shell\.js$/});
+
             shells.map((shell)=>{
 
                 let name = shell.replace(/Shell\.js$/, '');
@@ -184,34 +184,46 @@ class DefaultCommand {
                 if (Helper.isFunction(shell['getDescription'])) {
                     Output.writeln(shell.getDescription(), 'gray')
                 }
+
             });
 
-            process.exit(0);
+            return 0
         }
 
         let shellName = Object.keys(Skyflow.Request.getCommands())[1];
 
+        let currentShell = resolve(__dirname, '..', 'Shell', '.current');
+
         if (!shellName) {
-            Output.error('Shell not found.');
-            process.exit(1);
+            currentShell = File.read(currentShell).replace(/\.js$/, '');
+            Output.success("*" + currentShell, false);
+            return 1
+        }
+
+        if(Skyflow.Request.hasCommand('exit')){
+            File.create(currentShell);
+            Output.success("Exit shell mode");
+            return 1
         }
 
         shellName = Helper.upperFirst(shellName);
         let shellPath = resolve(__dirname, '..', 'Shell', shellName + 'Shell.js');
 
         if (!File.exists(shellPath)) {
-            Output.error('Shell \'' + shellName + '\' not found.');
-            process.exit(1);
+            Output.error('Shell ' + shellName + ' not found.', false);
+            return 1
         }
 
         let shell = require(shellPath);
 
         if(!Helper.isFunction(shell['run'])){
-            Output.error('Run method not found in \'' + shellName + '\' shell.');
-            process.exit(1);
+            Output.error('Run method not found in ' + shellName + ' shell.', false);
+            return 1
         }
 
-        shell['run'].apply(null, [options]);
+        File.create(currentShell, shellName + 'Shell.js');
+
+        Output.success("You are using " + shellName + " shell");
 
     }
 

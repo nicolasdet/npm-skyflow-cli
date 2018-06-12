@@ -1,7 +1,5 @@
 module.exports = {
-    exit: {
-        description: "Quit shell mode.",
-    },
+
     build: {
         description: "Services are built once and then tagged, by default as project_service.",
         options: {
@@ -81,15 +79,15 @@ module.exports = {
             '-v': "Remove any anonymous volumes attached to containers.",
         }
     },
-    rmi:{
+    rmi: {
         description: "Remove one or more images.",
         options: {
             '-f, --force': "Force removal of the image.",
-            '--no-prune':'Do not delete untagged parents'
+            '--no-prune': 'Do not delete untagged parents'
         }
 
     },
-    rmc:{
+    rmc: {
         description: "Remove stopped containers.",
         options: {
             '--all , -a': "Remove all containers.",
@@ -106,7 +104,7 @@ module.exports = {
             '--build': "Build images before starting containers.",
         }
     },
-    'ls [container|image]':{
+    'ls [container|image]': {
         description: "List images and containers.",
         options: {
             '--all , -a': "Show all images or containers (default hides intermediate images or just running containers).",
@@ -168,6 +166,26 @@ module.exports = {
         options: {
             '-t, --timeout TIMEOUT': "Specify a shutdown timeout in seconds (default: 10).",
         }
+    },
+
+
+
+
+
+    'compose:add': {
+        description: "Add new compose into docker-compose.yml.",
+    },
+    'compose:rm': {
+        description: "Remove compose from docker-compose.yml.",
+        options: {
+            '--dir': 'Remove local directory.'
+        }
+    },
+    'compose:update': {
+        description: "Update docker-compose.yml using local files.",
+    },
+    'compose:list': {
+        description: "List compose can be added.",
     },
 
 };

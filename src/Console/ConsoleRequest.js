@@ -95,15 +95,17 @@ class ConsoleRequest {
     }
 
     /**
-     * @returns {ConsoleRequest}
+     * @returns {number}
      */
     dispatchCommands(){
+
         for (let c in this.commands){
             if(this.commands.hasOwnProperty(c) && this.registeredCommands.hasOwnProperty(c)){
-                this.registeredCommands[c].apply(null, [this.options])
+                return this.registeredCommands[c].apply(null, [this.options])
             }
         }
-        return this
+
+        return 0
     }
 
 }

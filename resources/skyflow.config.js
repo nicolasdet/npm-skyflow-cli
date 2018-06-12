@@ -4,6 +4,8 @@ const resolve = require('path').resolve;
 
 module.exports = {
 
+    env: 'dev',
+
     commands: {
         // commandName: {
         //     description: "Description of command",
@@ -26,6 +28,12 @@ module.exports = {
         service: {
             // Use get method for this array
         }
+    },
+    modules: {
+        docker: {
+            directory: 'docker'
+        }
     }
+
 
 };
