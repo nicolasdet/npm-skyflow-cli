@@ -1,4 +1,4 @@
-![alt text](http://url/to/img.png)
+![alt text](resources/images/skyflow.png)
 
 ### Commands :
 
