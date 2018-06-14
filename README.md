@@ -1,4 +1,4 @@
-<img width="200" src="resources/images/skyflow.png">
+<img align="center" width="350" src="resources/images/skyflow.png">
 
 ### Commands :
 
