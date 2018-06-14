@@ -4,7 +4,6 @@
 
 ## Skyflow - Best friend of the developer
 
----
 
 Skyflow make life easier for the developer.
 
