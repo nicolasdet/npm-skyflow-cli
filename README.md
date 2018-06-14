@@ -2,44 +2,65 @@
 	<img width="300" src="resources/images/skyflow.png">
 </div>
 
-### Commands :
+## Skyflow - Best friend of the developer
 
-#### Display help for skyflow CLI
+---
 
-```
-Skyflow -h
-```
+Skyflow make life easier for the developer.
 
-```
-Skyflow --help
-```
+### Prerequisites
+---
+Skyflow is developed in nodejs. You need Nodejs or Yarn.
 
-#### Display version of current skyflow CLI
-
+### Installation
+---
+With npm
 ```
-Skyflow -v
-```
-
-```
-Skyflow --version
+npm install skyflow-cli-g
 ```
 
-#### Generate skyflow configuration file
-
+With yarn
 ```
-Skyflow init
-```
-
-#### Install module
-
-```
-Skyflow install
+yarn global add skyflow-cli
 ```
 
-##### Optionnal -> List modules can be installed
+### Usage
+---
+
+Get version
+```
+skyflow -v
+```
+
+Get help
+```
+skyflow -h
+```
+
+Initialize skyflow
+```
+skyflow init
+```
+
+##### Create your first command
 
 ```
-Skyflow install --list
-```
+module.exports = {
+    commands: {
+         commandName: {
+             description: "Description of command",
+             options: {
+                 option1: "Description of option",
+                 option2: "Description of option",
+             },
+             since: "1.0.0",
+             callback: ()=>{
+                 console.log(this);
+             }
+         }
+    },
 
+
+};
+```
 
