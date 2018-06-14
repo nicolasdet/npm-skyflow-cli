@@ -1,6 +1,4 @@
-<p style="align:center;><a href="https://skyflow.io/" target="_blank">
-    <img style="width: 200px" src="resources/images/skyflow.png">
-</a></p>
+<img width="200" src="resources/images/skyflow.png">
 
 ### Commands :
 
