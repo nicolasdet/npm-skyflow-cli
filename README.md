@@ -1,4 +1,4 @@
-# Readme Skyflow-cli
+![alt text](http://url/to/img.png)
 
 ### Commands :
 
