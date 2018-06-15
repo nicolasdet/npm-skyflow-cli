@@ -113,7 +113,7 @@ module.exports = {
 
 #### Module
 Module tab contain configuration for each module.
-Example docker configuration, file module finding in Module directory.
+Example docker configuration file module finding in Module directory.
 
 ```javascript
 module.exports = {
