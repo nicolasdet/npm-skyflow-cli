@@ -48,7 +48,7 @@ skyflow init
 
 ##### Create your first command
 
-```
+```javascript
 module.exports = {
     commands: {
          commandName: {
