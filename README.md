@@ -57,7 +57,6 @@ skyflow init command generate configuration file "skyflow.config.js".
 
 #### Choose your environment type
 
-Example :
 ```javascript
 env:'dev'
 ```
@@ -112,7 +111,7 @@ module.exports = {
 ```
 
 #### Module
-Module tab contain configuration for each module.
+Module array contain configuration for each module.
 Example docker configuration file module finding in Module directory.
 
 ```javascript
