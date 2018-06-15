@@ -53,14 +53,14 @@ skyflow init command generate configuration file "skyflow.config.js".
 ------------
 - Configuration file name -> "skyflow.config.js".
 
-##### Choose your environment type
+#### Choose your environment type
 
 Example :
 ```javascript
 env:'dev'
 ```
 
-##### Create your first command
+#### Create your first command
 
 ```javascript
 module.exports = {
@@ -80,7 +80,7 @@ module.exports = {
 };
 ```
 
-##### Invokable methods
+#### Invokable
 
 ```javascript
 module.exports = {
@@ -93,7 +93,7 @@ module.exports = {
 };
 ```
 
-##### Service
+#### Service
 
 ```javascript
 module.exports = {
