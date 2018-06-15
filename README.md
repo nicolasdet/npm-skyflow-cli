@@ -11,7 +11,7 @@ Skyflow make life easier for the developer.
 
 ------------
 
-Skyflow is developed in nodejs. You need Nodejs or Yarn.
+Skyflow is developed in Nodejs. You need [Nodejs](https://nodejs.org) or [Yarn](https://yarnpkg.com).
 
 ### Installation
 
