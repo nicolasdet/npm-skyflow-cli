@@ -9,13 +9,13 @@ Skyflow make life easier for the developer.
 
 ### Prerequisites
 
----
+------------
 
 Skyflow is developed in nodejs. You need Nodejs or Yarn.
 
 ### Installation
 
----
+------------
 
 With npm
 ```
@@ -29,7 +29,7 @@ yarn global add skyflow-cli
 
 ### Usage
 
----
+------------
 
 Get version
 ```
