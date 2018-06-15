@@ -90,7 +90,7 @@ module.exports = {
             // Stores only callable functions
         }
     }
-}
+};
 ```
 
 ##### Service
@@ -100,6 +100,10 @@ module.exports = {
     container: {
         service: {
             // Use get method for this array
+        },
+        invokable: {
+            // Use invoke method for this array
+            // Stores only callable functions
         }
     }
 };
