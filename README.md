@@ -1,6 +1,8 @@
-<a align="center" href="https://skyflow.io/">
-	<img width="300" src="resources/images/skyflow.png">
-</a>
+<div align="center">
+    <a href="https://skyflow.io/">
+        <img width="300" src="resources/images/skyflow.png">
+    </a>
+</div>
 
 ## Skyflow - Best friend of the developer
 
