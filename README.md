@@ -108,3 +108,17 @@ module.exports = {
     }
 };
 ```
+
+#### Module
+Module tab contain configuration for each module
+Example for docker configuration, module path finding Module directory.
+
+```javascript
+module.exports = {
+    modules: {
+            docker: {
+                directory: 'docker'
+            }
+        }
+};
+```
