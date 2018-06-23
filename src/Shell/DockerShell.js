@@ -18,36 +18,36 @@ class DockerShell {
         return 'Enter into docker shell.'
     }
 
-    run(commands, options) {
+    run() {
 
-        Skyflow.currentConfMiddleware();
-
-        commands = Object.keys(commands);
+        let commands = process.argv.slice(2);
 
         if(commands.length === 0){
             commands = ['help']
         }
 
-        if (Helper.isFunction(Command[commands[0]])) {
-            let cmd = commands.shift();
-            return Command[cmd].apply(null, [commands, options]);
+        let first = commands[0];
+
+        commands = commands.slice(1);
+
+        if (Helper.isFunction(Command[first])) {
+            return Command[first].apply(Command, [commands]);
         } else {
 
-            let m = commands[0].match(/^([a-z]+):([a-z]+)/i);
+            let m = first.match(/^([a-z]+):([a-z]+)/i);
 
             if (m) {
 
                 // Run compose
                 let cmd = '__' + m[1] + '__' + m[2];
                 if (Helper.isFunction(Command[cmd])) {
-                    commands.shift();
-                    return Command[cmd].apply(Command, [commands, options]);
+                    // commands.shift();
+                    return Command[cmd].apply(Command, [commands]);
                 }
 
                 // Run container
                 cmd = '__' + m[2];
                 if (Helper.isFunction(Command[cmd])) {
-                    commands.shift();
                     return Command[cmd].apply(null, [m[1], commands]);
                 }
 

@@ -1,6 +1,6 @@
 {
   "name": "skyflow-cli",
-  "version": "1.0.7-beta.7",
+  "version": "1.1.0",
   "description": "Best friend of the developer",
   "main": "index.js",
   "scripts": {
@@ -11,15 +11,11 @@
     "url": "git+https://github.com/skyflow-io/npm-skyflow-cli.git"
   },
   "keywords": [
-    "input",
-    "output",
-    "request",
-    "style",
     "command",
     "command line",
-    "cli",
-    "project",
-    "console"
+    "docker",
+    "react",
+    "webpack"
   ],
   "author": "Franck DIOMANDE <fkdiomande@gmail.com>",
   "license": "Apache-2.0",
@@ -38,6 +34,7 @@
     "inquirer-autocomplete-prompt": "^0.12.2",
     "lodash": "^4.17.5",
     "minimist": "^1.2.0",
+    "request": "^2.87.0",
     "skyflow-core": "^1.0.3-beta.4"
   }
 }
