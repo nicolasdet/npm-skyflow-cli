@@ -572,10 +572,8 @@ class DockerCommand {
 
     __compose__list() {
 
-        // Skyflow.currentConfMiddleware();
-
-        let list = resolve(Skyflow.getUserHome(), '.skyflow', 'docker', 'compose', 'list.js');
-        let listAll = resolve(Skyflow.getUserHome(), '.skyflow', 'docker', 'compose', 'list_all.js');
+        let list = resolve(Skyflow.getUserHome(), '.skyflow', 'docker', 'compose', 'list.js'),
+            listAll = resolve(Skyflow.getUserHome(), '.skyflow', 'docker', 'compose', 'list_all.js');
 
         async function pullAssets() {
 
@@ -600,10 +598,11 @@ class DockerCommand {
 
             }
 
+            displayComposeList()
 
         }
 
-        function runAfterPull() {
+        function displayComposeList() {
 
             list = require(list);
 
@@ -644,15 +643,13 @@ class DockerCommand {
                 if (Skyflow.isInux()) {fs.chmodSync(resolve(dest, 'list.js'), '777')}
                 if (Skyflow.isInux()) {fs.chmodSync(resolve(dest, 'list_all.js'), '777')}
 
-                pullAssets();
-
-                runAfterPull()
+                pullAssets()
 
             });
 
             return 1
         }else {
-            runAfterPull()
+            displayComposeList()
         }
 
         return 0;
@@ -784,9 +781,37 @@ class DockerCommand {
 
     __package__list() {
 
-        let list = resolve(Skyflow.getUserHome(), '.skyflow', 'docker', 'package', 'list.js');
+        let list = resolve(Skyflow.getUserHome(), '.skyflow', 'docker', 'package', 'list.js'),
+            listAll = resolve(Skyflow.getUserHome(), '.skyflow', 'docker', 'package', 'list_all.js');
 
-        function runAfterPull() {
+        async function pullAssets() {
+
+            let assetsPath = resolve(Skyflow.getUserHome(), '.skyflow', 'docker', 'assets', 'compose');
+            Directory.create(assetsPath);
+
+            let lists = require(listAll);
+
+            for (let l in lists) {
+
+                if(!lists.hasOwnProperty(l)){continue}
+
+                try {
+                    const { filename } = await download.image({
+                        url: lists[l]['img'],
+                        dest: resolve(assetsPath, lists[l]['name']+'.png')
+                    });
+                    Output.success(filename);
+                } catch (e) {
+                    Output.error(lists[l]['img'] + ' not found.');
+                }
+
+            }
+
+            displayPackageList()
+
+        }
+
+        function displayPackageList() {
 
             list = require(list);
 
@@ -821,23 +846,23 @@ class DockerCommand {
                 Directory.create(dest);
 
                 File.create(resolve(dest, 'list.js'), response.body.list);
+                delete response.body.list;
+                File.create(resolve(dest, 'list_all.js'), "module.exports = " + JSON.stringify(response.body));
 
-                if (Skyflow.isInux()) {
-                    fs.chmodSync(resolve(dest, 'list.js'), '777')
-                }
+                if (Skyflow.isInux()) {fs.chmodSync(resolve(dest, 'list.js'), '777')}
+                if (Skyflow.isInux()) {fs.chmodSync(resolve(dest, 'list_all.js'), '777')}
 
-                runAfterPull()
+                pullAssets();
 
             });
 
             return 1
         }else {
-            runAfterPull()
+            displayPackageList()
         }
 
         return 0;
     }
-
 
 }
 
