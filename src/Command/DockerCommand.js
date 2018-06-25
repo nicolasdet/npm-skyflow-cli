@@ -609,10 +609,11 @@ class DockerCommand {
                 Directory.create(dest);
 
                 File.create(resolve(dest, 'list.js'), response.body.list);
+                delete response.body.list;
+                File.create(resolve(dest, 'list_all.js'), "module.exports = " + JSON.stringify(response.body));
 
-                if (Skyflow.isInux()) {
-                    fs.chmodSync(resolve(dest, 'list.js'), '777')
-                }
+                if (Skyflow.isInux()) {fs.chmodSync(resolve(dest, 'list.js'), '777')}
+                if (Skyflow.isInux()) {fs.chmodSync(resolve(dest, 'list_all.js'), '777')}
 
                 runAfterPull()
 
