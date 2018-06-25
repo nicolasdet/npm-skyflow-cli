@@ -12,6 +12,8 @@ const Helper = Skyflow.Helper,
     Request = Skyflow.Request,
     Output = Skyflow.Output;
 
+const download = require('image-downloader')
+
 const help = require(resolve(__dirname, '..', '..', 'resources', 'docker', 'cli-commands.js'));
 
 function runCommand(command, options = []) {
@@ -573,6 +575,33 @@ class DockerCommand {
         // Skyflow.currentConfMiddleware();
 
         let list = resolve(Skyflow.getUserHome(), '.skyflow', 'docker', 'compose', 'list.js');
+        let listAll = resolve(Skyflow.getUserHome(), '.skyflow', 'docker', 'compose', 'list_all.js');
+
+        async function pullAssets() {
+
+            let assetsPath = resolve(Skyflow.getUserHome(), '.skyflow', 'docker', 'assets', 'compose');
+            Directory.create(assetsPath);
+
+            let lists = require(listAll);
+
+            for (let l in lists) {
+                
+                if(!lists.hasOwnProperty(l)){continue}
+
+                try {
+                    const { filename } = await download.image({
+                        url: lists[l]['img'],
+                        dest: resolve(assetsPath, lists[l]['name']+'.png')
+                    });
+                    Output.success(filename);
+                } catch (e) {
+                    Output.error(lists[l]['img'] + ' not found.');
+                }
+
+            }
+
+
+        }
 
         function runAfterPull() {
 
@@ -594,7 +623,7 @@ class DockerCommand {
 
         }
 
-        if (!File.exists(list)) {
+        if (!File.exists(list) || !File.exists(listAll)) {
 
             Output.writeln("Pulling compose list from " + Skyflow.Api.protocol + '://' + Skyflow.Api.host + " ...", false);
 
@@ -614,6 +643,8 @@ class DockerCommand {
 
                 if (Skyflow.isInux()) {fs.chmodSync(resolve(dest, 'list.js'), '777')}
                 if (Skyflow.isInux()) {fs.chmodSync(resolve(dest, 'list_all.js'), '777')}
+
+                pullAssets();
 
                 runAfterPull()
 

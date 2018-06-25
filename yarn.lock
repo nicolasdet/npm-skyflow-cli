@@ -220,6 +220,12 @@ iconv-lite@^0.4.17:
   dependencies:
     safer-buffer ">= 2.1.2 < 3"
 
+image-downloader@^3.4.1:
+  version "3.4.1"
+  resolved "https://registry.yarnpkg.com/image-downloader/-/image-downloader-3.4.1.tgz#987b356c1628ff06635debe1af1d56c77a828b2a"
+  dependencies:
+    request "^2.87.0"
+
 inquirer-autocomplete-prompt@^0.12.2:
   version "0.12.2"
   resolved "https://registry.yarnpkg.com/inquirer-autocomplete-prompt/-/inquirer-autocomplete-prompt-0.12.2.tgz#693bbd9da586f98b126bd83305bb8d8714dc4155"
