@@ -21,7 +21,7 @@ Skyflow is developed in Nodejs. You need [Nodejs](https://nodejs.org) or [Yarn](
 
 With npm
 ```
-npm install skyflow-cli-g
+npm install skyflow-cli -g
 ```
 
 With yarn
