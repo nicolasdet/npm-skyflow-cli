@@ -115,6 +115,14 @@ module.exports = {
             '-t, --timeout TIMEOUT': "Specify a shutdown timeout in seconds. (default: 10)",
         }
     },
+    '<container>:run': {
+        description: "Runs a one-time command against a service. For example, the following command starts the web service and runs bash as its command. \n" +
+        "See https://docs.docker.com/compose/reference/run to see all options.",
+        options: {
+            '-d, --detach': "Detached mode: Run container in the background, print new container name.",
+            '--name NAME': "Assign a name to the container",
+        }
+    },
 
     'compose:add': {
         description: "Add new compose into docker-compose.yml.",

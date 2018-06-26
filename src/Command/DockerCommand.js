@@ -468,6 +468,10 @@ class DockerCommand {
         runDockerComposeCommand('restart ' + container, options);
     }
 
+    __run(container, options) {
+        runDockerComposeCommand('run ' + container, options);
+    }
+
 
 /*------------ Run for compose ----------*/
 
