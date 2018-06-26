@@ -56,15 +56,6 @@ const File = Skyflow.File,
     Helper = Skyflow.Helper,
     Shell = Skyflow.Shell;
 
-/*if (!File.exists(Skyflow.CONFIG_FILE_NAME)) {
-    let s = resolve(__dirname, '..', '..', 'resources', Skyflow.CONFIG_FILE_NAME);
-    let dest = resolve(process.cwd(), Skyflow.CONFIG_FILE_NAME);
-    File.copy(s, dest);
-    if(Skyflow.isInux()){
-        fs.chmodSync(dest, '777')
-    }
-}*/
-
 // Run current shell
 
 const currentShell = File.read(resolve(__dirname, 'src', 'Shell', '.current')),

@@ -1,16 +1,9 @@
 'use strict';
 
 const resolve = require('path').resolve,
-    Output = Skyflow.Output,
-    Input = Skyflow.Input,
     Helper = Skyflow.Helper,
     Shell = Skyflow.Shell,
-    Style = Skyflow.Style,
-    Command = require(resolve(__dirname, '..', 'Command', 'DockerCommand')),
-    shellText = Style
-    // .setColor('gray')
-        .addStyle('bold')
-        .apply('docker@shell');
+    Command = require(resolve(__dirname, '..', 'Command', 'DockerCommand'));
 
 class DockerShell {
 
@@ -39,7 +32,7 @@ class DockerShell {
             if (m) {
 
                 // Run compose
-                let cmd = '__' + m[1] + '__' + m[2];
+                let cmd = '__' + m.join('__');
                 if (Helper.isFunction(Command[cmd])) {
                     // commands.shift();
                     return Command[cmd].apply(Command, [commands]);
@@ -52,12 +45,7 @@ class DockerShell {
                 }
 
             } else {
-                Shell.run('docker', commands);
-                if (Shell.hasError()) {
-                    Output.error(commands.shift() + " command not found.", false)
-                } else {
-                    Output.writeln(Shell.getResult());
-                }
+                Shell.exec('docker ' + commands.join(' '));
             }
 
         }

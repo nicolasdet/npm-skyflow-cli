@@ -12,12 +12,32 @@ const Helper = Skyflow.Helper,
     Request = Skyflow.Request,
     Output = Skyflow.Output;
 
-const download = require('image-downloader')
+const download = require('image-downloader');
 
 const help = require(resolve(__dirname, '..', '..', 'resources', 'docker', 'cli-commands.js'));
 
-function runCommand(command, options = []) {
-    Shell.exec('docker-compose ' + command + ' ' + options.join(' '))
+
+function getDockerDirFromConfig() {
+
+    Skyflow.currentConfMiddleware();
+    let currentDockerDir = Skyflow.getConfig('modules.docker.directory');
+    if (!currentDockerDir) {
+        Output.error("Docker directory not found in modules array.", false);
+        return false
+    }
+    return currentDockerDir;
+}
+
+function runDockerComposeCommand(command, options = []) {
+
+    let currentDockerDir = getDockerDirFromConfig();
+    if(!currentDockerDir){return 1}
+
+    let cwd = process.cwd();
+    process.chdir(currentDockerDir);
+    Shell.exec('docker-compose ' + command + ' ' + options.join(' '));
+    process.chdir(cwd)
+
 }
 
 function updateCompose(composes = []) {
@@ -397,49 +417,57 @@ class DockerCommand {
     /*------------ Run by container ----------*/
 
     __exec(container, options) {
-        runCommand('exec ' + container, options);
+        runDockerComposeCommand('exec ' + container, options);
     }
 
     __sh(container) {
-        runCommand('exec ' + container, ['sh']);
+        runDockerComposeCommand('exec ' + container, ['sh']);
     }
 
     __bash(container) {
-        runCommand('exec ' + container, ['bash']);
+        runDockerComposeCommand('exec ' + container, ['bash']);
     }
 
     __up(container, options) {
-        Shell.exec('docker-compose up ' + options.join(' ') + ' ' + container)
+        let currentDockerDir = getDockerDirFromConfig();
+        if(!currentDockerDir){return 1}
+
+        let cwd = process.cwd();
+        process.chdir(currentDockerDir);
+        Shell.exec('docker-compose up ' + options.join(' ') + ' ' + container);
+        process.chdir(cwd);
+
     }
 
     __pull(container, options) {
-        runCommand('pull ' + container, options);
+        runDockerComposeCommand('pull ' + container, options);
     }
 
     __stop(container, options) {
-        runCommand('stop ' + container, options);
+        runDockerComposeCommand('stop ' + container, options);
     }
 
     __start(container, options) {
-        runCommand('start ' + container, options);
+        runDockerComposeCommand('start ' + container, options);
     }
 
     __rm(container, options) {
-        runCommand('stop ' + container, options);
-        runCommand('rm', options);
+        runDockerComposeCommand('stop ' + container, options);
+        runDockerComposeCommand('rm', options);
     }
 
     __kill(container, options) {
-        runCommand('kill ' + container, options);
+        runDockerComposeCommand('kill ' + container, options);
     }
 
     __logs(container, options) {
-        runCommand('logs ' + container, options);
+        runDockerComposeCommand('logs ' + container, options);
     }
 
     __restart(container, options) {
-        runCommand('restart ' + container, options);
+        runDockerComposeCommand('restart ' + container, options);
     }
+
 
 /*------------ Run for compose ----------*/
 
@@ -656,60 +684,60 @@ class DockerCommand {
     }
 
     __compose__ps(options) {
-        runCommand('ps', options);
+        runDockerComposeCommand('ps', options);
     }
 
     __compose__build(options) {
-        runCommand('build', options);
+        runDockerComposeCommand('build', options);
     }
 
     __compose__config(options) {
-        runCommand('config', options);
+        runDockerComposeCommand('config', options);
     }
 
     __compose__services() {
-        runCommand('config', ['--services']);
+        runDockerComposeCommand('config', ['--services']);
     }
 
     __compose__volumes() {
-        runCommand('config', ['--volumes']);
+        runDockerComposeCommand('config', ['--volumes']);
     }
 
     __compose__down(options) {
-        runCommand('down', options);
+        runDockerComposeCommand('down', options);
     }
 
     __compose__up(options) {
-        runCommand('up', options);
+        runDockerComposeCommand('up', options);
     }
 
     __compose__kill(options) {
-        runCommand('kill', options);
+        runDockerComposeCommand('kill', options);
     }
 
     __compose__logs(options) {
-        runCommand('logs', options);
+        runDockerComposeCommand('logs', options);
     }
 
     __compose__restart(options) {
-        runCommand('restart', options);
+        runDockerComposeCommand('restart', options);
     }
 
     __compose__stop(options) {
-        runCommand('stop', options);
+        runDockerComposeCommand('stop', options);
     }
 
     __compose__start(options) {
-        runCommand('start', options);
+        runDockerComposeCommand('start', options);
     }
 
     __compose__rm(options) {
-        runCommand('stop', options);
-        runCommand('rm', options);
+        runDockerComposeCommand('stop', options);
+        runDockerComposeCommand('rm', options);
     }
 
     __compose__pull(options) {
-        runCommand('pull', options);
+        runDockerComposeCommand('pull', options);
     }
 
     /*------------ Run for package ----------*/
@@ -831,7 +859,7 @@ class DockerCommand {
 
         }
 
-        if (!File.exists(list)) {
+        if (!File.exists(list) || !File.exists(listAll)) {
 
             Output.writeln("Pulling package list from " + Skyflow.Api.protocol + '://' + Skyflow.Api.host + " ...", false);
 
