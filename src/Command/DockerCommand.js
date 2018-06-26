@@ -469,7 +469,7 @@ class DockerCommand {
     }
 
     __run(container, options) {
-        runDockerComposeCommand('run ' + container, options);
+        runDockerComposeCommand('run --rm --name ' + container + ' ' + container, options);
     }
 
 
