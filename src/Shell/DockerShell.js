@@ -32,7 +32,7 @@ class DockerShell {
             if (m) {
 
                 // Run compose
-                let cmd = '__' + m.join('__');
+                let cmd = '__' + (first.replace(':', '__'));
                 if (Helper.isFunction(Command[cmd])) {
                     // commands.shift();
                     return Command[cmd].apply(Command, [commands]);
