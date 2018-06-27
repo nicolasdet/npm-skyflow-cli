@@ -11,8 +11,6 @@ The **Shell** system allows you to use the skyflow commands in context.
 
 ## Usage
 
-------------
-
 _**Enter in shell mode**_
 
 ```
@@ -36,3 +34,5 @@ _**Check the shell in use**_
 ```
 skyflow shell
 ```
+
+## Contributing

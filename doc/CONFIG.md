@@ -55,7 +55,7 @@ The possible values ​​are `dev`, `prod`and `test`.
 
 ## Commands
 
-In this configuration file you can declare your own commands in the `commands` array.
+In this configuration file you can declare your own commands under the `commands` array.
 
 _**Example of commands declaration**_
 
