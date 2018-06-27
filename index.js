@@ -4,7 +4,7 @@
 
 require('skyflow-core');
 
-const resolve = require("path").resolve, fs = require('fs');
+const resolve = require("path").resolve;
 
 Skyflow.CONFIG_FILE_NAME = 'skyflow.config.js';
 Skyflow.Api = require(resolve(__dirname, 'src', 'Api'));
@@ -51,9 +51,18 @@ Skyflow.getUserHome = ()=>{
     return process.env[Skyflow.isWindows() ? 'USERPROFILE' : 'HOME'];
 };
 
+/**
+ * Set current configuration file
+ */
+const configFile = resolve(process.cwd(), Skyflow.CONFIG_FILE_NAME);
+if (Skyflow.File.exists(configFile)) {
+    Skyflow.Conf = require(configFile);
+}
+
 const File = Skyflow.File,
     Output = Skyflow.Output,
     Helper = Skyflow.Helper,
+    Request = Skyflow.Request,
     Shell = Skyflow.Shell;
 
 // Run current shell
@@ -61,7 +70,7 @@ const File = Skyflow.File,
 const currentShell = File.read(resolve(__dirname, 'src', 'Shell', '.current')),
     shellPath = resolve(__dirname, 'src', 'Shell', currentShell);
 
-if(Skyflow.Request.getCommands()['shell'] !== 0 && File.exists(shellPath)){
+if(Request.getCommands()['shell'] !== 0 && File.exists(shellPath)){
 
     const shell = require(shellPath);
 
@@ -70,7 +79,7 @@ if(Skyflow.Request.getCommands()['shell'] !== 0 && File.exists(shellPath)){
         process.exit(0);
     }
 
-    shell['run'].apply(shell['run'], [Skyflow.Request.getCommands(), Skyflow.Request.getOptions()]);
+    shell['run'].apply(shell['run'], [Request.getCommands(), Request.getOptions()]);
 
 }else {
 
@@ -78,14 +87,14 @@ if(Skyflow.Request.getCommands()['shell'] !== 0 && File.exists(shellPath)){
 
     const DefaultCommand = require(resolve(__dirname, 'src', 'Command', 'DefaultCommand'));
 
-    if (!Skyflow.Request.hasCommand() && !Skyflow.Request.hasOption()) {
+    if (!Request.hasCommand() && !Request.hasOption()) {
         DefaultCommand.help.apply(Skyflow);
-    }else if ((Skyflow.Request.hasOption('v') || Skyflow.Request.hasOption('version')) && !Skyflow.Request.hasCommand()) {
+    }else if ((Request.hasOption('v') || Request.hasOption('version')) && !Request.hasCommand()) {
         DefaultCommand.version.apply(Skyflow);
-    }else if ((Skyflow.Request.hasOption('h') || Skyflow.Request.hasOption('help'))) {
+    }else if ((Request.hasOption('h') || Request.hasOption('help'))) {
         let command = undefined;
-        if (Skyflow.Request.hasCommand()) {
-            const commands = Skyflow.Request.getCommands();
+        if (Request.hasCommand()) {
+            const commands = Request.getCommands();
             for (let c in commands) {
                 if (commands.hasOwnProperty(c)) {
                     command = c;
@@ -106,12 +115,12 @@ if(Skyflow.Request.getCommands()['shell'] !== 0 && File.exists(shellPath)){
         commands.forEach((command) => {
             for (let c in command) {
                 if (command[c].hasOwnProperty('callback')) {
-                    Skyflow.Request.registerCommand(c, command[c]['callback']);
+                    Request.registerCommand(c, command[c]['callback']);
                 }
             }
         });
 
-        Skyflow.Request.dispatchCommands();
+        Request.dispatchCommands();
 
     }
 

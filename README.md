@@ -11,18 +11,18 @@
 With **Skyflow-cli** you can:
 
 - Manage your development and production environments with **Docker**.
-- Manage and compile your assets with **Webpack**.
-- Quickly integrate **React** into your projects.
+- Manage and compile your assets with **Webpack** (in progress).
+- Quickly integrate **React** into your projects (in progress).
 - _And more ..._
 
-### Prerequisites
+## Prerequisites
 
 ------------
 
 **Skyflow-cli** is developed in Nodejs. You need [Nodejs](https://nodejs.org) or [Yarn](https://yarnpkg.com).
 
 
-### Installation
+## Installation
 
 ------------
 
@@ -62,11 +62,11 @@ or
 skyflow --help
 ```
 
-### Usage
+## Usage
 
 ------------
 
-To use the command line, you must generate the [configuration](./documentation/CONFIG.md) file with the following command:
+To use the command line, you must generate the [configuration](doc/CONFIG.md) file with the following command:
 
 ```
 skyflow init
@@ -75,17 +75,17 @@ skyflow init
 This will create a `skyflow.config.js` configuration file in the current folder.
 
 
-### Usage with Docker
+## Usage with Docker
 
 ------------
 
-[Docker module](./documentation/modules/DOCKER.md) is a native module of **Skyflow-cli**. To use it, activate the [Docker Shell](./documentation/SHELL.md) with this command
+[Docker module](doc/modules/DOCKER.md) is a native module of **Skyflow-cli**. To use it, activate the [Docker Shell](doc/SHELL.md) with this command
 
 ```
 skyflow shell docker
 ```
 
-Now you can use the [Docker module](./documentation/modules/DOCKER.md) commands.
+Now you can use the [Docker module](doc/modules/DOCKER.md) commands.
 
 _**Help for Docker module**_
 
@@ -96,7 +96,7 @@ skyflow help
 _**List available compose**_
 
 A **Compose** is the docker-compose service already configured and ready for use. 
-See [Docker module](./documentation/modules/DOCKER.md) for more details.
+See [Docker module](doc/modules/DOCKER.md) for more details.
 <br/>
 Use the following command to list the available compose:
 
@@ -114,7 +114,7 @@ Use the following command to list the available package:
 skyflow package --list
 ```
 
-_**Example of docker integration in a project**_
+## Example of docker integration in a project
 
 1. Generate configuration file
 ```
@@ -143,39 +143,63 @@ When adding a compose, some information may be required.
 skyflow compose:up -d --build
 ```
 
-5. Stop all service
+6. Stop all service
 ```
 skyflow compose:stop
 ```
 
-5. Stops containers and removes containers, networks, volumes, and images created by up.
+7. Stops containers and removes containers, networks, volumes, and images created by up.
 ```
 skyflow compose:down
 ```
 
-6. Stop `mariadb` service
+8. Stop `mariadb` service
 
 ```
 skyflow mariadb:stop
 ```
 
-7. Enter into `adminer` service
+9. Enter into `adminer` service
 
 ```
 skyflow adminer:sh
 ```
 
-8. Execute command into running `adminer` service
+10. Execute command into running `adminer` service
 
 ```
 skyflow adminer:exec apk update
 ```
 
-9. Run and execute command into `adminer` service
+11. Run and execute command into `adminer` service
 
 ```
 skyflow adminer:run apk update
 ```
 
 
+## Documentation
 
+------------
+
+The documentation is divided into several sections:
+
+- [Configuration](doc/CONFIG.md)
+- [Shell](doc/SHELL.md)
+- [Docker module](doc/modules/DOCKER.md)
+
+
+## Contributing
+
+------------
+
+_**Skyflow-cli**_ is composed of many modules. You can freely contribute to one of the modules.
+
+- [Docker module](https://github.com/skyflow-io/skyflow-docker-module)
+
+
+## License
+
+------------
+
+Skyflow-cli is [Apache licensed](LICENSE).

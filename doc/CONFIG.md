@@ -4,11 +4,11 @@
     </a>
 </div>
 
-<h1 align="center">Configuration file</h1>
+<h1 align="center">Configuration</h1>
 
 Documentation in progress ...
 
 
-### Usage
+## Usage
 
 ------------
