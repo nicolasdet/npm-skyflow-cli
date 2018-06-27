@@ -83,7 +83,7 @@ function updateCompose(composes = []) {
         return 1
     }
 
-    Input.input(allQuestions, (responses) => {
+    function questionsCallback(responses){
 
         let dest = resolve(dockerDir, 'docker-compose.yml');
         if (!File.exists(dest)) {
@@ -175,8 +175,15 @@ function updateCompose(composes = []) {
         for (let compose in storage.composes) {
             Output.success(compose + " added into docker-compose.yml.");
         }
+    }
 
-    });
+    if (Request.hasOption('file')) {
+        let responses = require(Request.getOption('file'));
+        questionsCallback(responses);
+        return 0
+    }
+
+    Input.input(allQuestions, questionsCallback);
 
     return 0
 }
@@ -649,9 +656,7 @@ class DockerCommand {
 
     compose(){
 
-        let options = Skyflow.Request.getOptions();
-
-        if(options['list']){
+        if(Request.hasOption('list')){
             return composeList();
         }
 
@@ -661,7 +666,8 @@ class DockerCommand {
     __compose__add(composes) {
 
         if (composes.length === 0) {
-            return this.__compose__list()
+            Request.setOption('list');
+            return this.compose()
         }
 
         let compose = composes[0],
@@ -716,14 +722,18 @@ class DockerCommand {
 
                 });
 
-                runAfterPull()
+                if(!Request.hasOption('y')){
+                    runAfterPull()
+                }
 
             });
 
             return 1
         }else {
 
-            runAfterPull()
+            if(!Request.hasOption('y')){
+                runAfterPull()
+            }
 
         }
 
@@ -846,9 +856,7 @@ class DockerCommand {
 
     package(){
 
-        let options = Skyflow.Request.getOptions();
-
-        if(options['list']){
+        if(Request.hasOption('list')){
             return packageList();
         }
 
@@ -858,7 +866,8 @@ class DockerCommand {
     __package__add(packages) {
 
         if (packages.length === 0) {
-            return this.__package__list()
+            Request.setOption('list');
+            return this.package()
         }
 
         let pkg = packages[0],
@@ -906,14 +915,18 @@ class DockerCommand {
 
                 });
 
-                runAfterPull()
+                if(!Request.hasOption('y')){
+                    runAfterPull()
+                }
 
             });
 
             return 1
         }else {
 
-            runAfterPull()
+            if(!Request.hasOption('y')){
+                runAfterPull()
+            }
 
         }
 

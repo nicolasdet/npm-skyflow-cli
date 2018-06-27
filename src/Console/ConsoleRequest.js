@@ -54,6 +54,16 @@ class ConsoleRequest {
     }
 
     /**
+     * @param {string} option
+     * @param value
+     * @returns {ConsoleRequest}
+     */
+    setOption(option, value = true){
+        this.options[option] = value;
+        return this;
+    }
+
+    /**
      * @returns {object}
      */
     getOptions(){

@@ -133,6 +133,9 @@ module.exports = {
 
     'compose:add': {
         description: "Add new compose into docker-compose.yml.",
+        options: {
+            '-y': 'No questions.'
+        }
     },
     'compose:remove': {
         description: "Remove compose from docker-compose.yml.",
@@ -250,6 +253,9 @@ module.exports = {
     },
     'package:add': {
         description: "Add project package.",
+        options: {
+            '-y': 'No questions.'
+        }
     },
 
 

@@ -93,8 +93,14 @@ _**Help for Docker module**_
 skyflow help
 ```
 
-_**List available composes**_
+_**List available compose**_
 
 ```
 skyflow compose --list
+```
+
+_**List available package**_
+
+```
+skyflow package --list
 ```
