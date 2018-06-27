@@ -17,14 +17,10 @@ With **Skyflow-cli** you can:
 
 ## Prerequisites
 
-------------
-
 **Skyflow-cli** is developed in Nodejs. You need [Nodejs](https://nodejs.org) or [Yarn](https://yarnpkg.com).
 
 
 ## Installation
-
-------------
 
 _**With npm**_
 
@@ -64,8 +60,6 @@ skyflow --help
 
 ## Usage
 
-------------
-
 To use the command line, you must generate the [configuration](doc/CONFIG.md) file with the following command:
 
 ```
@@ -76,8 +70,6 @@ This will create a `skyflow.config.js` configuration file in the current folder.
 
 
 ## Usage with Docker
-
-------------
 
 [Docker module](doc/modules/DOCKER.md) is a native module of **Skyflow-cli**. To use it, activate the [Docker Shell](doc/SHELL.md) with this command
 
@@ -180,8 +172,6 @@ skyflow adminer:run apk update
 
 ## Documentation
 
-------------
-
 The documentation is divided into several sections:
 
 - [Configuration](doc/CONFIG.md)
@@ -191,15 +181,11 @@ The documentation is divided into several sections:
 
 ## Contributing
 
-------------
-
 _**Skyflow-cli**_ is composed of many modules. You can freely contribute to one of the modules.
 
 - [Docker module](https://github.com/skyflow-io/skyflow-docker-module)
 
 
 ## License
-
-------------
 
 Skyflow-cli is [Apache licensed](LICENSE).
