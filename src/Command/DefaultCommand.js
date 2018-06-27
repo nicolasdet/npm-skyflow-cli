@@ -165,7 +165,14 @@ class DefaultCommand {
 
     shell(options) {
 
-        if(options['list']){
+        if(options['exit'] || options['e']){
+            let currentShell = resolve(__dirname, '..', 'Shell', '.current');
+            File.create(currentShell);
+            Output.success("Exit shell mode");
+            return 1
+        }
+
+        if(options['list'] || options['l']){
 
             Output.newLine();
             Output.writeln('Available shell:', 'blue', null, 'bold');
@@ -200,11 +207,7 @@ class DefaultCommand {
             return 1
         }
 
-        if(Skyflow.Request.hasCommand('exit')){
-            File.create(currentShell);
-            Output.success("Exit shell mode");
-            return 1
-        }
+
 
         shellName = Helper.upperFirst(shellName);
         let shellPath = resolve(__dirname, '..', 'Shell', shellName + 'Shell.js');

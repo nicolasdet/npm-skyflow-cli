@@ -4,122 +4,97 @@
     </a>
 </div>
 
-## Skyflow - Best friend of the developer
+<h1 align="center">Best friend of the developer</h1>
 
+**Skyflow-cli** is a command line that makes life easier for developers.
+<br />
+With **Skyflow-cli** you can:
 
-Skyflow make life easier for the developer.
+- Manage your development and production environments with **Docker**.
+- Manage and compile your assets with **Webpack**.
+- Quickly integrate **React** into your projects.
+- _And much more ..._
 
 ### Prerequisites
 
 ------------
 
-Skyflow is developed in Nodejs. You need [Nodejs](https://nodejs.org) or [Yarn](https://yarnpkg.com).
+**Skyflow-cli** is developed in Nodejs. You need [Nodejs](https://nodejs.org) or [Yarn](https://yarnpkg.com).
+
 
 ### Installation
 
 ------------
 
-With npm
+_**With npm**_
+
 ```
-npm install skyflow-cli -g
+npm install -g skyflow-cli
 ```
 
-With yarn
+_**With yarn**_
+
 ```
 yarn global add skyflow-cli
+```
+
+_**Check command line version**_
+
+```
+skyflow -v
+```
+
+or 
+
+```
+skyflow --version
+```
+
+_**Need help?**_
+
+```
+skyflow -h
+```
+
+or 
+
+```
+skyflow --help
 ```
 
 ### Usage
 
 ------------
 
-Get version
-```
-skyflow -v
-```
+To use the command line, you must generate the [configuration](./documentation/CONFIG.md) file with the following command:
 
-Get help
-```
-skyflow -h
-```
-
-Initialize skyflow
 ```
 skyflow init
 ```
 
-skyflow init command generate configuration file "skyflow.config.js".
+This will create a `skyflow.config.js` configuration file in the current folder.
 
-### Configuration
+
+### Usage with Docker
 
 ------------
-- Configuration file name -> "skyflow.config.js".
 
-#### Choose your environment type
+[Docker module](./documentation/modules/DOCKER.md) is a native module of **Skyflow-cli**. To use it, activate the [Docker Shell](./documentation/SHELL.md) with this command
 
-```javascript
-env:'dev'
+```
+skyflow shell docker
 ```
 
-#### Create your first command
+Now you can use the [Docker module](./documentation/modules/DOCKER.md) commands.
 
-```javascript
-module.exports = {
-    commands: {
-         commandName: {
-             description: "Description of command",
-             options: {
-                 option1: "Description of option",
-                 option2: "Description of option",
-             },
-             since: "1.0.0",
-             callback: ()=>{
-                 console.log(this);
-             }
-         }
-    }
-};
+_**Help for Docker module**_
+
+```
+skyflow help
 ```
 
-#### Invokable
+_**List available composes**_
 
-```javascript
-module.exports = {
-    container: {
-        invokable: {
-            // Use invoke method for this array
-            // Stores only callable functions
-        }
-    }
-};
 ```
-
-#### Service
-
-```javascript
-module.exports = {
-    container: {
-        service: {
-            // Use get method for this array
-        },
-        invokable: {
-            // Use invoke method for this array
-            // Stores only callable functions
-        }
-    }
-};
-```
-
-#### Module
-Module array contain configuration for each module.
-Example docker configuration file module finding in Module directory.
-
-```javascript
-module.exports = {
-    modules: {
-            docker: {
-                directory: 'docker'
-            }
-        }
-};
+skyflow compose --list
 ```

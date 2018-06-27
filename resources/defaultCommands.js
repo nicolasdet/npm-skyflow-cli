@@ -24,8 +24,8 @@ module.exports = {
     shell: {
         description: "Enter in shell mode.",
         options: {
-            'exit': 'Quit shell mode. Use without --list option.',
-            '--list': 'List shell can be used.',
+            '-e, --exit': 'Quit shell mode. Use without --list option.',
+            '-l, --list': 'List shell can be used.',
         },
         since: '1.0.0',
         callback: DefaultCommand.shell

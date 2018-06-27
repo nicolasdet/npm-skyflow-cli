@@ -124,6 +124,13 @@ module.exports = {
         }
     },
 
+    'compose': {
+        description: "Manage composes.",
+        options: {
+            '--list': 'List compose can be added.'
+        }
+    },
+
     'compose:add': {
         description: "Add new compose into docker-compose.yml.",
     },
@@ -135,9 +142,6 @@ module.exports = {
     },
     'compose:update': {
         description: "Update docker-compose.yml using local files.",
-    },
-    'compose:list': {
-        description: "List compose can be added.",
     },
     'compose:ps': {
         description: "Lists current compose containers.",
@@ -238,12 +242,16 @@ module.exports = {
         }
     },
 
+    'package': {
+        description: "Manage packages.",
+        options: {
+            '--list': "List package can be used.",
+        }
+    },
     'package:add': {
         description: "Add project package.",
     },
-    'package:list': {
-        description: "List package can be used.",
-    },
+
 
 
 };
