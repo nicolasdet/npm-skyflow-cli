@@ -253,6 +253,10 @@ function getCompose(compose, version = null, update = true) {
         }
     }
 
+    if(Request.hasOption('y')){
+        Output.success(compose + " added.");
+    }
+
     return update ? updateCompose([compose]) : 0;
 }
 
@@ -677,13 +681,13 @@ class DockerCommand {
             let versions = Directory.read(composeDir, {directory: true, file: false, filter: /^(v-?|version-)/});
 
             if (versions.length === 0) {
-                return getCompose(compose)
+                return getCompose(compose, null, !Request.hasOption('y'))
             }
 
             let version = Request.getOption('version') || Request.getOption('v');
 
             if(version){
-                return getCompose(compose, 'v' + version)
+                return getCompose(compose, 'v' + version, !Request.hasOption('y'))
             }
 
             // Choices
@@ -693,7 +697,7 @@ class DockerCommand {
                 },
                 versions,
                 answer => {
-                    getCompose(compose, answer.response)
+                    getCompose(compose, answer.response, !Request.hasOption('y'))
                 }
             );
         }
@@ -722,19 +726,14 @@ class DockerCommand {
 
                 });
 
-                if(!Request.hasOption('y')){
-                    runAfterPull()
-                }
+                runAfterPull();
 
             });
 
             return 1
         }else {
 
-            if(!Request.hasOption('y')){
-                runAfterPull()
-            }
-
+            runAfterPull();
         }
 
         return 0
@@ -876,17 +875,17 @@ class DockerCommand {
         function runAfterPull() {
             let versions = Directory.read(packageDir, {directory: true, file: false, filter: /^(v-?|version-)/});
 
-            if (versions.length === 0) {return getPackage(pkg)}
+            if (versions.length === 0) {return getPackage(pkg, null, !Request.hasOption('y'))}
 
             let version = Request.getOption('version') || Request.getOption('v');
 
             if(version){
-                return getPackage(pkg, 'v' + version)
+                return getPackage(pkg, 'v' + version, !Request.hasOption('y'))
             }
 
             // Choices
             Input.choices({message: 'Choose ' + pkg + ' version'}, versions, answer => {
-                    getPackage(pkg, answer.response)
+                    getPackage(pkg, answer.response, !Request.hasOption('y'))
                 }
             );
         }
