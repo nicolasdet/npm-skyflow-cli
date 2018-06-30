@@ -31,7 +31,9 @@ function getDockerDirFromConfig() {
 function runDockerComposeCommand(command, options = []) {
 
     let currentDockerDir = getDockerDirFromConfig();
-    if(!currentDockerDir){return 1}
+    if (!currentDockerDir) {
+        return 1
+    }
 
     Directory.create(currentDockerDir);
 
@@ -83,7 +85,7 @@ function updateCompose(composes = []) {
         return 1
     }
 
-    function questionsCallback(responses){
+    function questionsCallback(responses) {
 
         let dest = resolve(dockerDir, 'docker-compose.yml');
         if (!File.exists(dest)) {
@@ -253,7 +255,7 @@ function getCompose(compose, version = null, update = true) {
         }
     }
 
-    if(Request.hasOption('y')){
+    if (Request.hasOption('y')) {
         Output.success(compose + " added.");
     }
 
@@ -277,7 +279,7 @@ function getPackage(pkg, version = null) {
 
             compose = compose.split(':');
             let v = null;
-            if(compose[1]){
+            if (compose[1]) {
                 v = 'v' + compose[1]
             }
 
@@ -305,12 +307,14 @@ function composeList() {
 
         for (let l in lists) {
 
-            if(!lists.hasOwnProperty(l)){continue}
+            if (!lists.hasOwnProperty(l)) {
+                continue
+            }
 
             try {
-                const { filename } = await download.image({
+                const {filename} = await download.image({
                     url: lists[l]['img'],
-                    dest: resolve(assetsPath, lists[l]['name']+'.png')
+                    dest: resolve(assetsPath, lists[l]['name'] + '.png')
                 });
                 Output.success(lists[l]['name']);
             } catch (e) {
@@ -361,15 +365,19 @@ function composeList() {
             delete response.body.list;
             File.create(resolve(dest, 'list_all.js'), "module.exports = " + JSON.stringify(response.body));
 
-            if (Skyflow.isInux()) {fs.chmodSync(resolve(dest, 'list.js'), '777')}
-            if (Skyflow.isInux()) {fs.chmodSync(resolve(dest, 'list_all.js'), '777')}
+            if (Skyflow.isInux()) {
+                fs.chmodSync(resolve(dest, 'list.js'), '777')
+            }
+            if (Skyflow.isInux()) {
+                fs.chmodSync(resolve(dest, 'list_all.js'), '777')
+            }
 
             pullAssets()
 
         });
 
         return 1
-    }else {
+    } else {
         displayComposeList()
     }
 
@@ -390,12 +398,14 @@ function packageList() {
 
         for (let l in lists) {
 
-            if(!lists.hasOwnProperty(l)){continue}
+            if (!lists.hasOwnProperty(l)) {
+                continue
+            }
 
             try {
-                const { filename } = await download.image({
+                const {filename} = await download.image({
                     url: lists[l]['img'],
-                    dest: resolve(assetsPath, lists[l]['name']+'.png')
+                    dest: resolve(assetsPath, lists[l]['name'] + '.png')
                 });
                 Output.success(lists[l]['name']);
             } catch (e) {
@@ -446,15 +456,19 @@ function packageList() {
             delete response.body.list;
             File.create(resolve(dest, 'list_all.js'), "module.exports = " + JSON.stringify(response.body));
 
-            if (Skyflow.isInux()) {fs.chmodSync(resolve(dest, 'list.js'), '777')}
-            if (Skyflow.isInux()) {fs.chmodSync(resolve(dest, 'list_all.js'), '777')}
+            if (Skyflow.isInux()) {
+                fs.chmodSync(resolve(dest, 'list.js'), '777')
+            }
+            if (Skyflow.isInux()) {
+                fs.chmodSync(resolve(dest, 'list_all.js'), '777')
+            }
 
             pullAssets();
 
         });
 
         return 1
-    }else {
+    } else {
         displayPackageList()
     }
 
@@ -476,7 +490,7 @@ class DockerCommand {
 
         keys = keys.sort();
 
-        keys.forEach((k)=>{
+        keys.forEach((k) => {
 
             Output.writeln(k, 'green', null, 'bold');
 
@@ -613,7 +627,9 @@ class DockerCommand {
 
     __up(container, options) {
         let currentDockerDir = getDockerDirFromConfig();
-        if(!currentDockerDir){return 1}
+        if (!currentDockerDir) {
+            return 1
+        }
 
         let cwd = process.cwd();
         process.chdir(currentDockerDir);
@@ -656,11 +672,11 @@ class DockerCommand {
     }
 
 
-/*------------ Run for compose ----------*/
+    /*------------ Run for compose ----------*/
 
-    compose(){
+    compose() {
 
-        if(Request.hasOption('list')){
+        if (Request.hasOption('list')) {
             return composeList();
         }
 
@@ -677,6 +693,8 @@ class DockerCommand {
         let compose = composes[0],
             composeDir = resolve(Skyflow.getUserHome(), '.skyflow', 'docker', 'compose', compose);
 
+        let version = Request.getOption('version') || Request.getOption('v');
+
         function runAfterPull() {
             let versions = Directory.read(composeDir, {directory: true, file: false, filter: /^(v-?|version-)/});
 
@@ -684,9 +702,9 @@ class DockerCommand {
                 return getCompose(compose, null, !Request.hasOption('y'))
             }
 
-            let version = Request.getOption('version') || Request.getOption('v');
+            // let version = Request.getOption('version') || Request.getOption('v');
 
-            if(version){
+            if (version) {
                 return getCompose(compose, 'v' + version, !Request.hasOption('y'))
             }
 
@@ -702,7 +720,7 @@ class DockerCommand {
             );
         }
 
-        if (!Directory.exists(composeDir)) {
+        if ((version && !Directory.exists(resolve(composeDir, 'v' + version))) || !Directory.exists(composeDir)) {
 
             Output.writeln("Pulling " + compose + " compose from " + Skyflow.Api.protocol + '://' + Skyflow.Api.host + " ...", false);
 
@@ -713,7 +731,7 @@ class DockerCommand {
                     return 1
                 }
 
-                response.body.compose.forEach((c)=>{
+                response.body.compose.forEach((c) => {
 
                     let dest = resolve(Skyflow.getUserHome(), '.skyflow', ...c.directory);
 
@@ -731,7 +749,7 @@ class DockerCommand {
             });
 
             return 1
-        }else {
+        } else {
 
             runAfterPull();
         }
@@ -853,9 +871,9 @@ class DockerCommand {
 
     /*------------ Run for package ----------*/
 
-    package(){
+    package() {
 
-        if(Request.hasOption('list')){
+        if (Request.hasOption('list')) {
             return packageList();
         }
 
@@ -872,14 +890,16 @@ class DockerCommand {
         let pkg = packages[0],
             packageDir = resolve(Skyflow.getUserHome(), '.skyflow', 'docker', 'package', pkg);
 
+        let version = Request.getOption('version') || Request.getOption('v');
+
         function runAfterPull() {
             let versions = Directory.read(packageDir, {directory: true, file: false, filter: /^(v-?|version-)/});
 
-            if (versions.length === 0) {return getPackage(pkg, null, !Request.hasOption('y'))}
+            if (versions.length === 0) {
+                return getPackage(pkg, null, !Request.hasOption('y'))
+            }
 
-            let version = Request.getOption('version') || Request.getOption('v');
-
-            if(version){
+            if (version) {
                 return getPackage(pkg, 'v' + version, !Request.hasOption('y'))
             }
 
@@ -890,7 +910,7 @@ class DockerCommand {
             );
         }
 
-        if (!Directory.exists(packageDir)) {
+        if ((version && !Directory.exists(resolve(packageDir, 'v' + version))) || !Directory.exists(packageDir)) {
 
             Output.writeln("Pulling " + pkg + " package from " + Skyflow.Api.protocol + '://' + Skyflow.Api.host + " ...", false);
 
@@ -901,7 +921,7 @@ class DockerCommand {
                     return 1
                 }
 
-                response.body.package.forEach((pkg)=>{
+                response.body.package.forEach((pkg) => {
 
                     let dest = resolve(Skyflow.getUserHome(), '.skyflow', ...pkg.directory);
 
@@ -914,16 +934,16 @@ class DockerCommand {
 
                 });
 
-                if(!Request.hasOption('y')){
+                if (!Request.hasOption('y')) {
                     runAfterPull()
                 }
 
             });
 
             return 1
-        }else {
+        } else {
 
-            if(!Request.hasOption('y')){
+            if (!Request.hasOption('y')) {
                 runAfterPull()
             }
 

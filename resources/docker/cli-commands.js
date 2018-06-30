@@ -134,7 +134,8 @@ module.exports = {
     'compose:add': {
         description: "Add new compose into docker-compose.yml.",
         options: {
-            '-y': 'No questions.'
+            '-y': 'No questions.',
+            '-v, --version': 'Set version.',
         }
     },
     'compose:remove': {

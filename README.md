@@ -18,6 +18,7 @@ With **Skyflow-cli** you can:
 ## Prerequisites
 
 **Skyflow-cli** is developed in Nodejs. You need [Nodejs](https://nodejs.org) or [Yarn](https://yarnpkg.com).
+Skyflow-cli was developed for **Mac OX** and **Unix** systems.
 
 
 ## Installation
