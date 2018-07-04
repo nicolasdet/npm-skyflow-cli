@@ -61,30 +61,6 @@ function updateCompose(composes = []) {
 
     }
 
-    let allQuestions = [];
-
-    composes.forEach((compose) => {
-
-        if (!Directory.exists(resolve(dockerDir, compose))) {
-            Output.error("Compose " + compose + " not found.", false);
-            return 1
-        }
-
-        if (File.exists(resolve(dockerDir, compose, 'prompt.js'))) {
-            let questions = require(resolve(dockerDir, compose, 'prompt.js')).questions;
-            questions.forEach((question) => {
-                question.message = "[" + compose + "] " + question.message;
-                question.name = "__" + compose + "__" + question.name;
-                allQuestions.push(question);
-            })
-        }
-
-    });
-
-    if (allQuestions.length === 0) {
-        return 1
-    }
-
     function questionsCallback(responses) {
 
         let dest = resolve(dockerDir, 'docker-compose.yml');
@@ -183,6 +159,30 @@ function updateCompose(composes = []) {
         let responses = require(Request.getOption('file'));
         questionsCallback(responses);
         return 0
+    }
+
+    let allQuestions = [];
+
+    composes.forEach((compose) => {
+
+        if (!Directory.exists(resolve(dockerDir, compose))) {
+            Output.error("Compose " + compose + " not found.", false);
+            return 1
+        }
+
+        if (File.exists(resolve(dockerDir, compose, 'prompt.js'))) {
+            let questions = require(resolve(dockerDir, compose, 'prompt.js')).questions;
+            questions.forEach((question) => {
+                question.message = "[" + compose + "] " + question.message;
+                question.name = "__" + compose + "__" + question.name;
+                allQuestions.push(question);
+            })
+        }
+
+    });
+
+    if (allQuestions.length === 0) {
+        return 1
     }
 
     Input.input(allQuestions, questionsCallback);
@@ -807,7 +807,13 @@ class DockerCommand {
         return 0
     }
 
-    __compose__update(composes) {
+    __compose__update() {
+
+        let composes = Skyflow.Request.getCommands();
+
+        delete composes['compose:update'];
+
+        composes = Object.keys(composes);
 
         return updateCompose(composes)
     }

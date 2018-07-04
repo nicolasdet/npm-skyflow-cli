@@ -146,6 +146,9 @@ module.exports = {
     },
     'compose:update': {
         description: "Update docker-compose.yml using local files.",
+        options: {
+            '--file': "Set responses file.",
+        }
     },
     'compose:ps': {
         description: "Lists current compose containers.",
