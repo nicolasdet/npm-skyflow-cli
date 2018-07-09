@@ -391,7 +391,7 @@ function packageList() {
 
     async function pullAssets() {
 
-        let assetsPath = resolve(Skyflow.getUserHome(), '.skyflow', 'docker', 'assets', 'compose');
+        let assetsPath = resolve(Skyflow.getUserHome(), '.skyflow', 'docker', 'assets', 'package');
         Directory.create(assetsPath);
 
         let lists = require(listAll);
