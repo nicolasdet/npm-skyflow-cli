@@ -136,6 +136,13 @@ When adding a compose, some information may be required.
 skyflow compose:up -d --build
 ```
 
+If you have left the default information, you can access Adminer via: `localhost:8080`
+The information for the database is:
+- host : `mariadb`
+- Database name : `skyflow`
+- Database user : `skyflow`
+- Database password : `root`
+
 6. Stop all service
 ```
 skyflow compose:stop
