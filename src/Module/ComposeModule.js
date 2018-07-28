@@ -390,6 +390,10 @@ class ComposeModule {
 
         function runAfterPull() {
 
+            if(Request.hasOption('v')){
+                return getCompose(compose, Request.getOption('v'))
+            }
+
             let versions = Directory.read(composeDir, {directory: true, file: false});
 
             // Choices

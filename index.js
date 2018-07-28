@@ -20,7 +20,8 @@ Skyflow.Api = require(resolve(__dirname, 'src', 'Api'));
 
 const Request = Skyflow.Request,
     Helper = Skyflow.Helper,
-    Output = Skyflow.Output;
+    Output = Skyflow.Output,
+    DefaultCommand = require(resolve(__dirname, 'src', 'Command', 'DefaultCommand'));
 
 try {
     Skyflow.Conf = require(resolve(process.cwd(), Skyflow.CONFIG_FILE_NAME));
@@ -35,9 +36,6 @@ try {
 }
 
 Skyflow.Package = require('./package.json');
-
-
-const DefaultCommand = require(resolve(__dirname, 'src', 'Command', 'DefaultCommand'));
 
 if (!Request.hasCommand() && !Request.hasOption()) {
     DefaultCommand.help.apply(null);

@@ -61,7 +61,7 @@ class Api {
                 return 1
             }
 
-            response.body.compose.forEach((c) => {
+            response.body[type].forEach((c) => {
 
                 let dest = resolve(Skyflow.getUserHome(), '.skyflow', ...c.directory);
 
