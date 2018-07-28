@@ -15,58 +15,36 @@ class DefaultCommand {
         Output.write(Package.name, 'green')
             .write(' v' + Package.version, 'green')
             .writeln(' (' + Package.license + ')', 'green');
-            // .writeln('Franck DIOMANDE <fkdiomande@gmail.com>', 'gray');
 
         return 0
     }
 
-    help(command) {
+    help(module = null) {
+
+        let file = "default";
+
+        if (module) {file = Skyflow.Helper.lowerFirst(module)}
 
         let commands = [
-            Skyflow.getConfig('commands') || {},
-            require(resolve(__dirname, '..', '..', 'resources', 'defaultCommands'))
+            require(resolve(__dirname, '..', '..', 'help', file + 'Help'))
         ];
 
-        if (command) {
-            if (commands[0].hasOwnProperty(command)) {
-                let c = [{}, {}];
-                c[0][command] = commands[0][command];
-                commands = c;
-            }
-            if (commands[1].hasOwnProperty(command)) {
-                let c = [{}, {}];
-                c[0][command] = commands[1][command];
-                commands = c;
-            }
-        }
+        let title = Package.name.toUpperCase() + ' v' + Package.version;
+
+        if(module){title = "Help for " + Skyflow.Helper.upperFirst(module) + " module"}
 
         Output.newLine()
 
         // Display Title
-            .writeln(
-                Package.name.toUpperCase() +
-                ' v' + Package.version +
-                ' - Franck DIOMANDE <fkdiomande@gmail.com>',
-                'magenta'
-            )
+            .writeln(title, 'magenta')
             .writeln('-'.repeat(100), 'magenta', null, 'bold')
             .newLine();
-
-        if (!command) {
-            // Help
-            Output.writeln('-h | --help', 'green', null, 'bold')
-                .writeln('Display help for skyflow CLI')
-                // Version
-                .writeln('-v | --version', 'green', null, 'bold')
-                .writeln('Display version of current skyflow CLI')
-                .newLine();
-        }
 
         commands.forEach((command) => {
 
             for (let c in command) {
 
-                Output.write(c, 'green', null, 'bold');
+                Output.write(c, 'green', null, 'bold').space(2);
 
                 // Since
                 if (command[c]['since']) {
@@ -105,7 +83,7 @@ class DefaultCommand {
         let s = resolve(__dirname, '..', '..', 'resources', Skyflow.CONFIG_FILE_NAME);
         let dest = resolve(process.cwd(), Skyflow.CONFIG_FILE_NAME);
         File.copy(s, dest);
-        if(Skyflow.isInux()){
+        if (Skyflow.isInux()) {
             fs.chmodSync(dest, '777');
         }
         Output.success(Skyflow.CONFIG_FILE_NAME + ' was successfully created.');
@@ -114,7 +92,7 @@ class DefaultCommand {
 
     install(options) {
 
-        if(options['list']){
+        if (options['list']) {
 
             Output.newLine();
             Output.writeln('Available modules:', 'blue', null, 'bold');
@@ -123,7 +101,7 @@ class DefaultCommand {
 
             let modulesPath = resolve(__dirname, '..', 'Module');
             let modules = Directory.read(modulesPath);
-            modules.map((module)=>{
+            modules.map((module) => {
 
                 let name = module.replace(/Module\.js$/, '');
                 Output.write(name, null, null, 'bold');
@@ -154,7 +132,7 @@ class DefaultCommand {
 
         let module = require(modulePath);
 
-        if(!Helper.isFunction(module['install'])){
+        if (!Helper.isFunction(module['install'])) {
             Output.error('Install method not found in ' + moduleName + ' module.', false);
             return 1
         }
@@ -165,14 +143,14 @@ class DefaultCommand {
 
     shell(options) {
 
-        if(options['exit'] || options['e']){
+        if (options['exit'] || options['e']) {
             let currentShell = resolve(__dirname, '..', 'Shell', '.current');
             File.create(currentShell);
             Output.success("Exit shell mode");
             return 1
         }
 
-        if(options['list'] || options['l']){
+        if (options['list'] || options['l']) {
 
             Output.newLine();
             Output.writeln('Available shell:', 'blue', null, 'bold');
@@ -182,7 +160,7 @@ class DefaultCommand {
             let shellsPath = resolve(__dirname, '..', 'Shell');
             let shells = Directory.read(shellsPath, {directory: false, file: true, filter: /Shell\.js$/});
 
-            shells.map((shell)=>{
+            shells.map((shell) => {
 
                 let name = shell.replace(/Shell\.js$/, '');
                 Output.write(name, null, null, 'bold');
@@ -208,7 +186,6 @@ class DefaultCommand {
         }
 
 
-
         shellName = Helper.upperFirst(shellName);
         let shellPath = resolve(__dirname, '..', 'Shell', shellName + 'Shell.js');
 
@@ -219,7 +196,7 @@ class DefaultCommand {
 
         let shell = require(shellPath);
 
-        if(!Helper.isFunction(shell['run'])){
+        if (!Helper.isFunction(shell['run'])) {
             Output.error('Run method not found in ' + shellName + ' shell.', false);
             return 1
         }
