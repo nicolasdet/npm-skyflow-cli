@@ -218,48 +218,68 @@ function getCompose(compose, version = null) {
 
 function listCompose() {
 
-    let list = resolve(Skyflow.getUserHome(), '.skyflow', 'docker', 'compose', 'list.js');
+    let composeListFileName = resolve(Skyflow.getUserHome(), '.skyflow', 'docker', 'compose.list.js');
 
     function displayComposeList() {
 
-        list = require(list);
+        let composes = require(composeListFileName);
 
         Output.newLine();
         Output.writeln('Available compose:', 'blue', null, 'bold');
         Output.writeln('-'.repeat(50), 'blue', null, 'bold');
 
-        for (let name in list) {
-            if (!list.hasOwnProperty(name)) {
-                continue;
-            }
-            Output.write(name, null, null, 'bold');
-            Output.writeln(' -> compose:add ' + name.toLowerCase());
-            Output.writeln(list[name], 'gray')
+        composes.map((compose)=>{
 
-        }
+            Output.write(compose.name, null, null, 'bold');
+            Output.writeln(' >>> compose:add ' + compose.name.toLowerCase());
+
+            Output.write('Versions [ ', 'gray', null);
+            let versions = compose.versions.sort();
+            versions.map((version)=>{
+                Output.write(version + ' ', 'gray', null);
+            });
+
+            Output.writeln(']', 'gray');
+
+            Output.writeln(compose.description, 'gray')
+
+        });
 
     }
 
-    if (!File.exists(list)) {
+    if (!File.exists(composeListFileName)) {
 
-        Output.writeln("Pulling compose list from " + Api.protocol + '://' + Api.host + " ...", false);
+        Output.writeln('Pulling compose list from ' + Api.protocol + '://' + Api.host + ' ...', false);
 
-        Api.get('list/docker/compose', (response) => {
+        Api.get('docker/compose', (response) => {
 
             if (response.statusCode !== 200) {
-                Output.error("Can not pull compose list.", false);
+                Output.error('Can not pull compose list from ' + Api.protocol + '://' + Api.host + '.', false);
                 process.exit(1)
             }
 
-            let dest = resolve(Skyflow.getUserHome(), '.skyflow', 'docker', 'compose');
-            Directory.create(dest);
+            let data = response.body.data,
+            composes = [];
 
-            File.create(resolve(dest, 'list.js'), response.body.list);
-            delete response.body.list;
+            data.map((d)=>{
 
-            if (Skyflow.isInux()) {
-                fs.chmodSync(resolve(dest, 'list.js'), '777')
-            }
+                let directory = resolve(Skyflow.getUserHome(), '.skyflow', d.directory);
+                Directory.create(directory);
+                let configFile = resolve(directory, d.compose + '.config.js');
+
+                File.create(configFile, d.contents);
+                if (Skyflow.isInux()) {fs.chmodSync(configFile, '777')}
+
+                let compose = require(configFile);
+                compose['versions'] = d.versions;
+                composes.push(compose);
+
+                Directory.delete(directory);
+
+            });
+
+            File.create(composeListFileName, "'use strict';\n\nmodule.exports = "+JSON.stringify(composes));
+            if (Skyflow.isInux()) {fs.chmodSync(composeListFileName, '777')}
 
             displayComposeList()
 
@@ -388,10 +408,17 @@ class ComposeModule {
         let compose = composes[0],
             composeDir = resolve(Skyflow.getUserHome(), '.skyflow', 'docker', 'compose', compose);
 
+        let version = null;
+
+        if(Request.hasOption('v')){
+            version = Request.getOption('v');
+            composeDir = resolve(composeDir, version);
+        }
+
         function runAfterPull() {
 
-            if(Request.hasOption('v')){
-                return getCompose(compose, Request.getOption('v'))
+            if(version){
+                return getCompose(compose, version)
             }
 
             let versions = Directory.read(composeDir, {directory: true, file: false});
@@ -399,7 +426,7 @@ class ComposeModule {
             // Choices
             Input.choices(
                 {
-                    message: 'Choose ' + compose + ' version',
+                    message: 'Choose ' + compose + ' compose version',
                 },
                 versions,
                 answer => {
@@ -412,7 +439,13 @@ class ComposeModule {
         if (Directory.exists(composeDir)) {
             runAfterPull()
         }else {
-            Api.pullElement('compose', compose, runAfterPull);
+
+            if(version){
+                Api.getDockerComposeOrPackageVersion('compose', compose, version, runAfterPull);
+            }else {
+                Api.getDockerComposeOrPackage('compose', compose, runAfterPull);
+            }
+
         }
 
         return 0

@@ -11,29 +11,24 @@ const Helper = Skyflow.Helper,
 
 class Api {
 
-    constructor(){
+    constructor() {
 
-        this.events ={
-            success: null,
-            error: null,
-        };
-
-        this.protocol = "https";
-        this.host = "api.skyflow.io";
+        this.protocol = "http";
+        this.host = "localhost:8080";
 
     }
 
-    get(url, callback){
-        
-        request(this.protocol + '://'+this.host + '/' + url.trim('/'), (error, response, body)=>{
+    get(url, callback) {
+
+        request(this.protocol + '://' + this.host + '/' + url.trim('/'), (error, response, body) => {
 
             response = {
-                error : error,
+                error: error,
                 statusCode: response ? response.statusCode : null,
-                body: (response.statusCode === 200) ? JSON.parse(body) : null,
+                body: (!error && response.statusCode === 200) ? JSON.parse(body) : null,
             };
 
-            if(Helper.isFunction(callback)){
+            if (Helper.isFunction(callback)) {
                 callback.apply(this, [response])
             }
 
@@ -42,35 +37,40 @@ class Api {
         return this
     }
 
-
     /**
-     * Pull element
+     * Pull docker compose or package version.
      * @param type Can be 'compose' 'package'
      * @param value Can be 'adminer' 'symfony'
+     * @param version Can be '4.0' 'latest'
      * @param callback
      * @returns {number}
      */
-    pullElement(type, value, callback) {
+    getDockerComposeOrPackageVersion(type, value, version = 'latest', callback) {
 
-        Output.writeln("Pulling " + value + " compose from " + this.protocol + '://' + this.host + " ...", false);
+        Output.writeln('Pulling ' + value + ' ' + type + ' version ' + version + ' from ' + this.protocol + '://' + this.host + ' ...', false);
 
-        this.get('docker/' + type + '/' + value, (response) => {
+        this.get('docker/' + type + '/' + value + '/' + version, (response) => {
 
             if (response.statusCode !== 200) {
-                Output.error(value + " compose not found.", false);
+                Output.error('Can not pull ' + value + ' ' + type + ' version ' + version + ' from ' + this.protocol + '://' + this.host + '.', false);
                 return 1
             }
 
-            response.body[type].forEach((c) => {
+            if (response.body.status !== 200) {
+                Output.error(response.body.error, false);
+                return 1
+            }
 
-                let dest = resolve(Skyflow.getUserHome(), '.skyflow', ...c.directory);
+            let data = response.body.data;
 
-                Directory.create(dest);
+            data.map((d)=>{
 
-                File.create(resolve(dest, c.file), c.content);
-                if (Skyflow.isInux()) {
-                    fs.chmodSync(resolve(dest, c.file), '777')
-                }
+                let directory = resolve(Skyflow.getUserHome(), '.skyflow', d.directory);
+                Directory.create(directory);
+                let filename = resolve(directory, d.filename);
+
+                File.create(filename, d.contents);
+                if (Skyflow.isInux()) {fs.chmodSync(filename, '777')}
 
             });
 
@@ -82,26 +82,48 @@ class Api {
 
     }
 
+    /**
+     * Pull docker compose or package.
+     * @param type Can be 'compose' 'package'
+     * @param value Can be 'adminer' 'symfony'
+     * @param callback
+     * @returns {number}
+     */
+    getDockerComposeOrPackage(type, value, callback) {
 
-    post(){
+        Output.writeln('Pulling ' + value + ' ' + type + ' from ' + this.protocol + '://' + this.host + ' ...', false);
 
-    }
+        this.get('docker/' + type + '/' + value, (response) => {
 
-    put(){
+            if (response.statusCode !== 200) {
+                Output.error('Can not pull ' + value + ' ' + type + ' from ' + this.protocol + '://' + this.host + '.', false);
+                return 1
+            }
 
-    }
+            if (response.body.status !== 200) {
+                Output.error(response.body.error, false);
+                return 1
+            }
 
-    delete(){
+            let data = response.body.data;
 
-    }
+            data.map((d)=>{
 
-    on(event, callback){
+                let directory = resolve(Skyflow.getUserHome(), '.skyflow', d.directory);
+                Directory.create(directory);
+                let filename = resolve(directory, d.filename);
 
-        if(this.events.hasOwnProperty(event) && Helper.isFunction(callback)){
-            this.events[event] = callback
-        }
+                File.create(filename, d.contents);
+                if (Skyflow.isInux()) {fs.chmodSync(filename, '777')}
 
-        return this
+            });
+
+            callback();
+
+        });
+
+        return 1
+
     }
 
 

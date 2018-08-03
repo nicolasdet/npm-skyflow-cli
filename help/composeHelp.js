@@ -88,8 +88,11 @@ module.exports = {
         }
     },
 
-    'compose:add <compose>': {
+    'compose:add <compose> [-v <version>]': {
         description: "Add new compose into docker-compose.yml.",
+        options: {
+            '-v <version>': 'Version of compose.',
+        }
     },
     'compose:remove': {
         description: "Remove compose from docker-compose.yml.",

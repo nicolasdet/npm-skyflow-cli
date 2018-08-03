@@ -32,8 +32,8 @@ function getPackage(pkg, version = null) {
                 compose[1] = 'latest';
             }
 
-            Api.pullElement('compose', compose[0], () => {
-                Request.setOption('v', 'v' + compose[1]);
+            Api.getDockerComposeOrPackageVersion('compose', compose[0], compose[1], () => {
+                Request.setOption('v', compose[1]);
                 ComposeModule['__compose__add'].apply(ComposeModule, [[compose[0]]]);
             });
 
@@ -46,57 +46,77 @@ function getPackage(pkg, version = null) {
 
 function listPackage() {
 
-    let list = resolve(Skyflow.getUserHome(), '.skyflow', 'docker', 'package', 'list.js');
+    let pkgListFileName = resolve(Skyflow.getUserHome(), '.skyflow', 'docker', 'package.list.js');
 
-    function displayPackageList() {
+    function displayComposeList() {
 
-        list = require(list);
+        let composes = require(pkgListFileName);
 
         Output.newLine();
-        Output.writeln('Available package:', 'blue', null, 'bold');
+        Output.writeln('Available compose:', 'blue', null, 'bold');
         Output.writeln('-'.repeat(50), 'blue', null, 'bold');
 
-        for (let name in list) {
-            if (!list.hasOwnProperty(name)) {
-                continue;
-            }
-            Output.write(name, null, null, 'bold');
-            Output.writeln(' -> package:add ' + name.toLowerCase());
-            Output.writeln(list[name], 'gray')
+        composes.map((compose)=>{
 
-        }
+            Output.write(compose.name, null, null, 'bold');
+            Output.writeln(' >>> package:add ' + compose.name.toLowerCase());
+
+            Output.write('Versions [ ', 'gray', null);
+            let versions = compose.versions.sort();
+            versions.map((version)=>{
+                Output.write(version + ' ', 'gray', null);
+            });
+
+            Output.writeln(']', 'gray');
+
+            Output.writeln(compose.description, 'gray')
+
+        });
 
     }
 
-    if (!File.exists(list)) {
+    if (!File.exists(pkgListFileName)) {
 
-        Output.writeln("Pulling package list from " + Api.protocol + '://' + Api.host + " ...", false);
+        Output.writeln('Pulling package list from ' + Api.protocol + '://' + Api.host + ' ...', false);
 
-        Api.get('list/docker/package', (response) => {
+        Api.get('docker/package', (response) => {
 
             if (response.statusCode !== 200) {
-                Output.error("Can not pull package list.", false);
+                Output.error('Can not pull package list from ' + Api.protocol + '://' + Api.host + '.', false);
                 process.exit(1)
             }
 
-            let dest = resolve(Skyflow.getUserHome(), '.skyflow', 'docker', 'package');
-            Directory.create(dest);
+            let data = response.body.data,
+                packages = [];
 
-            File.create(resolve(dest, 'list.js'), response.body.list);
-            delete response.body.list;
+            data.map((d)=>{
 
-            if (Skyflow.isInux()) {
-                fs.chmodSync(resolve(dest, 'list.js'), '777')
-            }
+                let directory = resolve(Skyflow.getUserHome(), '.skyflow', d.directory);
+                Directory.create(directory);
+                let configFile = resolve(directory, d.pkg + '.config.js');
 
-            displayPackageList()
+                File.create(configFile, d.contents);
+                if (Skyflow.isInux()) {fs.chmodSync(configFile, '777')}
+
+                let pkg = require(configFile);
+                pkg['versions'] = d.versions;
+                packages.push(pkg);
+
+                Directory.delete(directory);
+
+            });
+
+            File.create(pkgListFileName, "'use strict';\n\nmodule.exports = "+JSON.stringify(packages));
+            if (Skyflow.isInux()) {fs.chmodSync(pkgListFileName, '777')}
+
+            displayComposeList()
 
         });
 
         return 0
     }
 
-    displayPackageList();
+    displayComposeList();
 
     return 0
 }
@@ -155,14 +175,25 @@ class PackageModule {
         let pkg = packages[0],
             packageDir = resolve(Skyflow.getUserHome(), '.skyflow', 'docker', 'package', pkg);
 
+        let version = null;
+
+        if(Request.hasOption('v')){
+            version = Request.getOption('v');
+            packageDir = resolve(packageDir, version);
+        }
+
         function runAfterPull() {
+
+            if(version){
+                return getPackage(pkg, version)
+            }
 
             let versions = Directory.read(packageDir, {directory: true, file: false});
 
             // Choices
             Input.choices(
                 {
-                    message: 'Choose ' + pkg + ' version',
+                    message: 'Choose ' + pkg + ' package version',
                 },
                 versions,
                 answer => {
@@ -175,7 +206,11 @@ class PackageModule {
         if (Directory.exists(packageDir)) {
             runAfterPull()
         } else {
-            Api.pullElement('package', pkg, runAfterPull);
+            if(version){
+                Api.getDockerComposeOrPackageVersion('package', pkg, version, runAfterPull);
+            }else {
+                Api.getDockerComposeOrPackage('package', pkg, runAfterPull);
+            }
         }
 
         return 0

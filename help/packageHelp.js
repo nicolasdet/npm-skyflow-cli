@@ -8,6 +8,9 @@ module.exports = {
     },
     'package:add <package>': {
         description: "Add project package.",
+        options: {
+            '-v <version>': 'Version of package.',
+        }
     },
 
 };
