@@ -14,7 +14,7 @@ class DockerModule {
         let c = "__docker__" + command;
 
         if (this[c]) {
-            return this[c](options);
+            return this[c].apply(this, [options]);
         }
 
         Output.error('Command ' + command + ' not found in Docker module.', false);

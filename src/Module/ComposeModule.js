@@ -140,8 +140,8 @@ function updateCompose(composes = []) {
             return 1
         }
 
-        if (File.exists(resolve(dockerDir, compose, 'prompt.js'))) {
-            let questions = require(resolve(dockerDir, compose, 'prompt.js')).questions;
+        if (File.exists(resolve(dockerDir, compose, 'console.js'))) {
+            let questions = require(resolve(dockerDir, compose, 'console.js')).questions;
             questions.forEach((question) => {
                 question.message = "[" + compose + "] " + question.message;
                 question.name = "__" + compose + "__" + question.name;
@@ -170,8 +170,8 @@ function getCompose(compose, version = null) {
 
     let prompt = null;
 
-    if (File.exists(resolve(composeDir, 'prompt.js'))) {
-        prompt = resolve(composeDir, 'prompt.js')
+    if (File.exists(resolve(composeDir, 'console.js'))) {
+        prompt = resolve(composeDir, 'console.js')
     }
 
     let currentDockerDir = getDockerDirFromConfig(),
@@ -204,8 +204,8 @@ function getCompose(compose, version = null) {
 
     // Copy prompt file
     if (prompt) {
-        let dest = resolve(destDir, 'prompt.js');
-        File.copy(resolve(composeDir, 'prompt.js'), dest);
+        let dest = resolve(destDir, 'console.js');
+        File.copy(resolve(composeDir, 'console.js'), dest);
         if (Skyflow.isInux()) {
             fs.chmodSync(dest, '777')
         }
@@ -310,7 +310,7 @@ class ComposeModule {
             let c = "__compose__" + command;
 
             if (this[c]) {
-                return this[c](options);
+                return this[c].apply(this, [options]);
             }
 
         } else {
@@ -320,7 +320,7 @@ class ComposeModule {
             // Todo : Check if container exists
 
             if (this[c]) {
-                return this[c](container, options);
+                return this[c].apply(this, [container, options]);
             }
 
         }

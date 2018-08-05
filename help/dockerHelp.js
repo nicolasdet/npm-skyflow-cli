@@ -1,6 +1,6 @@
 module.exports = {
 
-    rmi: {
+    'docker:rmi': {
         description: "Remove one or more images.",
         options: {
             '-f, --force': "Force removal of the image.",
@@ -8,7 +8,7 @@ module.exports = {
         }
 
     },
-    rmc: {
+    'docker:rmc': {
         description: "Remove stopped containers.",
         options: {
             '--all , -a': "Remove all containers.",
@@ -30,7 +30,7 @@ module.exports = {
         }
 
     },
-    ps: {
+    'docker:ps': {
         description: "Lists containers.",
         options: {
             '-q': "Only display IDs",

@@ -22,12 +22,14 @@ const Request = Skyflow.Request,
     Helper = Skyflow.Helper,
     Output = Skyflow.Output,
     DefaultCommand = require(resolve(__dirname, 'src', 'Command', 'DefaultCommand'));
+/*
 
 try {
     Skyflow.Conf = require(resolve(process.cwd(), Skyflow.CONFIG_FILE_NAME));
 } catch (e) {
     Skyflow.Conf = {};
 }
+*/
 
 try {
     Skyflow.CurrentPackage = require(resolve(process.cwd(), 'package.json'));

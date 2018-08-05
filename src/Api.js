@@ -126,6 +126,47 @@ class Api {
 
     }
 
+    /**
+     * Pull react component samples.
+     * @param callback
+     * @returns {number}
+     */
+    getReactComponentSamples(callback) {
+
+        Output.writeln('Pulling react component samples from ' + this.protocol + '://' + this.host + ' ...', false);
+
+        this.get('react/sample/component', (response) => {
+
+            if (response.statusCode !== 200) {
+                Output.error('Can not pull react component samples from ' + this.protocol + '://' + this.host + '.', false);
+                return 1
+            }
+
+            if (response.body.status !== 200) {
+                Output.error(response.body.error, false);
+                return 1
+            }
+
+            let data = response.body.data;
+
+            data.map((d)=>{
+
+                let directory = resolve(Skyflow.getUserHome(), '.skyflow', d.directory);
+                Directory.create(directory);
+                let filename = resolve(directory, d.filename);
+
+                File.create(filename, d.contents);
+                if (Skyflow.isInux()) {fs.chmodSync(filename, '777')}
+
+            });
+
+            callback();
+
+        });
+
+        return 1
+
+    }
 
 }
 

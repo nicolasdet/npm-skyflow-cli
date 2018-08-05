@@ -138,7 +138,7 @@ class PackageModule {
             let c = "__package__" + command;
 
             if (this[c]) {
-                return this[c](options);
+                return this[c].apply(this, [options]);
             }
 
         } else {
@@ -146,7 +146,7 @@ class PackageModule {
             let c = "__" + command;
 
             if (this[c]) {
-                return this[c](container, options);
+                return this[c].apply(this, [container, options]);
             }
 
         }
