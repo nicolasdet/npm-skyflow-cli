@@ -2,8 +2,6 @@
 
 const {execSync, spawnSync, spawn} = require('child_process');
 
-const Helper = Skyflow.Helper, Output = Skyflow.Output;
-
 class Shell {
 
     constructor(){

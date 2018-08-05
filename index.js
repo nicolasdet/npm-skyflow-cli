@@ -3,6 +3,7 @@
 'use strict';
 
 require('skyflow-core');
+const _ = require('lodash');
 
 const resolve = require("path").resolve;
 
@@ -21,21 +22,8 @@ Skyflow.Api = require(resolve(__dirname, 'src', 'Api'));
 const Request = Skyflow.Request,
     Helper = Skyflow.Helper,
     Output = Skyflow.Output,
-    DefaultCommand = require(resolve(__dirname, 'src', 'Command', 'DefaultCommand'));
-/*
-
-try {
-    Skyflow.Conf = require(resolve(process.cwd(), Skyflow.CONFIG_FILE_NAME));
-} catch (e) {
-    Skyflow.Conf = {};
-}
-*/
-
-try {
-    Skyflow.CurrentPackage = require(resolve(process.cwd(), 'package.json'));
-} catch (e) {
-    Skyflow.CurrentPackage = {};
-}
+    DefaultCommand = require(resolve(__dirname, 'src', 'Command', 'DefaultCommand')),
+    alias = require(resolve(__dirname, 'extra', 'alias'));
 
 Skyflow.Package = require('./package.json');
 
@@ -61,9 +49,13 @@ if (!Request.hasCommand()) {
 
 let commands = process.argv.slice(2)[0].split(':'),
     moduleName = commands[0],
-    Module = Helper.upperFirst(moduleName);
+    Module = _.upperFirst(moduleName);
 
 try {
+    if(alias.hasOwnProperty(Module)){
+        moduleName = alias[Module];
+        Module = _.upperFirst(moduleName)
+    }
     // Get alias
     Module = require(resolve(__dirname, 'src', 'Module', Module + 'Module'));
 } catch (e) {
