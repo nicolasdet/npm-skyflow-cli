@@ -14,8 +14,11 @@
     "command",
     "command line",
     "docker",
+    "compose",
+    "package",
     "react",
-    "webpack"
+    "webpack",
+    "style"
   ],
   "author": "Franck DIOMANDE <fkdiomande@gmail.com>",
   "license": "Apache-2.0",

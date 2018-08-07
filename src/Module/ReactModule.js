@@ -44,8 +44,8 @@ class ReactModule {
                 dir = Request.getOption('dir')
             }
 
-            Directory.create(dir);
             dir = resolve(process.cwd(), dir);
+            Directory.create(dir);
 
             components.map((name)=>{
 

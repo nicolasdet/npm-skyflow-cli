@@ -1,5 +1,11 @@
 module.exports = {
 
+    'compose': {
+        description: "Manage composes.",
+        options: {
+            '--list': 'List compose can be added.'
+        }
+    },
     'compose:<container>:up': {
         description: "Builds, (re)creates, starts, and attaches to containers for a service.",
         options: {
@@ -80,14 +86,6 @@ module.exports = {
             '--name NAME': "Assign a name to the container",
         }
     },
-
-    'compose': {
-        description: "Manage composes.",
-        options: {
-            '--list': 'List compose can be added.'
-        }
-    },
-
     'compose:add <compose> [-v <version>]': {
         description: "Add new compose into docker-compose.yml.",
         options: {
