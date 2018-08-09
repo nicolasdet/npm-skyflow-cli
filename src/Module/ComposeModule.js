@@ -14,7 +14,7 @@ const Shell = Skyflow.Shell,
 
 function getDockerDirFromConfig() {
 
-    let currentDockerDir = Skyflow.getConfig('modules.docker.directory') || 'docker';
+    let currentDockerDir = 'docker';
 
     Directory.create(currentDockerDir);
 
@@ -45,7 +45,7 @@ function updateCompose(composes = []) {
             let content = "version: \"2\"" + os.EOL + os.EOL +
                 "services:";
             File.create(dest, content);
-            if (Skyflow.isInux()) {
+            if (Skyflow.Helper.isInux()) {
                 fs.chmodSync(dest, '777')
             }
         }
@@ -89,7 +89,7 @@ function updateCompose(composes = []) {
                 storage.dockerfiles[compose] = dockerfile;
                 let dest = resolve(composeDir, 'Dockerfile');
                 File.create(dest, dockerfile);
-                if (Skyflow.isInux()) {
+                if (Skyflow.Helper.isInux()) {
                     fs.chmodSync(dest, '777')
                 }
             }
@@ -118,7 +118,7 @@ function updateCompose(composes = []) {
                 content += dockerCompose;
 
                 File.create(dest, content);
-                if (Skyflow.isInux()) {
+                if (Skyflow.Helper.isInux()) {
                     fs.chmodSync(dest, '777')
                 }
 
@@ -162,7 +162,7 @@ function updateCompose(composes = []) {
 
 function getCompose(compose, version = null) {
 
-    let composeDir = resolve(Skyflow.getUserHome(), '.skyflow', 'docker', 'compose', compose, version);
+    let composeDir = resolve(Skyflow.Helper.getUserHome(), '.skyflow', 'docker', 'compose', compose, version);
 
     if (!Directory.exists(composeDir)) {
         return 1
@@ -188,7 +188,7 @@ function getCompose(compose, version = null) {
     if (File.exists(resolve(composeDir, 'Dockerfile'))) {
         let dest = resolve(destDir, 'Dockerfile.dist');
         File.copy(resolve(composeDir, 'Dockerfile'), dest);
-        if (Skyflow.isInux()) {
+        if (Skyflow.Helper.isInux()) {
             fs.chmodSync(dest, '777')
         }
     }
@@ -197,7 +197,7 @@ function getCompose(compose, version = null) {
     if (File.exists(resolve(composeDir, compose + '.yml'))) {
         let dest = resolve(destDir, 'docker-compose.dist');
         File.copy(resolve(composeDir, compose + '.yml'), dest);
-        if (Skyflow.isInux()) {
+        if (Skyflow.Helper.isInux()) {
             fs.chmodSync(dest, '777')
         }
     }
@@ -206,7 +206,7 @@ function getCompose(compose, version = null) {
     if (prompt) {
         let dest = resolve(destDir, 'console.js');
         File.copy(resolve(composeDir, 'console.js'), dest);
-        if (Skyflow.isInux()) {
+        if (Skyflow.Helper.isInux()) {
             fs.chmodSync(dest, '777')
         }
     }
@@ -218,7 +218,7 @@ function getCompose(compose, version = null) {
 
 function listCompose() {
 
-    let composeListFileName = resolve(Skyflow.getUserHome(), '.skyflow', 'docker', 'compose.list.js');
+    let composeListFileName = resolve(Skyflow.Helper.getUserHome(), '.skyflow', 'docker', 'compose.list.js');
 
     function displayComposeList() {
 
@@ -263,12 +263,12 @@ function listCompose() {
 
             data.map((d)=>{
 
-                let directory = resolve(Skyflow.getUserHome(), '.skyflow', d.directory);
+                let directory = resolve(Skyflow.Helper.getUserHome(), '.skyflow', d.directory);
                 Directory.create(directory);
                 let configFile = resolve(directory, d.compose + '.config.js');
 
                 File.create(configFile, d.contents);
-                if (Skyflow.isInux()) {fs.chmodSync(configFile, '777')}
+                if (Skyflow.Helper.isInux()) {fs.chmodSync(configFile, '777')}
 
                 let compose = require(configFile);
                 compose['versions'] = d.versions;
@@ -279,7 +279,7 @@ function listCompose() {
             });
 
             File.create(composeListFileName, "'use strict';\n\nmodule.exports = "+JSON.stringify(composes));
-            if (Skyflow.isInux()) {fs.chmodSync(composeListFileName, '777')}
+            if (Skyflow.Helper.isInux()) {fs.chmodSync(composeListFileName, '777')}
 
             displayComposeList()
 
@@ -406,7 +406,7 @@ class ComposeModule {
         }
 
         let compose = composes[0],
-            composeDir = resolve(Skyflow.getUserHome(), '.skyflow', 'docker', 'compose', compose);
+            composeDir = resolve(Skyflow.Helper.getUserHome(), '.skyflow', 'docker', 'compose', compose);
 
         let version = null;
 
@@ -485,7 +485,7 @@ class ComposeModule {
                 , "m"), "");
 
             File.create(dest, content);
-            if (Skyflow.isInux()) {
+            if (Skyflow.Helper.isInux()) {
                 fs.chmodSync(dest, '777')
             }
 

@@ -4,31 +4,36 @@ const {execSync, spawnSync, spawn} = require('child_process');
 
 class Shell {
 
-    constructor(){
+    constructor() {
         this.result = "";
         this.arrayResult = [];
         this.error = false;
     }
 
-    run(command, options){
+    run(command, options) {
+
+        this.error = false;
 
         let spawn = spawnSync(command + '', options);
-        this.error = spawn.stderr.toString().trim();
 
-        if (!this.error) {this.error = false}
+        if(spawn.status === null){
+
+            this.error = spawn.error;
+
+            return this;
+        }
 
         this.result = spawn.stdout.toString().trim();
-
         this.arrayResult = this.result.split("\n");
 
-        if(this.arrayResult[0] === ''){
+        if (this.arrayResult[0] === '') {
             this.arrayResult = [];
         }
 
         return this;
     }
 
-    runAsync(command, options){
+    runAsync(command, options) {
         let cmd = spawn(command + '', options);
         cmd.stdout.on('data', (data) => {
             console.log(`stdout: ${data}`);
@@ -41,23 +46,23 @@ class Shell {
 
     }
 
-    exec(command){
+    exec(command) {
         execSync(command, {stdio: [process.stdin, process.stdout, process.stderr]});
     }
 
-    hasError(){
+    hasError() {
         return this.error !== false;
     }
 
-    getError(){
+    getError() {
         return this.error;
     }
 
-    getResult(){
+    getResult() {
         return this.result;
     }
 
-    getArrayResult(){
+    getArrayResult() {
         return this.arrayResult;
     }
 

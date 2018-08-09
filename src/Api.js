@@ -64,12 +64,12 @@ class Api {
 
             data.map((d) => {
 
-                let directory = resolve(Skyflow.getUserHome(), '.skyflow', d.directory);
+                let directory = resolve(Helper.getUserHome(), '.skyflow', d.directory);
                 Directory.create(directory);
                 let filename = resolve(directory, d.filename);
 
                 File.create(filename, d.contents);
-                if (Skyflow.isInux()) {
+                if (Helper.isInux()) {
                     fs.chmodSync(filename, '777')
                 }
 
@@ -110,12 +110,12 @@ class Api {
 
             data.map((d) => {
 
-                let directory = resolve(Skyflow.getUserHome(), '.skyflow', d.directory);
+                let directory = resolve(Helper.getUserHome(), '.skyflow', d.directory);
                 Directory.create(directory);
                 let filename = resolve(directory, d.filename);
 
                 File.create(filename, d.contents);
-                if (Skyflow.isInux()) {
+                if (Helper.isInux()) {
                     fs.chmodSync(filename, '777')
                 }
 
@@ -154,16 +154,55 @@ class Api {
 
             data.map((d) => {
 
-                let directory = resolve(Skyflow.getUserHome(), '.skyflow', d.directory);
+                let directory = resolve(Helper.getUserHome(), '.skyflow', d.directory);
                 Directory.create(directory);
                 let filename = resolve(directory, d.filename);
 
                 File.create(filename, d.contents);
-                if (Skyflow.isInux()) {
+                if (Helper.isInux()) {
                     fs.chmodSync(filename, '777')
                 }
 
             });
+
+            callback();
+
+        });
+
+        return 1
+
+    }
+
+    /**
+     * Pull react install files.
+     * @param callback
+     * @returns {number}
+     */
+    getReactInstallFiles(callback) {
+
+        Output.writeln('Pulling react install files from ' + this.protocol + '://' + this.host + ' ...', false);
+
+        this.get('react/install', (response) => {
+
+            if (response.statusCode !== 200) {
+                Output.error('Can not pull react install files from ' + this.protocol + '://' + this.host + '.', false);
+                return 1
+            }
+
+            if (response.body.status !== 200) {
+                Output.error(response.body.error, false);
+                return 1
+            }
+
+            let data = response.body.data;
+
+            let installDir = resolve(Helper.getUserHome(), '.skyflow', 'react', 'install');
+            Directory.create(installDir);
+            let installFile = resolve(installDir, 'install.js');
+            File.create(installFile, "'use strict';\n\nmodule.exports = " + JSON.stringify(data) + ';');
+            if (Helper.isInux()) {
+                fs.chmodSync(installFile, '777')
+            }
 
             callback();
 
@@ -199,12 +238,12 @@ class Api {
 
             data.map((d) => {
 
-                let directory = resolve(Skyflow.getUserHome(), '.skyflow', d.directory);
+                let directory = resolve(Helper.getUserHome(), '.skyflow', d.directory);
                 Directory.create(directory);
                 let filename = resolve(directory, d.filename);
 
                 File.create(filename, d.contents);
-                if (Skyflow.isInux()) {
+                if (Helper.isInux()) {
                     fs.chmodSync(filename, '777')
                 }
 
@@ -243,12 +282,12 @@ class Api {
 
             data.map((d) => {
 
-                let directory = resolve(Skyflow.getUserHome(), '.skyflow', d.directory);
+                let directory = resolve(Helper.getUserHome(), '.skyflow', d.directory);
                 Directory.create(directory);
                 let filename = resolve(directory, d.filename);
 
                 File.create(filename, d.contents);
-                if (Skyflow.isInux()) {
+                if (Helper.isInux()) {
                     fs.chmodSync(filename, '777')
                 }
 

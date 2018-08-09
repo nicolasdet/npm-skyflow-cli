@@ -3,15 +3,9 @@
 'use strict';
 
 require('skyflow-core');
-const _ = require('lodash');
+const _ = require('lodash'),
+    resolve = require("path").resolve;
 
-const resolve = require("path").resolve;
-
-Skyflow.getUserHome = () => {
-    return process.env[Skyflow.isWindows() ? 'USERPROFILE' : 'HOME'];
-};
-
-Skyflow.CONFIG_FILE_NAME = 'skyflow.config.js';
 Skyflow.Shell = require(resolve(__dirname, 'src', 'Shell'));
 Skyflow.Style = require(resolve(__dirname, 'src', 'Console', 'ConsoleStyle'));
 Skyflow.Input = require(resolve(__dirname, 'src', 'Console', 'ConsoleInput'));
@@ -56,7 +50,6 @@ try {
         moduleName = alias[Module];
         Module = _.upperFirst(moduleName)
     }
-    // Get alias
     Module = require(resolve(__dirname, 'src', 'Module', Module + 'Module'));
 } catch (e) {
     Output.error('Module ' + Module + ' not found.', false);

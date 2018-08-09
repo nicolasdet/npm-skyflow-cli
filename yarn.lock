@@ -426,9 +426,9 @@ signal-exit@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
 
-skyflow-core@^1.0.3-beta.4:
-  version "1.0.3-beta.4"
-  resolved "https://registry.yarnpkg.com/skyflow-core/-/skyflow-core-1.0.3-beta.4.tgz#96ac13f0512e8d7e5250cf84eebb486d907a0ec1"
+skyflow-core@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/skyflow-core/-/skyflow-core-1.0.4.tgz#720befe53940d83c6682f1fc3deaa9e00341da0b"
 
 sshpk@^1.7.0:
   version "1.14.2"

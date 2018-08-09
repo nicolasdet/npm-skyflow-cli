@@ -14,7 +14,7 @@ const _ = require('lodash');
 
 function listStyle() {
 
-    let styleListFileName = resolve(Skyflow.getUserHome(), '.skyflow', 'style', 'compose.list.js');
+    let styleListFileName = resolve(Skyflow.Helper.getUserHome(), '.skyflow', 'style', 'style.list.js');
 
     function displayStyleList() {
 
@@ -47,14 +47,14 @@ function listStyle() {
             let data = response.body.data,
                 styles = [];
 
-            Directory.create(resolve(Skyflow.getUserHome(), '.skyflow', 'style'));
+            Directory.create(resolve(Skyflow.Helper.getUserHome(), '.skyflow', 'style'));
 
             data.map((d)=>{
                 styles.push(d.filename.replace(/^_+|\.scss$/g, ''));
             });
 
             File.create(styleListFileName, "'use strict';\n\nmodule.exports = "+JSON.stringify(styles));
-            if (Skyflow.isInux()) {fs.chmodSync(styleListFileName, '777')}
+            if (Skyflow.Helper.isInux()) {fs.chmodSync(styleListFileName, '777')}
 
             displayStyleList()
 
@@ -101,7 +101,7 @@ class StyleModule {
             process.exit(1);
         }
 
-        let styleDir = resolve(Skyflow.getUserHome(), '.skyflow', 'style');
+        let styleDir = resolve(Skyflow.Helper.getUserHome(), '.skyflow', 'style');
 
         function runAfterPull(name) {
 
@@ -127,7 +127,7 @@ class StyleModule {
             }
 
             File.copy(resolve(styleDir, name), resolve(dir, name));
-            if (Skyflow.isInux()) {fs.chmodSync(resolve(dir, name), '777')}
+            if (Skyflow.Helper.isInux()) {fs.chmodSync(resolve(dir, name), '777')}
 
             Output.success(name);
         }

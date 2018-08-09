@@ -1,14 +1,32 @@
 'use strict';
 
-const fs = require("fs"), resolve = require("path").resolve;
+const fs = require("fs"), path = require("path"), resolve = path.resolve;
 
 const Directory = Skyflow.Directory,
     File = Skyflow.File,
+    Shell = Skyflow.Shell,
+    Helper = Skyflow.Helper,
     Api = Skyflow.Api,
     Request = Skyflow.Request,
     Output = Skyflow.Output;
 
 const _ = require('lodash');
+
+function runInfo(npmOrYarn) {
+
+    Output.newLine();
+    Output.writeln('Run:', false, false, 'bold');
+    Output.newLine();
+    Output.info(npmOrYarn + ' run dev', false);
+    Output.writeln('Compile assets for development environment.');
+    Output.newLine();
+    Output.info(npmOrYarn + ' run build', false);
+    Output.writeln('Compile assets for production environment.');
+    Output.newLine();
+    Output.info(npmOrYarn + ' run watch', false);
+    Output.writeln('For watching assets.');
+
+}
 
 class ReactModule {
 
@@ -35,24 +53,24 @@ class ReactModule {
             process.exit(1);
         }
 
-        let sampleDir = resolve(Skyflow.getUserHome(), '.skyflow', 'react', 'sample', 'component');
+        let sampleDir = resolve(Helper.getUserHome(), '.skyflow', 'react', 'sample', 'component');
 
         function runAfterPull() {
 
             let dir = './';
-            if(Request.hasOption('dir')){
+            if (Request.hasOption('dir')) {
                 dir = Request.getOption('dir')
             }
 
             dir = resolve(process.cwd(), dir);
             Directory.create(dir);
 
-            components.map((name)=>{
+            components.map((name) => {
 
                 name = _.upperFirst(_.camelCase(_.deburr(name)));
 
                 let tmpDir = resolve(dir, name);
-                if(Directory.exists(tmpDir) && !Request.hasOption('force')){
+                if (Directory.exists(tmpDir) && !Request.hasOption('force')) {
                     Output.error(name + ' component already exists. Use --force option to force creation.', false);
                     return 1;
                 }
@@ -66,21 +84,27 @@ class ReactModule {
                 contents = contents.replace(/\{\{ *name *\}\}/g, name).replace(/\{\{ *style *\}\}/g, styleName);
                 let filename = resolve(tmpDir, name + 'Component.js');
                 File.create(filename, contents);
-                if (Skyflow.isInux()) {fs.chmodSync(filename, '777')}
+                if (Helper.isInux()) {
+                    fs.chmodSync(filename, '777')
+                }
 
                 // Style file
                 contents = File.read(resolve(sampleDir, 'component.scss.sample'));
                 contents = contents.replace(/\{\{ *name *\}\}/g, name).replace(/\{\{ *style *\}\}/g, styleName);
                 filename = resolve(tmpDir, name + 'Component.scss');
                 File.create(filename, contents);
-                if (Skyflow.isInux()) {fs.chmodSync(filename, '777')}
+                if (Helper.isInux()) {
+                    fs.chmodSync(filename, '777')
+                }
 
                 // Event file
                 contents = File.read(resolve(sampleDir, 'componentEvent.js.sample'));
                 contents = contents.replace(/\{\{ *name *\}\}/g, name).replace(/\{\{ *style *\}\}/g, styleName);
                 filename = resolve(tmpDir, name + 'ComponentEvent.js');
                 File.create(filename, contents);
-                if (Skyflow.isInux()) {fs.chmodSync(filename, '777')}
+                if (Helper.isInux()) {
+                    fs.chmodSync(filename, '777')
+                }
 
                 Output.success(name + 'Component');
 
@@ -96,6 +120,71 @@ class ReactModule {
 
         return 0
     }
+
+    __react__install() {
+
+        let installDir = resolve(Helper.getUserHome(), '.skyflow', 'react', 'install');
+
+        function runAfterPull() {
+
+            Directory.copy(installDir, resolve(process.cwd()));
+
+            let files = require(resolve(installDir, 'install.js'));
+
+            files.map((file) => {
+
+                let currentDir = resolve(process.cwd(), file.directory);
+                Directory.create(currentDir);
+                let filePath = resolve(currentDir, file.filename);
+                File.create(filePath, file.contents);
+                if (Helper.isInux()) {
+                    fs.chmodSync(filePath, '777')
+                }
+                Output.success(_.trimStart(file.directory + path.sep + file.filename, '/'));
+
+            });
+
+            if (File.exists(resolve(process.cwd(), 'install.js'))) {
+                File.remove(resolve(process.cwd(), 'install.js'));
+            }
+
+            // Try to run yarn
+
+            Output.writeln('Checking yarn ...');
+            Shell.run('yarns', ['-v']);
+            if(!Shell.hasError()){
+                Output.writeln('Installing dependencies ...');
+                Shell.exec('yarn');
+                runInfo('yarn');
+                return 0
+            }
+            Output.info('yarn not found.', false);
+
+            // Try to run npm
+
+            Output.writeln('Checking npm ...');
+            Shell.run('npms', ['-v']);
+            if(!Shell.hasError()){
+                Output.writeln('Installing dependencies ...');
+                Shell.exec('npm install');
+                runInfo('npm');
+                return 0
+            }
+            Output.info('npm not found.', false);
+
+            Output.error('Can not install dependencies. Yarn or npm not found.', false);
+
+        }
+
+        if (Directory.exists(installDir)) {
+            runAfterPull()
+        } else {
+            Api.getReactInstallFiles(runAfterPull);
+        }
+
+        return 0
+    }
+
 
 }
 

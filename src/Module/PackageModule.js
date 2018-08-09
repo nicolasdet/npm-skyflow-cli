@@ -14,7 +14,7 @@ const ComposeModule = require('./ComposeModule');
 
 function getPackage(pkg, version = null) {
 
-    let pkgDir = resolve(Skyflow.getUserHome(), '.skyflow', 'docker', 'package', pkg, version);
+    let pkgDir = resolve(Skyflow.Helper.getUserHome(), '.skyflow', 'docker', 'package', pkg, version);
 
     if (!Directory.exists(pkgDir)) {
         return 1
@@ -46,7 +46,7 @@ function getPackage(pkg, version = null) {
 
 function listPackage() {
 
-    let pkgListFileName = resolve(Skyflow.getUserHome(), '.skyflow', 'docker', 'package.list.js');
+    let pkgListFileName = resolve(Skyflow.Helper.getUserHome(), '.skyflow', 'docker', 'package.list.js');
 
     function displayComposeList() {
 
@@ -91,12 +91,12 @@ function listPackage() {
 
             data.map((d)=>{
 
-                let directory = resolve(Skyflow.getUserHome(), '.skyflow', d.directory);
+                let directory = resolve(Skyflow.Helper.getUserHome(), '.skyflow', d.directory);
                 Directory.create(directory);
                 let configFile = resolve(directory, d.pkg + '.config.js');
 
                 File.create(configFile, d.contents);
-                if (Skyflow.isInux()) {fs.chmodSync(configFile, '777')}
+                if (Skyflow.Helper.isInux()) {fs.chmodSync(configFile, '777')}
 
                 let pkg = require(configFile);
                 pkg['versions'] = d.versions;
@@ -107,7 +107,7 @@ function listPackage() {
             });
 
             File.create(pkgListFileName, "'use strict';\n\nmodule.exports = "+JSON.stringify(packages));
-            if (Skyflow.isInux()) {fs.chmodSync(pkgListFileName, '777')}
+            if (Skyflow.Helper.isInux()) {fs.chmodSync(pkgListFileName, '777')}
 
             displayComposeList()
 
@@ -173,7 +173,7 @@ class PackageModule {
         }
 
         let pkg = packages[0],
-            packageDir = resolve(Skyflow.getUserHome(), '.skyflow', 'docker', 'package', pkg);
+            packageDir = resolve(Skyflow.Helper.getUserHome(), '.skyflow', 'docker', 'package', pkg);
 
         let version = null;
 

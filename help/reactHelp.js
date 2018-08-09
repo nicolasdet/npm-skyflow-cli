@@ -7,5 +7,7 @@ module.exports = {
             '--dir': "Folder that will contain the component.",
         }
     },
-
+    'react:install': {
+        description: "Skeleton for React project.",
+    },
 };
