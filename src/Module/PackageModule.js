@@ -216,6 +216,13 @@ class PackageModule {
         return 0
     }
 
+    __package__update() {
+
+        return ComposeModule['__compose__update'].apply(ComposeModule);
+
+    }
+
+
 }
 
 module.exports = new PackageModule();

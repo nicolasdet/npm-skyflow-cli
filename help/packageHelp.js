@@ -12,5 +12,8 @@ module.exports = {
             '-v <version>': 'Version of package.',
         }
     },
+    'package:update [<compose1> <compose2> ...]': {
+        description: "Update docker-compose.yml using local files.",
+    },
 
 };

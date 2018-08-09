@@ -504,10 +504,8 @@ class ComposeModule {
     __compose__update() {
 
         let composes = Skyflow.Request.getCommands();
-
-        delete composes['compose:update'];
-
         composes = Object.keys(composes);
+        composes = composes.slice(1);
 
         return updateCompose(composes)
     }
