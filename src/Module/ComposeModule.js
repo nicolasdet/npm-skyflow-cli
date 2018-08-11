@@ -2,15 +2,15 @@
 
 const resolve = require('path').resolve,
     fs = require('fs'),
-    os = require('os');
-
-const Shell = Skyflow.Shell,
+    os = require('os'),
+    Shell = Skyflow.Shell,
     Api = Skyflow.Api,
     File = Skyflow.File,
     Directory = Skyflow.Directory,
     Input = Skyflow.Input,
     Request = Skyflow.Request,
-    Output = Skyflow.Output;
+    Output = Skyflow.Output,
+    _ = require('lodash');
 
 function getDockerDirFromConfig() {
 
@@ -29,6 +29,53 @@ function runDockerComposeCommand(command, options = []) {
     process.chdir(cwd)
 
 }
+
+let dockerContainers = [];
+
+Skyflow.hasDockerContainer = (container) => {
+
+    Shell.run('docker', ['ps', '-a']);
+
+    let lines = Shell.getArrayResult().slice(1);
+
+    lines.map((line) => {
+        let words = line.split(/ +/);
+        dockerContainers.push(words[words.length - 1])
+    });
+
+    return _.indexOf(dockerContainers, container) !== -1;
+};
+
+Skyflow.addDockerContainer = (container) => {
+    dockerContainers.push(container)
+};
+
+let dockerPorts = [];
+
+Skyflow.isPortReachable = (port = 80, host = '0.0.0.0') => {
+
+    Shell.run('docker', ['ps', '-a']);
+
+    let lines = Shell.getArrayResult().slice(1);
+
+    lines.map((line) => {
+        let words = line.split(/ +/);
+        dockerPorts.push(words[words.length - 2])
+    });
+
+    let hasPort = false;
+
+    dockerPorts.map((o) => {
+        hasPort = hasPort || (o.indexOf(host + ':' + port) > -1);
+        return hasPort;
+    });
+
+    return hasPort;
+};
+
+Skyflow.addDockerPort = (port = 80, host = '0.0.0.0') => {
+    dockerPorts.push(host + ':' + port)
+};
 
 function updateCompose(composes = []) {
 
@@ -140,8 +187,10 @@ function updateCompose(composes = []) {
             return 1
         }
 
-        if (File.exists(resolve(dockerDir, compose, 'console.js'))) {
-            let questions = require(resolve(dockerDir, compose, 'console.js')).questions;
+        let consoleFile = resolve(dockerDir, compose, 'console.js');
+
+        if (File.exists(consoleFile)) {
+            let questions = require(consoleFile).questions;
             questions.forEach((question) => {
                 question.message = "[" + compose + "] " + question.message;
                 question.name = "__" + compose + "__" + question.name;
@@ -228,14 +277,14 @@ function listCompose() {
         Output.writeln('Available compose:', 'blue', null, 'bold');
         Output.writeln('-'.repeat(50), 'blue', null, 'bold');
 
-        composes.map((compose)=>{
+        composes.map((compose) => {
 
             Output.write(compose.name, null, null, 'bold');
             Output.writeln(' >>> compose:add ' + compose.name.toLowerCase());
 
             Output.write('Versions [ ', 'gray', null);
             let versions = compose.versions.sort();
-            versions.map((version)=>{
+            versions.map((version) => {
                 Output.write(version + ' ', 'gray', null);
             });
 
@@ -259,16 +308,18 @@ function listCompose() {
             }
 
             let data = response.body.data,
-            composes = [];
+                composes = [];
 
-            data.map((d)=>{
+            data.map((d) => {
 
                 let directory = resolve(Skyflow.Helper.getUserHome(), '.skyflow', d.directory);
                 Directory.create(directory);
                 let configFile = resolve(directory, d.compose + '.config.js');
 
                 File.create(configFile, d.contents);
-                if (Skyflow.Helper.isInux()) {fs.chmodSync(configFile, '777')}
+                if (Skyflow.Helper.isInux()) {
+                    fs.chmodSync(configFile, '777')
+                }
 
                 let compose = require(configFile);
                 compose['versions'] = d.versions;
@@ -278,8 +329,10 @@ function listCompose() {
 
             });
 
-            File.create(composeListFileName, "'use strict';\n\nmodule.exports = "+JSON.stringify(composes));
-            if (Skyflow.Helper.isInux()) {fs.chmodSync(composeListFileName, '777')}
+            File.create(composeListFileName, "'use strict';\n\nmodule.exports = " + JSON.stringify(composes));
+            if (Skyflow.Helper.isInux()) {
+                fs.chmodSync(composeListFileName, '777')
+            }
 
             displayComposeList()
 
@@ -297,6 +350,18 @@ class ComposeModule {
 
     // Require
     dispatcher(container, command) {
+
+        Shell.run('docker', ['-v']);
+        if (Shell.hasError()) {
+            Output.error('Docker does not respond. Check if it is installed and running.', false);
+            return 1
+        }
+
+        Shell.run('docker-compose', ['-v']);
+        if (Shell.hasError()) {
+            Output.error('Docker-compose does not respond. Check if it is installed and running.', false);
+            return 1
+        }
 
         if (command === undefined) {
             command = container;
@@ -317,8 +382,6 @@ class ComposeModule {
 
             let c = "__" + command;
 
-            // Todo : Check if container exists
-
             if (this[c]) {
                 return this[c].apply(this, [container, options]);
             }
@@ -330,9 +393,9 @@ class ComposeModule {
         return 1
     }
 
-    compose(){
+    compose() {
 
-        if(Request.hasOption("list")){
+        if (Request.hasOption("list")) {
             return listCompose();
         }
 
@@ -410,14 +473,14 @@ class ComposeModule {
 
         let version = null;
 
-        if(Request.hasOption('v')){
+        if (Request.hasOption('v')) {
             version = Request.getOption('v');
             composeDir = resolve(composeDir, version);
         }
 
         function runAfterPull() {
 
-            if(version){
+            if (version) {
                 return getCompose(compose, version)
             }
 
@@ -438,11 +501,11 @@ class ComposeModule {
 
         if (Directory.exists(composeDir)) {
             runAfterPull()
-        }else {
+        } else {
 
-            if(version){
+            if (version) {
                 Api.getDockerComposeOrPackageVersion('compose', compose, version, runAfterPull);
-            }else {
+            } else {
                 Api.getDockerComposeOrPackage('compose', compose, runAfterPull);
             }
 
@@ -466,9 +529,9 @@ class ComposeModule {
             process.exit(1)
         }
 
-        composes.map((compose)=>{
+        composes.map((compose) => {
 
-            if(/^\-\-?/.test(compose)){
+            if (/^\-\-?/.test(compose)) {
                 return 1
             }
 

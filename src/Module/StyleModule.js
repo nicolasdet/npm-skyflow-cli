@@ -2,15 +2,12 @@
 
 const fs = require("fs"),
     path = require("path"),
-    resolve = require("path").resolve;
-
-const Directory = Skyflow.Directory,
+    resolve = require("path").resolve,
+    Directory = Skyflow.Directory,
     File = Skyflow.File,
     Api = Skyflow.Api,
     Request = Skyflow.Request,
     Output = Skyflow.Output;
-
-const _ = require('lodash');
 
 function listStyle() {
 

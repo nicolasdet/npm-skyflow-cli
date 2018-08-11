@@ -1,9 +1,8 @@
 'use strict';
 
-const fs = require('fs'), resolve = require('path').resolve,
-    _ = require('lodash');
-
-const Helper = Skyflow.Helper,
+const resolve = require('path').resolve,
+    _ = require('lodash'),
+    Helper = Skyflow.Helper,
     Output = Skyflow.Output;
 
 class DefaultCommand {

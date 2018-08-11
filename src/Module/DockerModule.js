@@ -9,6 +9,12 @@ class DockerModule {
     // Require
     dispatcher(command) {
 
+        Shell.run('docker', ['-v']);
+        if(Shell.hasError()){
+            Output.error('Docker does not respond. Check if it is installed and running.', false);
+            return 1
+        }
+
         let options = process.argv.slice(3);
 
         let c = "__docker__" + command;

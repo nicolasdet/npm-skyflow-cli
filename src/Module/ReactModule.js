@@ -1,16 +1,16 @@
 'use strict';
 
-const fs = require("fs"), path = require("path"), resolve = path.resolve;
-
-const Directory = Skyflow.Directory,
+const fs = require("fs"),
+    path = require("path"),
+    resolve = path.resolve,
+    Directory = Skyflow.Directory,
     File = Skyflow.File,
     Shell = Skyflow.Shell,
     Helper = Skyflow.Helper,
     Api = Skyflow.Api,
     Request = Skyflow.Request,
-    Output = Skyflow.Output;
-
-const _ = require('lodash');
+    Output = Skyflow.Output,
+    _ = require('lodash');
 
 function runInfo(npmOrYarn) {
 
@@ -151,7 +151,7 @@ class ReactModule {
             // Try to run yarn
 
             Output.writeln('Checking yarn ...');
-            Shell.run('yarns', ['-v']);
+            Shell.run('yarn', ['-v']);
             if(!Shell.hasError()){
                 Output.writeln('Installing dependencies ...');
                 Shell.exec('yarn');
@@ -163,7 +163,7 @@ class ReactModule {
             // Try to run npm
 
             Output.writeln('Checking npm ...');
-            Shell.run('npms', ['-v']);
+            Shell.run('npm', ['-v']);
             if(!Shell.hasError()){
                 Output.writeln('Installing dependencies ...');
                 Shell.exec('npm install');

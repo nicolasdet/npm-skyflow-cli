@@ -1,16 +1,15 @@
 'use strict';
 
 const resolve = require('path').resolve,
-    fs = require('fs');
-
-const File = Skyflow.File,
+    fs = require('fs'),
+    File = Skyflow.File,
     Api = Skyflow.Api,
+    Shell = Skyflow.Shell,
     Directory = Skyflow.Directory,
     Input = Skyflow.Input,
     Request = Skyflow.Request,
-    Output = Skyflow.Output;
-
-const ComposeModule = require('./ComposeModule');
+    Output = Skyflow.Output,
+    ComposeModule = require('./ComposeModule');
 
 function getPackage(pkg, version = null) {
 
@@ -125,6 +124,18 @@ class PackageModule {
 
     // Require
     dispatcher(container, command) {
+
+        Shell.run('docker', ['-v']);
+        if(Shell.hasError()){
+            Output.error('Docker does not respond. Check if it is installed and running.', false);
+            return 1
+        }
+
+        Shell.run('docker-compose', ['-v']);
+        if(Shell.hasError()){
+            Output.error('Docker-compose does not respond. Check if it is installed and running.', false);
+            return 1
+        }
 
         if (command === undefined) {
             command = container;
