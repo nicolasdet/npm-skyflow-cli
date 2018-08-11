@@ -6,6 +6,7 @@ const resolve = require('path').resolve,
     Shell = Skyflow.Shell,
     Api = Skyflow.Api,
     File = Skyflow.File,
+    Helper = Skyflow.Helper,
     Directory = Skyflow.Directory,
     Input = Skyflow.Input,
     Request = Skyflow.Request,
@@ -99,7 +100,8 @@ function updateCompose(composes = []) {
 
         let storage = {
             composes: {},
-            dockerfiles: {}
+            dockerfiles: {},
+            config: {}
         };
 
         for (let response in responses) {
@@ -114,6 +116,12 @@ function updateCompose(composes = []) {
                 compose = c;
                 return '';
             });
+
+            if (!storage.config[compose]) {
+                storage.config[compose] = {}
+            }
+
+            storage.config[compose][response] = responses["__" + compose + "__" + response];
 
             let composeDir = resolve(dockerDir, compose),
                 dockerfile = "",
@@ -173,9 +181,49 @@ function updateCompose(composes = []) {
 
         }
 
+        // Create compose configuration file.
+
+        for (let compose in storage.config) {
+
+            if (!storage.config.hasOwnProperty(compose)) {
+                continue;
+            }
+
+            let composeDir = resolve(dockerDir, compose);
+
+            if (!Directory.exists(composeDir)) {
+                continue;
+            }
+            let contents = "'use strict';\n\n";
+            contents += 'module.exports = {\n';
+
+            let config = storage.config[compose];
+
+            for (let c in config) {
+                if (!config.hasOwnProperty(c)) {
+                    continue;
+                }
+                contents += '    ' + c + ": '" + config[c] + "',\n";
+            }
+
+            contents += "};";
+
+            let configFilename = resolve(composeDir, compose + '.values.js');
+            File.create(configFilename, contents);
+            if (Helper.isInux()) {
+                fs.chmodSync(configFilename, '777')
+            }
+
+            if(!File.exists(resolve(Helper.getUserHome(), '.skyflow', 'docker', 'compose', compose, compose + '.config.js'))){
+                Api.getDockerComposeConfig(compose);
+            }
+
+        }
+
         for (let compose in storage.composes) {
             Output.success(compose + " added into docker-compose.yml.");
         }
+
     }
 
     let allQuestions = [];
@@ -183,17 +231,26 @@ function updateCompose(composes = []) {
     composes.forEach((compose) => {
 
         if (!Directory.exists(resolve(dockerDir, compose))) {
-            Output.error("Compose " + compose + " not found.", false);
+            Output.error('Compose ' + compose + ' not found.', false);
             return 1
         }
 
-        let consoleFile = resolve(dockerDir, compose, 'console.js');
+        let consoleFile = resolve(dockerDir, compose, 'console.js'),
+            valuesFile = resolve(dockerDir, compose, compose + '.values.js');
+
+        let config = null;
+        if (File.exists(valuesFile)) {
+            config = require(valuesFile)
+        }
 
         if (File.exists(consoleFile)) {
             let questions = require(consoleFile).questions;
             questions.forEach((question) => {
-                question.message = "[" + compose + "] " + question.message;
-                question.name = "__" + compose + "__" + question.name;
+                if (config) {
+                    question.default = config[question.name]
+                }
+                question.message = '[' + compose + '] ' + question.message;
+                question.name = '__' + compose + '__' + question.name;
                 allQuestions.push(question);
             })
         }
@@ -211,7 +268,7 @@ function updateCompose(composes = []) {
 
 function getCompose(compose, version = null) {
 
-    let composeDir = resolve(Skyflow.Helper.getUserHome(), '.skyflow', 'docker', 'compose', compose, version);
+    let composeDir = resolve(Helper.getUserHome(), '.skyflow', 'docker', 'compose', compose, version);
 
     if (!Directory.exists(composeDir)) {
         return 1
@@ -237,7 +294,7 @@ function getCompose(compose, version = null) {
     if (File.exists(resolve(composeDir, 'Dockerfile'))) {
         let dest = resolve(destDir, 'Dockerfile.dist');
         File.copy(resolve(composeDir, 'Dockerfile'), dest);
-        if (Skyflow.Helper.isInux()) {
+        if (Helper.isInux()) {
             fs.chmodSync(dest, '777')
         }
     }
@@ -246,7 +303,7 @@ function getCompose(compose, version = null) {
     if (File.exists(resolve(composeDir, compose + '.yml'))) {
         let dest = resolve(destDir, 'docker-compose.dist');
         File.copy(resolve(composeDir, compose + '.yml'), dest);
-        if (Skyflow.Helper.isInux()) {
+        if (Helper.isInux()) {
             fs.chmodSync(dest, '777')
         }
     }
@@ -255,7 +312,7 @@ function getCompose(compose, version = null) {
     if (prompt) {
         let dest = resolve(destDir, 'console.js');
         File.copy(resolve(composeDir, 'console.js'), dest);
-        if (Skyflow.Helper.isInux()) {
+        if (Helper.isInux()) {
             fs.chmodSync(dest, '777')
         }
     }
@@ -267,7 +324,7 @@ function getCompose(compose, version = null) {
 
 function listCompose() {
 
-    let composeListFileName = resolve(Skyflow.Helper.getUserHome(), '.skyflow', 'docker', 'compose.list.js');
+    let composeListFileName = resolve(Helper.getUserHome(), '.skyflow', 'docker', 'compose.list.js');
 
     function displayComposeList() {
 
@@ -312,12 +369,12 @@ function listCompose() {
 
             data.map((d) => {
 
-                let directory = resolve(Skyflow.Helper.getUserHome(), '.skyflow', d.directory);
+                let directory = resolve(Helper.getUserHome(), '.skyflow', d.directory);
                 Directory.create(directory);
                 let configFile = resolve(directory, d.compose + '.config.js');
 
                 File.create(configFile, d.contents);
-                if (Skyflow.Helper.isInux()) {
+                if (Helper.isInux()) {
                     fs.chmodSync(configFile, '777')
                 }
 
@@ -330,7 +387,7 @@ function listCompose() {
             });
 
             File.create(composeListFileName, "'use strict';\n\nmodule.exports = " + JSON.stringify(composes));
-            if (Skyflow.Helper.isInux()) {
+            if (Helper.isInux()) {
                 fs.chmodSync(composeListFileName, '777')
             }
 
@@ -469,7 +526,7 @@ class ComposeModule {
         }
 
         let compose = composes[0],
-            composeDir = resolve(Skyflow.Helper.getUserHome(), '.skyflow', 'docker', 'compose', compose);
+            composeDir = resolve(Helper.getUserHome(), '.skyflow', 'docker', 'compose', compose);
 
         let version = null;
 
@@ -548,7 +605,7 @@ class ComposeModule {
                 , "m"), "");
 
             File.create(dest, content);
-            if (Skyflow.Helper.isInux()) {
+            if (Helper.isInux()) {
                 fs.chmodSync(dest, '777')
             }
 

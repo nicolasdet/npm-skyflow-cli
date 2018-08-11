@@ -130,6 +130,48 @@ class Api {
     }
 
     /**
+     * Pull docker compose configuration file.
+     * @param compose Can be 'adminer' 'symfony'
+     * @returns {number}
+     */
+    getDockerComposeConfig(compose) {
+
+        Output.writeln('Pulling ' + compose + ' configuration file from ' + this.protocol + '://' + this.host + ' ...', false);
+
+        this.get('docker/compose' + '/' + compose + '/config', (response) => {
+
+            if (response.statusCode !== 200) {
+                Output.error('Can not pull ' + compose + ' configuration file from ' + this.protocol + '://' + this.host + '.', false);
+                return 1
+            }
+
+            if (response.body.status !== 200) {
+                Output.error(response.body.error, false);
+                return 1
+            }
+
+            let data = response.body.data;
+
+            data.map((d) => {
+
+                let directory = resolve(Helper.getUserHome(), '.skyflow', d.directory);
+                Directory.create(directory);
+                let filename = resolve(directory, d.filename);
+
+                File.create(filename, d.contents);
+                if (Helper.isInux()) {
+                    fs.chmodSync(filename, '777')
+                }
+
+            });
+
+        });
+
+        return 1
+
+    }
+
+    /**
      * Pull react component samples.
      * @param callback
      * @returns {number}
