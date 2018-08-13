@@ -8,6 +8,7 @@ class Shell {
         this.result = "";
         this.arrayResult = [];
         this.error = false;
+        this.status = null;
     }
 
     run(command, options) {
@@ -16,10 +17,10 @@ class Shell {
 
         let spawn = spawnSync(command + '', options);
 
-        if(spawn.status === null){
+        this.status = spawn.status;
 
+        if(spawn.status === null || spawn.status !== 0){
             this.error = spawn.error;
-
             return this;
         }
 
@@ -60,6 +61,10 @@ class Shell {
 
     getResult() {
         return this.result;
+    }
+
+    getStatus() {
+        return this.status;
     }
 
     getArrayResult() {

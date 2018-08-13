@@ -23,12 +23,10 @@ function getDockerDirFromConfig() {
 }
 
 function runDockerComposeCommand(command, options = []) {
-
     let cwd = process.cwd();
     process.chdir(getDockerDirFromConfig());
     Shell.exec('docker-compose ' + command + ' ' + options.join(' '));
     process.chdir(cwd)
-
 }
 
 let dockerContainers = [];
@@ -620,19 +618,99 @@ class ComposeModule {
         runDockerComposeCommand('config', ['--services']);
     }
 
+    __compose__ls() {
+        runDockerComposeCommand('config', ['--services']);
+    }
+
     __compose__volumes() {
         runDockerComposeCommand('config', ['--volumes']);
     }
 
     __compose__down(options) {
-        runDockerComposeCommand('down', options);
+        Output.writeln('Stopping and removing containers ...');
+        process.chdir(resolve(getDockerDirFromConfig()));
+        Shell.run('docker-compose', ['down', ...options]);
+        runDockerComposeCommand('ps', []);
     }
 
     __compose__up(options) {
 
-        // Todo : Compare yml services with directory
+        let dockerDir = resolve(getDockerDirFromConfig()),
+            composes = Directory.read(dockerDir, {directory: true, file: false});
+        process.chdir(dockerDir);
 
-        runDockerComposeCommand('up', options);
+        Shell.run('docker-compose', ['config', '--services']);
+        if (Shell.hasError()) {
+            Output.error("Check that the docker-compose.yml file exists and is valid.", false);
+            Output.info("Use 'skyflow compose:update' command to generate it.", false);
+            return 1
+        }
+
+        let services = Shell.getArrayResult();
+
+        composes.map((compose) => {
+
+            let configFile = resolve(dockerDir, compose, compose + '.config.js'),
+                valuesFile = resolve(dockerDir, compose, compose + '.values.js');
+
+            if (!File.exists(configFile)) {
+                Output.error('Configuration file not found for ' + compose + ' compose.', false);
+                Output.info("Use 'skyflow compose:add " + compose + "' command.", false);
+                Output.newLine();
+                return 1
+            }
+            if (!File.exists(valuesFile)) {
+                Output.error('Values file not found for ' + compose + ' compose.', false);
+                Output.info("Use 'skyflow compose:update " + compose + "' command.", false);
+                Output.newLine();
+                return 1
+            }
+
+            let config = require(configFile),
+                values = require(valuesFile),
+                containerName = values['container_name'];
+
+            if (!config.up.allow) {
+                return 1
+            }
+
+            if (_.indexOf(services, containerName) === -1) {
+                Output.error('Service ' + containerName + ' not found in docker-compose.yml file.', false);
+                Output.info("Use 'skyflow compose:update " + compose + "' command.", false);
+                return 1
+            }
+
+            // Up service
+
+            let stringOpt = options.join(' ');
+            if (config.up.detach && !Request.hasOption('d') && !Request.hasOption('detach')) {
+                stringOpt += ' --detach';
+            }
+            if (config.up.build && !Request.hasOption('build')) {
+                stringOpt += ' --build';
+            }
+
+            Shell.exec('docker-compose up ' + stringOpt + ' ' + containerName);
+
+            // Print messages
+
+            let messages = config.messages;
+            if(!messages){return 0}
+
+            for (let type in messages) {
+                if(!messages.hasOwnProperty(type)){
+                    continue
+                }
+                messages[type].map((message)=>{
+                    message = message.replace(/\{\{ *(\w+) *\}\}/ig, (match, m)=>{
+                        return values[m]
+                    });
+                    Output[type](message, false);
+                });
+            }
+
+        });
+
     }
 
     __compose__kill(options) {
