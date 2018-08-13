@@ -628,8 +628,10 @@ class ComposeModule {
 
     __compose__down(options) {
         Output.writeln('Stopping and removing containers ...');
+        const cwd = process.cwd();
         process.chdir(resolve(getDockerDirFromConfig()));
         Shell.run('docker-compose', ['down', ...options]);
+        process.chdir(cwd);
         runDockerComposeCommand('ps', []);
     }
 
