@@ -21,6 +21,11 @@ const Request = Skyflow.Request,
 
 Skyflow.Package = require('./package.json');
 
+// Todo : List alias
+// Todo : List modules
+// Todo : On checking port, check port 80
+// Todo : Set events like add update up -> before after
+
 if (!Request.hasCommand() && !Request.hasOption()) {
     DefaultCommand.help.apply(null);
     process.exit(0);

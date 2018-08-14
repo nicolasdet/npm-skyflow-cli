@@ -207,6 +207,15 @@ function installWebpack() {
 
 class WebpackModule {
 
+    // Require
+    dispatcher() {
+
+        console.log('In progress ...');
+
+        return 1
+    }
+
+
     getDescription() {
         return 'With this module, you can quickly start a project with webpack.'
     }
