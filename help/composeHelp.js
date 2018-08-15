@@ -13,6 +13,13 @@ module.exports = {
             '--build': "Build images before starting containers.",
         }
     },
+    'compose:<container>:down': {
+        description: "Stops container and removes container, networks, volumes, and images created by up command.",
+        options: {
+            '--link , -l': "Remove the specified link.",
+            '--volumes , -v': "Remove the volumes associated with the container.",
+        }
+    },
     'compose:<container>:exec': {
         description: "Run arbitrary commands in your services.",
         options: {
@@ -134,14 +141,11 @@ module.exports = {
         description: "Print the current volume names, one per line.",
     },
     'compose:down': {
-        description: "Stops containers and removes containers, networks, volumes, and images created by up.",
+        description: "Remove one or more containers.",
         options: {
-            '--rmi [all|local]': "Remove images. Type must be one of: \n" +
-            "                   'all': Remove all images used by any service. \n" +
-            "                   'local': Remove only images that don't have a custom tag set by the 'image' field.",
-            '-v, --volumes': "Remove named volumes declared in the 'volumes' section of the Compose file \n and anonymous volumes attached to containers.",
-            '--remove-orphans': "Remove containers for services not defined in the \n Compose file.",
-            '-t, --timeout [TIMEOUT]': "Specify a shutdown timeout in seconds (default: 10)."
+            '--link , -l': "Remove the specified link.",
+            '--volumes , -v': "Remove the volumes associated with the container.",
+            '--compose': "Compose name.",
         }
     },
     'compose:kill': {
@@ -197,6 +201,7 @@ module.exports = {
         options: {
             '-d, --detach': "Detached mode: Run containers in the background, print new container names.",
             '--build': "Build images before starting containers.",
+            '--compose': "Compose name.",
         }
     },
 

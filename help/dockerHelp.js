@@ -18,7 +18,7 @@ module.exports = {
         }
 
     },
-    'ls [container|image]': {
+    'docker:ls [container|image]': {
         description: "List images and containers.",
         options: {
             '--all , -a': "Show all images or containers (default hides intermediate images or just running containers).",

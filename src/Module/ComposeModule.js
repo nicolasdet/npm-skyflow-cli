@@ -478,6 +478,11 @@ class ComposeModule {
         this['__compose__up'](options);
     }
 
+    __down(container, options) {
+        Request.setOption('compose', container);
+        this['__compose__down'](options);
+    }
+
     __pull(container, options) {
         runDockerComposeCommand('pull ' + container, options);
     }
@@ -667,10 +672,38 @@ class ComposeModule {
     }
 
     __compose__down(options) {
-        Output.writeln('Stopping and removing containers ...');
+
         const cwd = process.cwd();
-        process.chdir(resolve(getDockerDirFromConfig()));
-        Shell.run('docker-compose', ['down', ...options]);
+        let dockerDir = resolve(getDockerDirFromConfig());
+        process.chdir(dockerDir);
+
+        Shell.run('docker-compose', ['config', '--services']);
+        if (Shell.hasError()) {
+            Output.error("Check that the docker-compose.yml file exists and is valid.", false);
+            Output.info("Use 'skyflow compose:update' command to generate it.", false);
+            return 1
+        }
+
+        let services;
+
+        if (Request.hasOption('compose')) {
+            services = [Request.getOption('compose')]
+        } else {
+            services = Shell.getArrayResult()
+        }
+
+        if(!Request.hasOption('force')){
+            options.push('--force')
+        }
+
+        services.map((service) => {
+
+            Output.info('Stopping and removing ' + service + ' container ... ', false);
+
+            Shell.run('docker', ['rm', ...options, service]);
+
+        });
+
         process.chdir(cwd);
         runDockerComposeCommand('ps', []);
     }
@@ -679,10 +712,9 @@ class ComposeModule {
 
         let dockerDir = resolve(getDockerDirFromConfig()), composes = [];
 
-
         if (Request.hasOption('compose')) {
-           composes = [Request.getOption('compose')]
-        }else {
+            composes = [Request.getOption('compose')]
+        } else {
             composes = Directory.read(dockerDir, {directory: true, file: false})
         }
 
