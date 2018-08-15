@@ -1,12 +1,15 @@
 module.exports = {
 
-    "-v|--version": {
+    "-v, --version": {
         description: "Display current CLI version.",
     },
 
-    "-h|--help": {
+    "-h, --help": {
         description: "Display help for CLI.",
     },
 
+    "--alias": {
+        description: "List modules alias.",
+    },
 
 };

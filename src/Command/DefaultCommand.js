@@ -70,6 +70,26 @@ class DefaultCommand {
         return 0
     }
 
+    alias(alias){
+
+        Output.newLine();
+        Output.writeln('Alias of modules:', 'blue', null, 'bold');
+        Output.writeln('-'.repeat(50), 'blue', null, 'bold');
+
+        for(let a in alias){
+            if(!alias.hasOwnProperty(a)){
+                continue
+            }
+            Output.write(a, null, null, 'bold');
+            Output.writeln(' > ' + alias[a]);
+        }
+
+    }
+
+    modules(){
+
+    }
+
 }
 
 module.exports = new DefaultCommand();

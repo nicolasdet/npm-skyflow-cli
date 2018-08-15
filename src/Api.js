@@ -13,7 +13,7 @@ class Api {
     constructor() {
 
         this.protocol = "http";
-        this.host = "api.skyflow.io";
+        this.host = "api.skyflow.io:8000";
 
     }
 

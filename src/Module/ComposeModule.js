@@ -115,14 +115,25 @@ function updateCompose(composes = []) {
                 return '';
             });
 
+            let composeDir = resolve(dockerDir, compose), config = null,
+                configFile = resolve(composeDir, compose + '.config.js');
+
+            if (File.exists(configFile)) {
+                config = require(configFile);
+            }
+
             if (!storage.values[compose]) {
-                storage.values[compose] = {}
+                storage.values[compose] = {};
+
+                if (config.events && config.events.update && config.events.update.before) {
+                    config.events.update.before.apply(null)
+                }
+
             }
 
             storage.values[compose][response] = responses["__" + compose + "__" + response];
 
-            let composeDir = resolve(dockerDir, compose),
-                dockerfile = "",
+            let dockerfile = "",
                 dockerCompose = "";
 
             if (File.exists(resolve(composeDir, 'Dockerfile.dist')) && !storage.dockerfiles[compose]) {
@@ -195,21 +206,32 @@ function updateCompose(composes = []) {
             let contents = "'use strict';\n\n";
             contents += 'module.exports = {\n';
 
-            let config = storage.values[compose];
+            let values = storage.values[compose];
 
-            for (let c in config) {
-                if (!config.hasOwnProperty(c)) {
+            for (let c in values) {
+                if (!values.hasOwnProperty(c)) {
                     continue;
                 }
-                contents += '    ' + c + ": '" + config[c] + "',\n";
+                contents += '    ' + c + ": '" + values[c] + "',\n";
             }
 
             contents += "};";
 
-            let configFilename = resolve(composeDir, compose + '.values.js');
-            File.create(configFilename, contents);
+            let valuesFilename = resolve(composeDir, compose + '.values.js');
+            File.create(valuesFilename, contents);
             if (Helper.isInux()) {
-                fs.chmodSync(configFilename, '777')
+                fs.chmodSync(valuesFilename, '777')
+            }
+
+            let config = null,
+                configFile = resolve(composeDir, compose + '.config.js');
+
+            if (File.exists(configFile)) {
+                config = require(configFile);
+            }
+
+            if (config.events && config.events.update && config.events.update.after) {
+                config.events.update.after.apply(null)
             }
 
         }
@@ -287,6 +309,12 @@ function getCompose(compose, version = null) {
     File.copy(resolve(composeDir, compose + '.config.js'), resolve(destDir, compose + '.config.js'));
     if (Skyflow.Helper.isInux()) {
         fs.chmodSync(resolve(destDir, compose + '.config.js'), '777')
+    }
+
+    let config = require(resolve(destDir, compose + '.config.js'));
+
+    if (config.events && config.events.add && config.events.add.after) {
+        config.events.add.after.apply(null)
     }
 
     Output.success(compose + " added.");
@@ -446,12 +474,8 @@ class ComposeModule {
     }
 
     __up(container, options) {
-
-        let cwd = process.cwd();
-        process.chdir(getDockerDirFromConfig());
-        Shell.exec('docker-compose up ' + options.join(' ') + ' ' + container);
-        process.chdir(cwd);
-
+        Request.setOption('compose', container);
+        this['__compose__up'](options);
     }
 
     __pull(container, options) {
@@ -569,6 +593,18 @@ class ComposeModule {
                 return 1
             }
 
+            let composeDir = resolve(dockerDir, compose),
+                configFile = resolve(composeDir, compose + '.config.js'),
+                config = null;
+
+            if (File.exists(configFile)) {
+                config = require(configFile);
+            }
+
+            if (config.events && config.events.remove && config.events.remove.before) {
+                config.events.remove.before.apply(null)
+            }
+
             // Remove compose from docker-compose.yml
             let content = File.read(dest);
             content = content.replace(new RegExp(
@@ -586,6 +622,10 @@ class ComposeModule {
             if (Request.hasOption('dir')) {
                 Directory.remove(resolve(dockerDir, compose));
                 Output.success(compose + " directory removed.");
+            }
+
+            if (config.events && config.events.remove && config.events.remove.after) {
+                config.events.remove.after.apply(null)
             }
 
         });
@@ -637,8 +677,15 @@ class ComposeModule {
 
     __compose__up(options) {
 
-        let dockerDir = resolve(getDockerDirFromConfig()),
-            composes = Directory.read(dockerDir, {directory: true, file: false});
+        let dockerDir = resolve(getDockerDirFromConfig()), composes = [];
+
+
+        if (Request.hasOption('compose')) {
+           composes = [Request.getOption('compose')]
+        }else {
+            composes = Directory.read(dockerDir, {directory: true, file: false})
+        }
+
         process.chdir(dockerDir);
 
         Shell.run('docker-compose', ['config', '--services']);
@@ -672,6 +719,10 @@ class ComposeModule {
                 values = require(valuesFile),
                 containerName = values['container_name'];
 
+            if (config.events && config.events.up && config.events.up.before) {
+                config.events.up.before.apply(null)
+            }
+
             if (!config.up.allow) {
                 return 1
             }
@@ -694,17 +745,23 @@ class ComposeModule {
 
             Shell.exec('docker-compose up ' + stringOpt + ' ' + containerName);
 
+            if (config.events && config.events.up && config.events.up.after) {
+                config.events.up.after.apply(null)
+            }
+
             // Print messages
 
             let messages = config.messages;
-            if(!messages){return 0}
+            if (!messages) {
+                return 0
+            }
 
             for (let type in messages) {
-                if(!messages.hasOwnProperty(type)){
+                if (!messages.hasOwnProperty(type)) {
                     continue
                 }
-                messages[type].map((message)=>{
-                    message = message.replace(/\{\{ *(\w+) *\}\}/ig, (match, m)=>{
+                messages[type].map((message) => {
+                    message = message.replace(/\{\{ *(\w+) *\}\}/ig, (match, m) => {
                         return values[m]
                     });
                     Output[type](message, false);
