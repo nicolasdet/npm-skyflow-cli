@@ -62,55 +62,54 @@ class DockerModule {
 
     __docker__rmc(options) {
 
-        let force = false;
-        if (options.indexOf('-f') > -1 || options.indexOf('--force') > -1) {
-            force = true;
+        if (options.indexOf('-f') < 0 && options.indexOf('--force') < 0) {
+            options.push('-f');
         }
 
         if (options.indexOf('-a') > -1 || options.indexOf('--all') > -1) {
-            Shell.run('docker', ['container', 'ls', '-a', '-q']);
-            options = Shell.getArrayResult();
-            if (options.length === 0) {
+            Shell.run('docker', ['ps', '-a', '-q']);
+            let containers = Shell.getArrayResult();
+            if (containers.length === 0) {
                 Output.info('No containers found!', false);
                 return 0;
             }
+
+            containers.map((container)=>{
+                Shell.run('docker', ['rm', '-f', container]);
+                Output.success(container + ' deleted!', false);
+            });
+
+            return 0
         }
 
-        if (force) {
-            options.unshift('-f')
-        }
-
-        options.unshift('container', 'rm');
-
-        Shell.run('docker', options);
+        Shell.run('docker', ['rm', ...options]);
         Output.writeln(Shell.getResult());
         Output.success('Success!', false);
-        Output.newLine();
-
     }
 
     __docker__rmi(options) {
-        let force = false;
-        if (options.indexOf('-f') > -1 || options.indexOf('--force') > -1) {
-            force = true;
+
+        if (options.indexOf('-f') < 0 && options.indexOf('--force') < 0) {
+            options.push('-f');
         }
 
         if (options.indexOf('-a') > -1 || options.indexOf('--all') > -1) {
-            Shell.run('docker', ['image', 'ls', '-a', '-q']);
-            options = Shell.getArrayResult();
-            if (options.length === 0) {
+            Shell.run('docker', ['images', '-a', '-q']);
+            let images = Shell.getArrayResult();
+            if (images.length === 0) {
                 Output.info('No images found!', false);
                 return 0;
             }
+
+            images.map((image)=>{
+                Shell.run('docker', ['rmi', '-f', image]);
+                Output.success(image + ' deleted!', false);
+            });
+
+            return 0
         }
 
-        if (force) {
-            options.unshift('-f')
-        }
-
-        options.unshift('image', 'rm');
-
-        Shell.run('docker', options);
+        Shell.run('docker', ['rmi', ...options]);
         Output.writeln(Shell.getResult());
         Output.success('Success!', false);
         Output.newLine();
@@ -118,7 +117,15 @@ class DockerModule {
     }
 
     __docker__ps(options) {
-        Shell.exec('docker ps ' + options.join(' '));
+
+        Shell.run('docker', ['ps', ...options]);
+
+        if(Shell.hasError()){
+            Output.error('Command failed!', false);
+        }else {
+            Output.writeln(Shell.getResult())
+        }
+
     }
 
 }

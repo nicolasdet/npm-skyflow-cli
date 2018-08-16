@@ -254,16 +254,16 @@ function updateCompose(composes = []) {
         let consoleFile = resolve(dockerDir, compose, 'console.js'),
             valuesFile = resolve(dockerDir, compose, compose + '.values.js');
 
-        let config = null;
+        let values = null;
         if (File.exists(valuesFile)) {
-            config = require(valuesFile)
+            values = require(valuesFile)
         }
 
         if (File.exists(consoleFile)) {
             let questions = require(consoleFile).questions;
             questions.forEach((question) => {
-                if (config) {
-                    question.default = config[question.name]
+                if (values) {
+                    question.default = values[question.name]
                 }
                 question.message = '[' + compose + '] ' + question.message;
                 question.name = '__' + compose + '__' + question.name;
@@ -317,8 +317,13 @@ function getCompose(compose, version = null) {
         config.events.add.after.apply(null)
     }
 
-    Output.success(compose + " added.");
+    Output.success(compose + ' added.');
 
+    // let c = {'C:update': 0};
+    // c[compose] = 1;
+    // Request.setCommands(c);
+    // return _ComposeModule['__compose__update']();
+    // Shell.exec('skyflow compose:update ' + compose);
     return 0;
 }
 
@@ -474,12 +479,12 @@ class ComposeModule {
     }
 
     __up(container, options) {
-        Request.setOption('compose', container);
+        Request.addOption('compose', container);
         this['__compose__up'](options);
     }
 
     __down(container, options) {
-        Request.setOption('compose', container);
+        Request.addOption('compose', container);
         this['__compose__down'](options);
     }
 
@@ -835,4 +840,6 @@ class ComposeModule {
 
 }
 
-module.exports = new ComposeModule();
+const _ComposeModule = new ComposeModule();
+
+module.exports = _ComposeModule;

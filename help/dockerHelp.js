@@ -8,7 +8,7 @@ module.exports = {
         }
 
     },
-    'docker:rmc': {
+    'docker:rmc [container]': {
         description: "Remove stopped containers.",
         options: {
             '--all , -a': "Remove all containers.",
@@ -31,9 +31,16 @@ module.exports = {
 
     },
     'docker:ps': {
-        description: "Lists containers.",
+        description: "Lists containers. See https://docs.docker.com/engine/reference/commandline/ps for more information.",
         options: {
-            '-q': "Only display IDs",
+            '--all , -a': 'Show all containers (default shows just running).',
+            '--filter , -f': 'Filter output based on conditions provided.',
+            '--format': 'Pretty-print containers using a Go template.',
+            '--last , -n': 'Show n last created containers (includes all states).',
+            '--latest , -l': 'Show the latest created container (includes all states).',
+            '--no-trunc': 'Don’t truncate output.',
+            '--quiet , -q': 'Only display numeric IDs.',
+            '--size , -s': 'Display total file sizes.',
         }
     },
 

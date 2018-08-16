@@ -5,7 +5,6 @@ class ConsoleRequest {
             // commandName: "index from minimist module"
         };
         this.options = {};
-        this.registeredCommands = {};
         this.parse();
     }
 
@@ -58,7 +57,7 @@ class ConsoleRequest {
      * @param value
      * @returns {ConsoleRequest}
      */
-    setOption(option, value = true){
+    addOption(option, value = true){
         this.options[option] = value;
         return this;
     }
@@ -68,6 +67,15 @@ class ConsoleRequest {
      */
     getOptions(){
         return this.options
+    }
+
+    /**
+     * @param {object} options
+     * @returns {ConsoleRequest}
+     */
+    setOptions(options = {}){
+        this.options = options;
+        return this;
     }
 
     /**
@@ -93,33 +101,13 @@ class ConsoleRequest {
         return this.commands
     }
 
-
-
-
-
     /**
-     *
-     * @param {string} command
-     * @param {function} callback
+     * @param {object} commands
      * @returns {ConsoleRequest}
      */
-    registerCommand(command, callback){
-        this.registeredCommands[command] = callback;
-        return this
-    }
-
-    /**
-     * @returns {number}
-     */
-    dispatchCommands(){
-
-        for (let c in this.commands){
-            if(this.commands.hasOwnProperty(c) && this.registeredCommands.hasOwnProperty(c)){
-                return this.registeredCommands[c].apply(null, [this.options])
-            }
-        }
-
-        return 0
+    setCommands(commands = {}){
+        this.commands = commands;
+        return this;
     }
 
 }
