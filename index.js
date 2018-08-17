@@ -23,7 +23,6 @@ Skyflow.Package = require('./package.json');
 
 // Todo : List modules
 // Todo : On checking port, check port 80 only
-// Todo : Set events like add update up -> before after
 
 if (!Request.hasCommand() && !Request.hasOption()) {
     DefaultCommand.help.apply(null);
@@ -35,46 +34,39 @@ if (!Request.hasCommand()) {
     if (Request.hasOption('v') || Request.hasOption('version')) {
         DefaultCommand.version.apply(null);
         process.exit(0);
-    }
-
-    if (Request.hasOption('h') || Request.hasOption('help')) {
+    } else if (Request.hasOption('h') || Request.hasOption('help')) {
         DefaultCommand.help.apply(null);
-        process.exit(0);
-    }
-
-    if (Request.hasOption('alias')) {
+    } else if (Request.hasOption('alias')) {
         DefaultCommand.alias.apply(null, [alias]);
+    }
+
+} else {
+
+    let commands = process.argv.slice(2)[0].split(':'),
+        moduleName = commands[0],
+        Module = _.upperFirst(moduleName);
+
+    try {
+        if (alias.hasOwnProperty(Module)) {
+            moduleName = alias[Module];
+            Module = _.upperFirst(moduleName)
+        }
+        Module = require(resolve(__dirname, 'src', 'Module', Module + 'Module'));
+    } catch (e) {
+        Output.error('Module ' + Module + ' not found.', false);
         process.exit(0);
     }
 
-    process.exit(0);
-}
+    commands = commands.splice(1);
 
-let commands = process.argv.slice(2)[0].split(':'),
-    moduleName = commands[0],
-    Module = _.upperFirst(moduleName);
-
-try {
-    if(alias.hasOwnProperty(Module)){
-        moduleName = alias[Module];
-        Module = _.upperFirst(moduleName)
+    if ((Helper.isEmpty(commands) && !Request.hasOption()) || (Helper.isEmpty(commands) && (Request.hasOption('h') || Request.hasOption('help')))) {
+        DefaultCommand.help.apply(null, [moduleName]);
+    } else if (Helper.isEmpty(commands) && Module[moduleName]) {
+        Module[moduleName].apply(Module);
+    } else {
+        Module.dispatcher.apply(Module, [...commands]);
     }
-    Module = require(resolve(__dirname, 'src', 'Module', Module + 'Module'));
-} catch (e) {
-    Output.error('Module ' + Module + ' not found.', false);
-    process.exit(0);
+
 }
 
-commands = commands.splice(1);
-
-if ((Helper.isEmpty(commands) && !Request.hasOption()) || (Helper.isEmpty(commands) && (Request.hasOption('h') || Request.hasOption('help')))) {
-    DefaultCommand.help.apply(null, [moduleName]);
-    process.exit(0);
-}
-
-if (Helper.isEmpty(commands) && Module[moduleName]) {
-    Module[moduleName].apply(Module);
-} else {
-    Module.dispatcher.apply(Module, [...commands]);
-}
 

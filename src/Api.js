@@ -13,7 +13,8 @@ class Api {
     constructor() {
 
         this.protocol = "http";
-        this.host = "api.skyflow.io";
+        // this.host = "api.skyflow.io";
+        this.host = "localhost:8000";
 
     }
 
@@ -292,6 +293,95 @@ class Api {
             });
 
             callback(name);
+
+        });
+
+        return 1
+
+    }
+
+    /**
+     * Pull module help file.
+     * @param module
+     * @param callback
+     * @returns {number}
+     */
+    getModuleHelp(module, callback) {
+
+        Output.writeln('Pulling help for ' + module + ' from ' + this.protocol + '://' + this.host + ' ...', false);
+
+        this.get('help/' + module, (response) => {
+            
+            if (response.statusCode !== 200) {
+                Output.error('Can not pull help for ' + module + ' from ' + this.protocol + '://' + this.host + '.', false);
+                return 1
+            }
+
+            if (response.body.status !== 200) {
+                Output.error(response.body.error, false);
+                return 1
+            }
+
+            let data = response.body.data;
+
+            data.map((d) => {
+
+                let directory = resolve(Helper.getUserHome(), '.skyflow', d.directory);
+                Directory.create(directory);
+                let filename = resolve(directory, d.filename);
+
+                File.create(filename, d.contents);
+                if (Helper.isInux()) {
+                    fs.chmodSync(filename, '777')
+                }
+
+            });
+
+            callback();
+
+        });
+
+        return 1
+
+    }
+
+    /**
+     * Pull module alias file.
+     * @param callback
+     * @returns {number}
+     */
+    getModuleAlias(callback) {
+
+        Output.writeln('Pulling module alias from ' + this.protocol + '://' + this.host + ' ...', false);
+
+        this.get('alias/module', (response) => {
+
+            if (response.statusCode !== 200) {
+                Output.error('Can not pull module alias from ' + this.protocol + '://' + this.host + '.', false);
+                return 1
+            }
+
+            if (response.body.status !== 200) {
+                Output.error(response.body.error, false);
+                return 1
+            }
+
+            let data = response.body.data;
+
+            data.map((d) => {
+
+                let directory = resolve(Helper.getUserHome(), '.skyflow', d.directory);
+                Directory.create(directory);
+                let filename = resolve(directory, d.filename);
+
+                File.create(filename, d.contents);
+                if (Helper.isInux()) {
+                    fs.chmodSync(filename, '777')
+                }
+
+            });
+
+            callback();
 
         });
 

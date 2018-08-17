@@ -3,6 +3,8 @@
 const resolve = require('path').resolve,
     _ = require('lodash'),
     Helper = Skyflow.Helper,
+    File = Skyflow.File,
+    Api = Skyflow.Api,
     Output = Skyflow.Output;
 
 class DefaultCommand {
@@ -18,54 +20,72 @@ class DefaultCommand {
 
     help(module = null) {
 
-        let file = "default";
+        let helpDir = resolve(Helper.getUserHome(), '.skyflow', 'extra', 'help');
 
-        if (module) {file = _.lowerFirst(module)}
+        module = module || 'default';
 
-        let commands = [
-            require(resolve(__dirname, '..', '..', 'help', file + 'Help'))
-        ];
+        if (module) {module = _.lowerFirst(module)}
 
-        let title = _.upperFirst(Skyflow.Package.name) + ' v' + Skyflow.Package.version;
+        let helpFile = resolve(helpDir, module + 'Help.js');
 
-        if(module){title = "Help for " + _.upperFirst(module) + " module"}
+        function runAfterPull() {
+            let commands = [
+                require(helpFile)
+            ];
 
-        Output.newLine()
+            let title = _.upperFirst(Skyflow.Package.name) + ' v' + Skyflow.Package.version;
 
-        // Display Title
-            .writeln(title, 'magenta')
-            .writeln('-'.repeat(100), 'magenta', null, 'bold')
-            .newLine();
+            if(module){title = "Help for " + _.upperFirst(module) + " module"}
 
-        commands.forEach((command) => {
+            Output.newLine()
 
-            for (let c in command) {
+            // Display Title
+                .writeln(title, 'magenta')
+                .writeln('-'.repeat(100), 'magenta', null, 'bold');
 
-                Output.write(c, 'green', null, 'bold').space(2);
-
-                // Since
-                if (command[c]['since']) {
-                    Output.writeln(' - since ' + command[c]['since'], 'gray')
-                }
-
-                // Description
-                if (command[c]['description']) {
-                    Output.writeln(command[c]['description'])
-                }
-
-                // Options
-                const options = command[c]['options'];
-                if (Helper.isObject(options) && !Helper.isEmpty(options)) {
-                    Output.writeln('Options:', 'cyan', null, 'underline');
-                    for (let o in options) {
-                        Output.write(o, 'magenta').space(2).writeln(options[o]);
-                    }
-                }
-
+            if(module !== 'default'){
                 Output.newLine()
             }
 
-        });
+            commands.forEach((command) => {
+
+                for (let c in command) {
+
+                    Output.write(c, 'green', null, 'bold').space(2);
+
+                    // Since
+                    if (command[c]['since']) {
+                        Output.writeln(' - since ' + command[c]['since'], 'gray')
+                    }
+
+                    // Description
+                    if (command[c]['description']) {
+                        Output.writeln(command[c]['description'])
+                    }
+
+                    // Options
+                    const options = command[c]['options'];
+                    if (Helper.isObject(options) && !Helper.isEmpty(options)) {
+                        Output.writeln('Options:', 'cyan', null, 'underline');
+                        for (let o in options) {
+                            Output.write(o, 'magenta').space(2).writeln(options[o]);
+                        }
+                    }
+
+                    if(module !== 'default'){
+                        Output.newLine()
+                    }
+
+                }
+
+            });
+        }
+
+        if (File.exists(helpFile)) {
+            runAfterPull()
+        } else {
+            Api.getModuleHelp(module, runAfterPull);
+        }
 
         return 0
     }

@@ -1,6 +1,7 @@
 /.idea
 /examples
 /extra/images
+/docker
 LICENSE
 README.md
 yarn.lock
