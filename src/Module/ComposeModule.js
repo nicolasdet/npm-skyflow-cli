@@ -408,6 +408,8 @@ function listCompose() {
     return 0
 }
 
+// Todo : Check all to prevent errors
+
 class ComposeModule {
 
     // Require
@@ -476,11 +478,6 @@ class ComposeModule {
 
     __bash(container) {
         runDockerComposeCommand('exec ' + container, ['bash']);
-    }
-
-    __up(container, options) {
-        Request.addOption('compose', container);
-        this['__compose__up'](options);
     }
 
     __down(container, options) {
@@ -697,15 +694,22 @@ class ComposeModule {
             services = Shell.getArrayResult()
         }
 
-        if(!Request.hasOption('force')){
+        if (!Request.hasOption('force')) {
             options.push('--force')
         }
 
         services.map((service) => {
 
-            Output.info('Stopping and removing ' + service + ' container ... ', false);
+            Shell.run('docker', ['inspect', service]);
+            if(Shell.hasError()){
+                return 1
+            }
+
+            Output.write('Stopping and removing ' + service + ' container ... ', 'blue', null, null);
 
             Shell.run('docker', ['rm', ...options, service]);
+
+            Output.writeln('OK', 'green', null)
 
         });
 
@@ -725,14 +729,16 @@ class ComposeModule {
 
         process.chdir(dockerDir);
 
+        Output.info('Checking services ...', false);
+
         Shell.run('docker-compose', ['config', '--services']);
         if (Shell.hasError()) {
             Output.error("Check that the docker-compose.yml file exists and is valid.", false);
             Output.info("Use 'skyflow compose:update' command to generate it.", false);
             return 1
         }
-
-        let services = Shell.getArrayResult();
+        let services = Shell.getArrayResult(),
+            store = {};
 
         composes.map((compose) => {
 
@@ -743,26 +749,18 @@ class ComposeModule {
                 Output.error('Configuration file not found for ' + compose + ' compose.', false);
                 Output.info("Use 'skyflow compose:add " + compose + "' command.", false);
                 Output.newLine();
-                return 1
+                process.exit(1);
             }
             if (!File.exists(valuesFile)) {
                 Output.error('Values file not found for ' + compose + ' compose.', false);
                 Output.info("Use 'skyflow compose:update " + compose + "' command.", false);
                 Output.newLine();
-                return 1
+                process.exit(1);
             }
 
             let config = require(configFile),
                 values = require(valuesFile),
                 containerName = values['container_name'];
-
-            if (config.events && config.events.up && config.events.up.before) {
-                config.events.up.before.apply(null)
-            }
-
-            if (!config.up.allow) {
-                return 1
-            }
 
             if (_.indexOf(services, containerName) === -1) {
                 Output.error('Service ' + containerName + ' not found in docker-compose.yml file.', false);
@@ -770,27 +768,89 @@ class ComposeModule {
                 return 1
             }
 
-            // Up service
+            store[compose] = {config, values};
 
-            let stringOpt = options.join(' ');
-            if (config.up.detach && !Request.hasOption('d') && !Request.hasOption('detach')) {
-                stringOpt += ' --detach';
-            }
-            if (config.up.build && !Request.hasOption('build')) {
-                stringOpt += ' --build';
+            if (config.events && config.events.up && config.events.up.before) {
+                config.events.up.before.apply(null)
             }
 
-            Shell.exec('docker-compose up ' + stringOpt + ' ' + containerName);
+        });
 
+        let stringOpt = options.join(' ');
+
+        if (!Request.hasOption('d') && !Request.hasOption('detach') && !Request.hasOption('no-detach')) {
+            stringOpt += ' -d';
+        }
+
+        if (!Request.hasOption('build') && !Request.hasOption('no-build')) {
+            stringOpt += ' --build';
+        }
+
+        Shell.exec('docker-compose up ' + stringOpt);
+
+        for (let data in store) {
+
+            if (!store.hasOwnProperty(data)) {
+                continue
+            }
+
+            let config = store[data].config,
+                values = store[data].values,
+                containerName = store[data].values['container_name'];
+
+            // Check if container is running, Running, Paused, Restarting
+            Shell.run('docker', ['inspect', containerName]);
+            if(Shell.hasError()){
+                continue
+            }
+
+            let inspect = JSON.parse(Shell.getResult())[0],
+                state = inspect.State;
+
+            if(!state.Running){
+
+                if(state.ExitCode === 0){
+                    Output.success(containerName + ' container ' + state.Status + ' successfully.');
+                }else {
+                    Output.error(containerName + ' container ' + state.Status + '.', false);
+                    Output.error(state.Error, false);
+                }
+
+                Shell.run('docker', ['rm', '-f', containerName]);
+
+                continue
+            }
+
+            let ports = inspect.NetworkSettings.Ports,
+                mes = containerName + ' container is ' + state.Status + ' on ';
+
+            for (let port in ports) {
+
+                if(!ports.hasOwnProperty(port)){
+                    continue
+                }
+
+                mes += port;
+
+                ports[port].map((p)=>{
+                   mes += ' -> ' + p.HostIp + ':' + p.HostPort
+                });
+
+                break
+            }
+
+            Output.success(mes);
+
+            // Trigger up.after callback if is defined
             if (config.events && config.events.up && config.events.up.after) {
                 config.events.up.after.apply(null)
             }
 
-            // Print messages
+            // Print messages if container is up.
 
             let messages = config.messages;
             if (!messages) {
-                return 0
+                continue
             }
 
             for (let type in messages) {
@@ -805,7 +865,7 @@ class ComposeModule {
                 });
             }
 
-        });
+        }
 
     }
 
