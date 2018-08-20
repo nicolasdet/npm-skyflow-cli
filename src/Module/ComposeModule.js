@@ -63,7 +63,7 @@ Skyflow.addDockerPort = (port = 80, host = '0.0.0.0') => {
 
 function containerIsRunning(container) {
     Shell.run('docker', ['inspect', container]);
-    if(Shell.hasError()){
+    if (Shell.hasError()) {
         return false
     }
     let inspect = JSON.parse(Shell.getResult())[0],
@@ -88,9 +88,9 @@ function getDockerDirFromConfig() {
 function execDockerComposeCommand(command, options = []) {
     let cwd = process.cwd();
     process.chdir(getDockerDirFromConfig());
-    try{
+    try {
         Shell.exec('docker-compose ' + command + ' ' + options.join(' '));
-    }catch (e) {
+    } catch (e) {
         Output.error(e.message, false)
     }
     process.chdir(cwd)
@@ -117,13 +117,13 @@ function execDockerComposeCommandByContainer(command, container, options = [], r
         process.exit(1)
     }
 
-    try{
-        if(reverse){
+    try {
+        if (reverse) {
             Shell.exec('docker-compose ' + command + ' ' + options.join(' ') + ' ' + container);
-        }else {
+        } else {
             Shell.exec('docker-compose ' + command + ' ' + container + ' ' + options.join(' '));
         }
-    }catch (e) {
+    } catch (e) {
         Output.error(e.message, false)
     }
 
@@ -522,7 +522,7 @@ class ComposeModule {
     /*------------ Run by container ----------*/
 
     __exec(container, options) {
-        if(!containerIsRunning(container)){
+        if (!containerIsRunning(container)) {
             Output.error(container + ' container is not running.', false);
             process.exit(1)
         }
@@ -530,7 +530,7 @@ class ComposeModule {
     }
 
     __sh(container) {
-        if(!containerIsRunning(container)){
+        if (!containerIsRunning(container)) {
             Output.error(container + ' container is not running.', false);
             process.exit(1)
         }
@@ -538,7 +538,7 @@ class ComposeModule {
     }
 
     __bash(container) {
-        if(!containerIsRunning(container)){
+        if (!containerIsRunning(container)) {
             Output.error(container + ' container is not running.', false);
             process.exit(1)
         }
@@ -559,7 +559,7 @@ class ComposeModule {
     }
 
     __start(container, options) {
-        if(!containerHasStatus(container)){
+        if (!containerHasStatus(container)) {
             Output.writeln('No container to start.');
             process.exit(1)
         }
@@ -567,7 +567,9 @@ class ComposeModule {
     }
 
     __rm(container, options) {
-        if (!Request.hasOption('s') && !Request.hasOption('stop')) {options.push('-s')}
+        if (!Request.hasOption('s') && !Request.hasOption('stop')) {
+            options.push('-s')
+        }
         execDockerComposeCommandByContainer('rm', container, options, true);
     }
 
@@ -580,7 +582,7 @@ class ComposeModule {
     }
 
     __restart(container, options) {
-        if(!containerHasStatus(container)){
+        if (!containerHasStatus(container)) {
             Output.writeln('No container to restart.');
             process.exit(1)
         }
@@ -778,7 +780,7 @@ class ComposeModule {
         services.map((service) => {
 
             Shell.run('docker', ['inspect', service]);
-            if(Shell.hasError()){
+            if (Shell.hasError()) {
                 return 1
             }
 
@@ -877,18 +879,18 @@ class ComposeModule {
 
             // Check if container is running, Running, Paused, Restarting
             Shell.run('docker', ['inspect', containerName]);
-            if(Shell.hasError()){
+            if (Shell.hasError()) {
                 continue
             }
 
             let inspect = JSON.parse(Shell.getResult())[0],
                 state = inspect.State;
 
-            if(!state.Running){
+            if (!state.Running) {
 
-                if(state.ExitCode === 0){
+                if (state.ExitCode === 0) {
                     Output.success(containerName + ' container ' + state.Status + ' successfully.');
-                }else {
+                } else {
                     Output.error(containerName + ' container ' + state.Status + '.', false);
                     Output.error(state.Error, false);
                 }
@@ -903,14 +905,14 @@ class ComposeModule {
 
             for (let port in ports) {
 
-                if(!ports.hasOwnProperty(port)){
+                if (!ports.hasOwnProperty(port)) {
                     continue
                 }
 
                 mes += port;
 
-                ports[port].map((p)=>{
-                   mes += ' -> ' + p.HostIp + ':' + p.HostPort
+                ports[port].map((p) => {
+                    mes += ' -> ' + p.HostIp + ':' + p.HostPort
                 });
 
                 break
@@ -967,12 +969,29 @@ class ComposeModule {
     }
 
     __compose__rm(options) {
-        if (!Request.hasOption('s') && !Request.hasOption('stop')) {options.push('-s')}
+        if (!Request.hasOption('s') && !Request.hasOption('stop')) {
+            options.push('-s')
+        }
         execDockerComposeCommand('rm', options);
     }
 
     __compose__pull(options) {
         execDockerComposeCommand('pull', options);
+    }
+
+    __compose__invalidate() {
+
+        let compose = 'compose',
+            composeDir = resolve(Helper.getUserHome(), '.skyflow', 'docker');
+
+        if (Request.hasOption('compose')) {
+            compose += ':' + Request.getOption('compose');
+            composeDir = resolve(composeDir, ...(compose.split(':')))
+        }
+
+        Directory.remove(composeDir);
+
+        Output.success(compose + ' cache has been successfully removed.');
     }
 
 }

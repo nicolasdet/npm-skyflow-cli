@@ -5,6 +5,7 @@ const resolve = require('path').resolve,
     File = Skyflow.File,
     Api = Skyflow.Api,
     Shell = Skyflow.Shell,
+    Helper = Skyflow.Helper,
     Directory = Skyflow.Directory,
     Input = Skyflow.Input,
     Request = Skyflow.Request,
@@ -55,14 +56,14 @@ function listPackage() {
         Output.writeln('Available compose:', 'blue', null, 'bold');
         Output.writeln('-'.repeat(50), 'blue', null, 'bold');
 
-        composes.map((compose)=>{
+        composes.map((compose) => {
 
             Output.write(compose.name, null, null, 'bold');
             Output.writeln(' >>> package:add ' + compose.name.toLowerCase());
 
             Output.write('Versions [ ', 'gray', null);
             let versions = compose.versions.sort();
-            versions.map((version)=>{
+            versions.map((version) => {
                 Output.write(version + ' ', 'gray', null);
             });
 
@@ -88,14 +89,16 @@ function listPackage() {
             let data = response.body.data,
                 packages = [];
 
-            data.map((d)=>{
+            data.map((d) => {
 
                 let directory = resolve(Skyflow.Helper.getUserHome(), '.skyflow', d.directory);
                 Directory.create(directory);
                 let configFile = resolve(directory, d.pkg + '.config.js');
 
                 File.create(configFile, d.contents);
-                if (Skyflow.Helper.isInux()) {fs.chmodSync(configFile, '777')}
+                if (Skyflow.Helper.isInux()) {
+                    fs.chmodSync(configFile, '777')
+                }
 
                 let pkg = require(configFile);
                 pkg['versions'] = d.versions;
@@ -105,8 +108,10 @@ function listPackage() {
 
             });
 
-            File.create(pkgListFileName, "'use strict';\n\nmodule.exports = "+JSON.stringify(packages));
-            if (Skyflow.Helper.isInux()) {fs.chmodSync(pkgListFileName, '777')}
+            File.create(pkgListFileName, "'use strict';\n\nmodule.exports = " + JSON.stringify(packages));
+            if (Skyflow.Helper.isInux()) {
+                fs.chmodSync(pkgListFileName, '777')
+            }
 
             displayComposeList()
 
@@ -126,13 +131,13 @@ class PackageModule {
     dispatcher(container, command) {
 
         Shell.run('docker', ['-v']);
-        if(Shell.hasError()){
+        if (Shell.hasError()) {
             Output.error('Docker does not respond. Check if it is installed and running.', false);
             return 1
         }
 
         Shell.run('docker-compose', ['-v']);
-        if(Shell.hasError()){
+        if (Shell.hasError()) {
             Output.error('Docker-compose does not respond. Check if it is installed and running.', false);
             return 1
         }
@@ -188,14 +193,14 @@ class PackageModule {
 
         let version = null;
 
-        if(Request.hasOption('v')){
+        if (Request.hasOption('v')) {
             version = Request.getOption('v');
             packageDir = resolve(packageDir, version);
         }
 
         function runAfterPull() {
 
-            if(version){
+            if (version) {
                 return getPackage(pkg, version)
             }
 
@@ -217,9 +222,9 @@ class PackageModule {
         if (Directory.exists(packageDir)) {
             runAfterPull()
         } else {
-            if(version){
+            if (version) {
                 Api.getDockerComposeOrPackageVersion('package', pkg, version, runAfterPull);
-            }else {
+            } else {
                 Api.getDockerComposeOrPackage('package', pkg, runAfterPull);
             }
         }
@@ -233,6 +238,20 @@ class PackageModule {
 
     }
 
+    __package__invalidate() {
+
+        let pkg = 'package';
+        let packageDir = resolve(Helper.getUserHome(), '.skyflow', 'docker');
+
+        if (Request.hasOption('package')) {
+            pkg += ':' + Request.getOption('package');
+            packageDir = resolve(packageDir, ...(pkg.split(':')))
+        }
+
+        Directory.remove(packageDir);
+
+        Output.success(pkg + ' cache has been successfully removed.');
+    }
 
 }
 
