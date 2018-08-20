@@ -13,21 +13,6 @@ const resolve = require('path').resolve,
     Output = Skyflow.Output,
     _ = require('lodash');
 
-function getDockerDirFromConfig() {
-
-    let currentDockerDir = 'docker';
-
-    Directory.create(currentDockerDir);
-
-    return currentDockerDir;
-}
-
-function runDockerComposeCommand(command, options = []) {
-    let cwd = process.cwd();
-    process.chdir(getDockerDirFromConfig());
-    Shell.exec('docker-compose ' + command + ' ' + options.join(' '));
-    process.chdir(cwd)
-}
 
 let dockerContainers = [];
 
@@ -75,6 +60,76 @@ Skyflow.isPortReachable = (port = 80, host = '0.0.0.0') => {
 Skyflow.addDockerPort = (port = 80, host = '0.0.0.0') => {
     dockerPorts.push(host + ':' + port)
 };
+
+function containerIsRunning(container) {
+    Shell.run('docker', ['inspect', container]);
+    if(Shell.hasError()){
+        return false
+    }
+    let inspect = JSON.parse(Shell.getResult())[0],
+        state = inspect.State;
+    return state.Running
+}
+
+function containerHasStatus(container) {
+    Shell.run('docker', ['inspect', container]);
+    return !Shell.hasError()
+}
+
+function getDockerDirFromConfig() {
+
+    let currentDockerDir = 'docker';
+
+    Directory.create(currentDockerDir);
+
+    return currentDockerDir;
+}
+
+function execDockerComposeCommand(command, options = []) {
+    let cwd = process.cwd();
+    process.chdir(getDockerDirFromConfig());
+    try{
+        Shell.exec('docker-compose ' + command + ' ' + options.join(' '));
+    }catch (e) {
+        Output.error(e.message, false)
+    }
+    process.chdir(cwd)
+}
+
+/**
+ * Exec docker compose by container
+ * @param command
+ * @param container
+ * @param options
+ * @param reverse Reverse container name and options
+ */
+function execDockerComposeCommandByContainer(command, container, options = [], reverse = false) {
+    let cwd = process.cwd();
+    process.chdir(resolve(getDockerDirFromConfig()));
+    Shell.run('docker-compose', ['config', '--services']);
+    if (Shell.hasError()) {
+        Output.error(Shell.getError(), false);
+        Output.info("Use 'skyflow compose:update' command to generate it.", false);
+        process.exit(1)
+    }
+    if (_.indexOf(Shell.getArrayResult(), container) === -1) {
+        Output.error('Service ' + container + ' not found in docker-compose.yml file.', false);
+        process.exit(1)
+    }
+
+    try{
+        if(reverse){
+            Shell.exec('docker-compose ' + command + ' ' + options.join(' ') + ' ' + container);
+        }else {
+            Shell.exec('docker-compose ' + command + ' ' + container + ' ' + options.join(' '));
+        }
+    }catch (e) {
+        Output.error(e.message, false)
+    }
+
+
+    process.chdir(cwd)
+}
 
 function updateCompose(composes = []) {
 
@@ -408,8 +463,6 @@ function listCompose() {
     return 0
 }
 
-// Todo : Check all to prevent errors
-
 class ComposeModule {
 
     // Require
@@ -469,15 +522,27 @@ class ComposeModule {
     /*------------ Run by container ----------*/
 
     __exec(container, options) {
-        runDockerComposeCommand('exec ' + container, options);
+        if(!containerIsRunning(container)){
+            Output.error(container + ' container is not running.', false);
+            process.exit(1)
+        }
+        execDockerComposeCommandByContainer('exec', container, options);
     }
 
     __sh(container) {
-        runDockerComposeCommand('exec ' + container, ['sh']);
+        if(!containerIsRunning(container)){
+            Output.error(container + ' container is not running.', false);
+            process.exit(1)
+        }
+        execDockerComposeCommandByContainer('exec', container, ['sh']);
     }
 
     __bash(container) {
-        runDockerComposeCommand('exec ' + container, ['bash']);
+        if(!containerIsRunning(container)){
+            Output.error(container + ' container is not running.', false);
+            process.exit(1)
+        }
+        execDockerComposeCommandByContainer('exec', container, ['bash']);
     }
 
     __down(container, options) {
@@ -486,36 +551,48 @@ class ComposeModule {
     }
 
     __pull(container, options) {
-        runDockerComposeCommand('pull ' + container, options);
+        execDockerComposeCommandByContainer('pull', container, options);
     }
 
     __stop(container, options) {
-        runDockerComposeCommand('stop ' + container, options);
+        execDockerComposeCommandByContainer('stop', container, options);
     }
 
     __start(container, options) {
-        runDockerComposeCommand('start ' + container, options);
+        if(!containerHasStatus(container)){
+            Output.writeln('No container to start.');
+            process.exit(1)
+        }
+        execDockerComposeCommandByContainer('start', container, options);
     }
 
     __rm(container, options) {
-        runDockerComposeCommand('stop ' + container, options);
-        runDockerComposeCommand('rm', options);
+        if (!Request.hasOption('s') && !Request.hasOption('stop')) {options.push('-s')}
+        execDockerComposeCommandByContainer('rm', container, options, true);
     }
 
     __kill(container, options) {
-        runDockerComposeCommand('kill ' + container, options);
+        execDockerComposeCommandByContainer('kill', container, options, true);
     }
 
     __logs(container, options) {
-        runDockerComposeCommand('logs ' + container, options);
+        execDockerComposeCommandByContainer('logs', container, options, true);
     }
 
     __restart(container, options) {
-        runDockerComposeCommand('restart ' + container, options);
+        if(!containerHasStatus(container)){
+            Output.writeln('No container to restart.');
+            process.exit(1)
+        }
+        execDockerComposeCommandByContainer('restart', container, options, true);
     }
 
     __run(container, options) {
-        runDockerComposeCommand('run --rm --name ' + container + ' ' + container, options);
+        execDockerComposeCommandByContainer('run --rm --name ' + container, container, options, true);
+    }
+
+    __ps(container, options) {
+        execDockerComposeCommandByContainer('ps', container, options);
     }
 
 
@@ -650,27 +727,27 @@ class ComposeModule {
     }
 
     __compose__ps(options) {
-        runDockerComposeCommand('ps', options);
+        execDockerComposeCommand('ps', options);
     }
 
     __compose__build(options) {
-        runDockerComposeCommand('build', options);
+        execDockerComposeCommand('build', options);
     }
 
     __compose__config(options) {
-        runDockerComposeCommand('config', options);
+        execDockerComposeCommand('config', options);
     }
 
     __compose__services() {
-        runDockerComposeCommand('config', ['--services']);
+        execDockerComposeCommand('config', ['--services']);
     }
 
     __compose__ls() {
-        runDockerComposeCommand('config', ['--services']);
+        execDockerComposeCommand('config', ['--services']);
     }
 
     __compose__volumes() {
-        runDockerComposeCommand('config', ['--volumes']);
+        execDockerComposeCommand('config', ['--volumes']);
     }
 
     __compose__down(options) {
@@ -714,7 +791,7 @@ class ComposeModule {
         });
 
         process.chdir(cwd);
-        runDockerComposeCommand('ps', []);
+        execDockerComposeCommand('ps', []);
     }
 
     __compose__up(options) {
@@ -870,32 +947,32 @@ class ComposeModule {
     }
 
     __compose__kill(options) {
-        runDockerComposeCommand('kill', options);
+        execDockerComposeCommand('kill', options);
     }
 
     __compose__logs(options) {
-        runDockerComposeCommand('logs', options);
+        execDockerComposeCommand('logs', options);
     }
 
     __compose__restart(options) {
-        runDockerComposeCommand('restart', options);
+        execDockerComposeCommand('restart', options);
     }
 
     __compose__stop(options) {
-        runDockerComposeCommand('stop', options);
+        execDockerComposeCommand('stop', options);
     }
 
     __compose__start(options) {
-        runDockerComposeCommand('start', options);
+        execDockerComposeCommand('start', options);
     }
 
     __compose__rm(options) {
-        runDockerComposeCommand('stop', options);
-        runDockerComposeCommand('rm', options);
+        if (!Request.hasOption('s') && !Request.hasOption('stop')) {options.push('-s')}
+        execDockerComposeCommand('rm', options);
     }
 
     __compose__pull(options) {
-        runDockerComposeCommand('pull', options);
+        execDockerComposeCommand('pull', options);
     }
 
 }
