@@ -589,8 +589,9 @@ class ComposeModule {
         execDockerComposeCommandByContainer('restart', container, options, true);
     }
 
-    __run(container, options) {
-        execDockerComposeCommandByContainer('run --rm --name ' + container, container, options, true);
+    // Todo : In run command, add options => https://docs.docker.com/compose/reference/run/
+    __run(container, commands) {
+        execDockerComposeCommandByContainer('run --rm --name ' + container, container, commands);
     }
 
     __ps(container, options) {
