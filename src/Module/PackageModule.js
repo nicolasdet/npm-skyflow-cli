@@ -53,7 +53,7 @@ function listPackage() {
         let composes = require(pkgListFileName);
 
         Output.newLine();
-        Output.writeln('Available compose:', 'blue', null, 'bold');
+        Output.writeln('Available packages', 'blue', null, 'bold');
         Output.writeln('-'.repeat(50), 'blue', null, 'bold');
 
         composes.map((compose) => {

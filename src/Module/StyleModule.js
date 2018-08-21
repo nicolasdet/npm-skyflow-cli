@@ -7,7 +7,8 @@ const fs = require("fs"),
     File = Skyflow.File,
     Api = Skyflow.Api,
     Request = Skyflow.Request,
-    Output = Skyflow.Output;
+    Output = Skyflow.Output,
+    _ = require('lodash');
 
 function listStyle() {
 
@@ -18,7 +19,7 @@ function listStyle() {
         let styles = require(styleListFileName);
 
         Output.newLine();
-        Output.writeln('Available style:', 'blue', null, 'bold');
+        Output.writeln('Available styles', 'blue', null, 'bold');
         Output.writeln('-'.repeat(50), 'blue', null, 'bold');
 
         styles.map((style)=>{
@@ -107,7 +108,7 @@ class StyleModule {
                 return 1
             }
 
-            let dir = './';
+            let dir = '';
             if(Request.hasOption('dir')){
                 dir = Request.getOption('dir')
             }
@@ -119,7 +120,7 @@ class StyleModule {
             name = '_' + name + '.scss';
 
             if(File.exists(resolve(dir, name))){
-                Output.info(tmpDir + path.sep + name + ' already exists.', false);
+                Output.info(_.trim(tmpDir + path.sep + name, '/') + ' already exists.', false);
                 return 1
             }
 

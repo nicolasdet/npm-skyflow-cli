@@ -391,7 +391,7 @@ function listCompose() {
         let composes = require(composeListFileName);
 
         Output.newLine();
-        Output.writeln('Available compose:', 'blue', null, 'bold');
+        Output.writeln('Available composes', 'blue', null, 'bold');
         Output.writeln('-'.repeat(50), 'blue', null, 'bold');
 
         composes.map((compose) => {

@@ -6,7 +6,6 @@ module.exports = {
     'D': 'docker',
     'P': 'package',
     'R': 'react',
-    'S': 'style',
     'W': 'webpack',
 
 };
