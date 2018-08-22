@@ -23,6 +23,7 @@ Skyflow.Package = require('./package.json');
 
 // Todo : List modules
 // Todo : On checking port, check port 80 only
+// Todo : React install for Symfony
 
 if (!Request.hasCommand() && !Request.hasOption()) {
     DefaultCommand.help.apply(null);

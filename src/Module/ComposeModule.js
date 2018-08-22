@@ -13,7 +13,6 @@ const resolve = require('path').resolve,
     Output = Skyflow.Output,
     _ = require('lodash');
 
-
 let dockerContainers = [];
 
 Skyflow.hasDockerContainer = (container) => {
@@ -61,6 +60,15 @@ Skyflow.addDockerPort = (port = 80, host = '0.0.0.0') => {
     dockerPorts.push(host + ':' + port)
 };
 
+Skyflow.getCurrentDockerDir = ()=>{
+
+    let currentDockerDir = 'docker';
+
+    Directory.create(currentDockerDir);
+
+    return currentDockerDir;
+};
+
 function containerIsRunning(container) {
     Shell.run('docker', ['inspect', container]);
     if (Shell.hasError()) {
@@ -76,18 +84,9 @@ function containerHasStatus(container) {
     return !Shell.hasError()
 }
 
-function getDockerDirFromConfig() {
-
-    let currentDockerDir = 'docker';
-
-    Directory.create(currentDockerDir);
-
-    return currentDockerDir;
-}
-
 function execDockerComposeCommand(command, options = []) {
     let cwd = process.cwd();
-    process.chdir(getDockerDirFromConfig());
+    process.chdir(Skyflow.getCurrentDockerDir());
     try {
         Shell.exec('docker-compose ' + command + ' ' + options.join(' '));
     } catch (e) {
@@ -105,7 +104,7 @@ function execDockerComposeCommand(command, options = []) {
  */
 function execDockerComposeCommandByContainer(command, container, options = [], reverse = false) {
     let cwd = process.cwd();
-    process.chdir(resolve(getDockerDirFromConfig()));
+    process.chdir(resolve(Skyflow.getCurrentDockerDir()));
     Shell.run('docker-compose', ['config', '--services']);
     if (Shell.hasError()) {
         Output.error(Shell.getError(), false);
@@ -133,7 +132,7 @@ function execDockerComposeCommandByContainer(command, container, options = [], r
 
 function updateCompose(composes = []) {
 
-    let dockerDir = getDockerDirFromConfig();
+    let dockerDir = Skyflow.getCurrentDockerDir();
 
     if (!composes[0]) {
         composes = Directory.read(dockerDir, {directory: true, file: false});
@@ -286,7 +285,7 @@ function updateCompose(composes = []) {
             }
 
             if (config.events && config.events.update && config.events.update.after) {
-                config.events.update.after.apply(null)
+                config.events.update.after.apply(null, [values])
             }
 
         }
@@ -346,7 +345,7 @@ function getCompose(compose, version = null) {
         return 1
     }
 
-    let currentDockerDir = getDockerDirFromConfig(),
+    let currentDockerDir = Skyflow.getCurrentDockerDir(),
         destDir = resolve(currentDockerDir, compose);
 
     Directory.create(destDir);
@@ -374,11 +373,6 @@ function getCompose(compose, version = null) {
 
     Output.success(compose + ' added.');
 
-    // let c = {'C:update': 0};
-    // c[compose] = 1;
-    // Request.setCommands(c);
-    // return _ComposeModule['__compose__update']();
-    // Shell.exec('skyflow compose:update ' + compose);
     return 0;
 }
 
@@ -591,7 +585,7 @@ class ComposeModule {
 
     // Todo : In run command, add options => https://docs.docker.com/compose/reference/run/
     __run(container, commands) {
-        execDockerComposeCommandByContainer('run --rm --name ' + container, container, commands);
+        execDockerComposeCommandByContainer('run --rm', container, commands);
     }
 
     __ps(container, options) {
@@ -661,7 +655,7 @@ class ComposeModule {
             process.exit(1)
         }
 
-        let dockerDir = getDockerDirFromConfig();
+        let dockerDir = Skyflow.getCurrentDockerDir();
 
         let dest = resolve(dockerDir, 'docker-compose.yml');
         if (!File.exists(dest)) {
@@ -756,7 +750,7 @@ class ComposeModule {
     __compose__down(options) {
 
         const cwd = process.cwd();
-        let dockerDir = resolve(getDockerDirFromConfig());
+        let dockerDir = resolve(Skyflow.getCurrentDockerDir());
         process.chdir(dockerDir);
 
         Shell.run('docker-compose', ['config', '--services']);
@@ -799,7 +793,7 @@ class ComposeModule {
 
     __compose__up(options) {
 
-        let dockerDir = resolve(getDockerDirFromConfig()), composes = [];
+        let dockerDir = resolve(Skyflow.getCurrentDockerDir()), composes = [];
 
         if (Request.hasOption('compose')) {
             composes = [Request.getOption('compose')]
