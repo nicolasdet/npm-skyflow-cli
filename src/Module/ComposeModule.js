@@ -860,7 +860,12 @@ class ComposeModule {
             stringOpt += ' --build';
         }
 
-        Shell.exec('docker-compose up ' + stringOpt);
+        try {
+            Shell.exec('docker-compose up ' + stringOpt);
+        }catch (e) {
+            Output.error(e.message, false);
+            process.exit(1)
+        }
 
         for (let data in store) {
 

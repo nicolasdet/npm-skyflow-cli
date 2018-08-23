@@ -69,7 +69,7 @@ class ReactModule {
 
                 name = _.upperFirst(_.camelCase(_.deburr(name)));
 
-                let tmpDir = resolve(dir, name);
+                let tmpDir = resolve(dir, name + 'Component');
                 if (Directory.exists(tmpDir) && !Request.hasOption('force')) {
                     Output.error(name + ' component already exists. Use --force option to force creation.', false);
                     return 1;
@@ -80,9 +80,9 @@ class ReactModule {
                 Directory.create(tmpDir);
 
                 // Component file
-                let contents = File.read(resolve(sampleDir, 'component.js.sample'));
+                let contents = File.read(resolve(sampleDir, 'component.jsx.sample'));
                 contents = contents.replace(/\{\{ *name *\}\}/g, name).replace(/\{\{ *style *\}\}/g, styleName);
-                let filename = resolve(tmpDir, name + 'Component.js');
+                let filename = resolve(tmpDir, name + 'Component.jsx');
                 File.create(filename, contents);
                 if (Helper.isInux()) {
                     fs.chmodSync(filename, '777')
@@ -116,6 +116,72 @@ class ReactModule {
             runAfterPull()
         } else {
             Api.getReactComponentSamples(runAfterPull);
+        }
+
+        return 0
+    }
+
+    __react__create__container(containers) {
+
+        if (!containers[0]) {
+            Output.error('Invalid container name.', false);
+            process.exit(1);
+        }
+
+        let sampleDir = resolve(Helper.getUserHome(), '.skyflow', 'react', 'sample', 'container');
+
+        function runAfterPull() {
+
+            let dir = './';
+            if (Request.hasOption('dir')) {
+                dir = Request.getOption('dir')
+            }
+
+            dir = resolve(process.cwd(), dir);
+            Directory.create(dir);
+
+            containers.map((name) => {
+
+                name = _.upperFirst(_.camelCase(_.deburr(name)));
+
+                let tmpDir = resolve(dir, name + 'Container');
+                if (Directory.exists(tmpDir) && !Request.hasOption('force')) {
+                    Output.error(name + ' container already exists. Use --force option to force creation.', false);
+                    return 1;
+                }
+
+                let styleName = _.kebabCase(name);
+
+                Directory.create(tmpDir);
+
+                // Component file
+                let contents = File.read(resolve(sampleDir, 'container.jsx.sample'));
+                contents = contents.replace(/\{\{ *name *\}\}/g, name).replace(/\{\{ *style *\}\}/g, styleName);
+                let filename = resolve(tmpDir, name + 'Container.jsx');
+                File.create(filename, contents);
+                if (Helper.isInux()) {
+                    fs.chmodSync(filename, '777')
+                }
+
+                // Style file
+                contents = File.read(resolve(sampleDir, 'container.scss.sample'));
+                contents = contents.replace(/\{\{ *name *\}\}/g, name).replace(/\{\{ *style *\}\}/g, styleName);
+                filename = resolve(tmpDir, name + 'Container.scss');
+                File.create(filename, contents);
+                if (Helper.isInux()) {
+                    fs.chmodSync(filename, '777')
+                }
+
+                Output.success(name + 'Container');
+
+            });
+
+        }
+
+        if (Directory.exists(sampleDir)) {
+            runAfterPull()
+        } else {
+            Api.getReactContainerSamples(runAfterPull);
         }
 
         return 0
