@@ -251,6 +251,14 @@ class ReactModule {
         return 0
     }
 
+    __react__invalidate() {
+
+        let reactDir = resolve(Helper.getUserHome(), '.skyflow', 'react');
+
+        Directory.remove(reactDir);
+
+        Output.success('React cache has been successfully removed.');
+    }
 
 }
 

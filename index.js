@@ -17,7 +17,7 @@ const Request = Skyflow.Request,
     Helper = Skyflow.Helper,
     Output = Skyflow.Output,
     DefaultCommand = require(resolve(__dirname, 'src', 'Command', 'DefaultCommand')),
-    alias = require(resolve(__dirname, 'extra', 'alias'));
+    alias = require(resolve(__dirname, 'extra', 'alias.json'));
 
 Skyflow.Package = require('./package.json');
 
