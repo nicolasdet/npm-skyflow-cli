@@ -26,7 +26,7 @@ class DefaultCommand {
 
         if (module) {module = _.lowerFirst(module)}
 
-        let helpFile = resolve(helpDir, module + 'Help.js');
+        let helpFile = resolve(helpDir, module + 'Help.json');
 
         function runAfterPull() {
             let commands = [
