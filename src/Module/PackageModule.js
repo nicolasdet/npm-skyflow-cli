@@ -93,7 +93,7 @@ function listPackage() {
 
                 let directory = resolve(Skyflow.Helper.getUserHome(), '.skyflow', d.directory);
                 Directory.create(directory);
-                let configFile = resolve(directory, d.pkg + '.config.js');
+                let configFile = resolve(directory, d.pkg + '.config.json');
 
                 File.create(configFile, d.contents);
                 if (Skyflow.Helper.isInux()) {

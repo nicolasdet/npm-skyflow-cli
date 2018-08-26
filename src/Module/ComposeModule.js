@@ -175,7 +175,7 @@ function updateCompose(composes = []) {
             });
 
             let composeDir = resolve(dockerDir, compose), config = null,
-                configFile = resolve(composeDir, compose + '.config.js');
+                configFile = resolve(composeDir, 'console.js');
 
             if (File.exists(configFile)) {
                 config = require(configFile);
@@ -283,7 +283,7 @@ function updateCompose(composes = []) {
             }
 
             let config = null,
-                configFile = resolve(composeDir, compose + '.config.js');
+                configFile = resolve(composeDir, 'console.js');
 
             if (File.exists(configFile)) {
                 config = require(configFile);
@@ -372,12 +372,7 @@ function getCompose(compose, version = null) {
         File.rename(resolve(destDir, 'Dockerfile'), resolve(destDir, 'Dockerfile.dist'))
     }
 
-    File.copy(resolve(composeDir, compose + '.config.js'), resolve(destDir, compose + '.config.js'));
-    if (Skyflow.Helper.isInux()) {
-        fs.chmodSync(resolve(destDir, compose + '.config.js'), '777')
-    }
-
-    let config = require(resolve(destDir, compose + '.config.js'));
+    let config = require(resolve(destDir, 'console.js'));
 
     if (config.events && config.events.add && config.events.add.after) {
         config.events.add.after.apply(null)
@@ -437,7 +432,7 @@ function listCompose() {
 
                 let directory = resolve(Helper.getUserHome(), '.skyflow', d.directory);
                 Directory.create(directory);
-                let configFile = resolve(directory, d.compose + '.config.js');
+                let configFile = resolve(directory, d.compose + '.config.json');
 
                 File.create(configFile, d.contents);
                 if (Helper.isInux()) {
@@ -739,7 +734,7 @@ class ComposeModule {
             }
 
             let composeDir = resolve(dockerDir, compose),
-                configFile = resolve(composeDir, compose + '.config.js'),
+                configFile = resolve(composeDir, 'console.js'),
                 config = null;
 
             if (File.exists(configFile)) {
@@ -882,7 +877,7 @@ class ComposeModule {
 
         composes.map((compose) => {
 
-            let configFile = resolve(dockerDir, compose, compose + '.config.js'),
+            let configFile = resolve(dockerDir, compose, 'console.js'),
                 valuesFile = resolve(dockerDir, compose, compose + '.values.js');
 
             if (!File.exists(configFile)) {
