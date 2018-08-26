@@ -11,27 +11,40 @@ const resolve = require('path').resolve,
     Input = Skyflow.Input,
     Request = Skyflow.Request,
     Output = Skyflow.Output,
-    _ = require('lodash');
+    _ = require('lodash'),
+    uniqid = require('uniqid');
 
-let dockerContainers = [];
 
-Skyflow.hasDockerContainer = (container) => {
+Skyflow.getCurrentDockerDir = () => {
 
-    Shell.run('docker', ['ps', '-a']);
+    let currentDockerDir = 'docker';
 
-    let lines = Shell.getArrayResult().slice(1);
+    Directory.create(currentDockerDir);
 
-    lines.map((line) => {
-        let words = line.split(/ +/);
-        dockerContainers.push(words[words.length - 1])
-    });
-
-    return _.indexOf(dockerContainers, container) !== -1;
+    return currentDockerDir;
 };
 
-Skyflow.addDockerContainer = (container) => {
-    dockerContainers.push(container)
-};
+function getContainerFromCompose(compose) {
+
+    let composeDir = resolve(Skyflow.getCurrentDockerDir(), compose);
+
+    if (!Directory.exists(composeDir)) {
+        Output.error(compose + ' compose not found.', false);
+        process.exit(1)
+    }
+    let valuesFile = resolve(composeDir, compose + '.values.js');
+    if (!File.exists(valuesFile)) {
+        Output.error(compose + ".values.js file not found for " + compose + " compose. \nTry 'skyflow compose:update " + compose + "' command.", false);
+        process.exit(1)
+    }
+    let containerName = require(valuesFile)['container_name'];
+    if (!containerName) {
+        Output.error("Container name not found for " + compose + " compose. \nTry 'skyflow compose:update " + compose + "' command.", false);
+        process.exit(1)
+    }
+
+    return containerName
+}
 
 let dockerPorts = [];
 
@@ -60,14 +73,6 @@ Skyflow.addDockerPort = (port = 80, host = '0.0.0.0') => {
     dockerPorts.push(host + ':' + port)
 };
 
-Skyflow.getCurrentDockerDir = ()=>{
-
-    let currentDockerDir = 'docker';
-
-    Directory.create(currentDockerDir);
-
-    return currentDockerDir;
-};
 
 function containerIsRunning(container) {
     Shell.run('docker', ['inspect', container]);
@@ -108,7 +113,7 @@ function execDockerComposeCommandByContainer(command, container, options = [], r
     Shell.run('docker-compose', ['config', '--services']);
     if (Shell.hasError()) {
         Output.error(Shell.getError(), false);
-        Output.info("Use 'skyflow compose:update' command to generate it.", false);
+        Output.info("Try to use 'skyflow compose:update'", false);
         process.exit(1)
     }
     if (_.indexOf(Shell.getArrayResult(), container) === -1) {
@@ -331,7 +336,14 @@ function updateCompose(composes = []) {
         return 1
     }
 
-    Input.input(allQuestions, questionsCallback);
+    Input.input(allQuestions, (responses) => {
+
+        composes.forEach((compose) => {
+            responses['__' + compose + '__container_name'] = uniqid(compose + '_')
+        });
+
+        questionsCallback(responses)
+    });
 
     return 0
 }
@@ -499,7 +511,7 @@ class ComposeModule {
 
         }
 
-        Output.error('Command ' + command + ' not found in Compose module.', false);
+        Output.error('Command ' + command + (container ? (' for ' + container + ' container') : '') + ' not found in Compose module.', false);
 
         return 1
     }
@@ -515,7 +527,10 @@ class ComposeModule {
 
     /*------------ Run by container ----------*/
 
-    __exec(container, options) {
+    __exec(compose, options) {
+
+        let container = getContainerFromCompose(compose);
+
         if (!containerIsRunning(container)) {
             Output.error(container + ' container is not running.', false);
             process.exit(1)
@@ -523,7 +538,10 @@ class ComposeModule {
         execDockerComposeCommandByContainer('exec', container, options);
     }
 
-    __sh(container) {
+    __sh(compose) {
+
+        let container = getContainerFromCompose(compose);
+
         if (!containerIsRunning(container)) {
             Output.error(container + ' container is not running.', false);
             process.exit(1)
@@ -531,7 +549,10 @@ class ComposeModule {
         execDockerComposeCommandByContainer('exec', container, ['sh']);
     }
 
-    __bash(container) {
+    __bash(compose) {
+
+        let container = getContainerFromCompose(compose);
+
         if (!containerIsRunning(container)) {
             Output.error(container + ' container is not running.', false);
             process.exit(1)
@@ -539,20 +560,30 @@ class ComposeModule {
         execDockerComposeCommandByContainer('exec', container, ['bash']);
     }
 
-    __down(container, options) {
-        Request.addOption('compose', container);
+    __down(compose, options) {
+
+        Request.addOption('compose', compose);
         this['__compose__down'](options);
     }
 
-    __pull(container, options) {
+    __pull(compose, options) {
+
+        let container = getContainerFromCompose(compose);
+
         execDockerComposeCommandByContainer('pull', container, options);
     }
 
-    __stop(container, options) {
+    __stop(compose, options) {
+
+        let container = getContainerFromCompose(compose);
+
         execDockerComposeCommandByContainer('stop', container, options);
     }
 
-    __start(container, options) {
+    __start(compose, options) {
+
+        let container = getContainerFromCompose(compose);
+
         if (!containerHasStatus(container)) {
             Output.writeln('No container to start.');
             process.exit(1)
@@ -560,22 +591,34 @@ class ComposeModule {
         execDockerComposeCommandByContainer('start', container, options);
     }
 
-    __rm(container, options) {
+    __rm(compose, options) {
+
+        let container = getContainerFromCompose(compose);
+
         if (!Request.hasOption('s') && !Request.hasOption('stop')) {
             options.push('-s')
         }
         execDockerComposeCommandByContainer('rm', container, options, true);
     }
 
-    __kill(container, options) {
+    __kill(compose, options) {
+
+        let container = getContainerFromCompose(compose);
+
         execDockerComposeCommandByContainer('kill', container, options, true);
     }
 
-    __logs(container, options) {
+    __logs(compose, options) {
+
+        let container = getContainerFromCompose(compose);
+
         execDockerComposeCommandByContainer('logs', container, options, true);
     }
 
-    __restart(container, options) {
+    __restart(compose, options) {
+
+        let container = getContainerFromCompose(compose);
+
         if (!containerHasStatus(container)) {
             Output.writeln('No container to restart.');
             process.exit(1)
@@ -584,12 +627,33 @@ class ComposeModule {
     }
 
     // Todo : In run command, add options => https://docs.docker.com/compose/reference/run/
-    __run(container, commands) {
+    __run(compose, commands) {
+
+        let container = getContainerFromCompose(compose);
+
         execDockerComposeCommandByContainer('run --rm', container, commands);
     }
 
-    __ps(container, options) {
+    __ps(compose, options) {
+
+        let container = getContainerFromCompose(compose);
+
         execDockerComposeCommandByContainer('ps', container, options);
+    }
+
+    __up(compose, options) {
+
+        let container = getContainerFromCompose(compose);
+
+        if (!Request.hasOption('d') && !Request.hasOption('detach') && !Request.hasOption('no-detach')) {
+            options.push('-d')
+        }
+
+        if (!Request.hasOption('build') && !Request.hasOption('no-build')) {
+            options.push('--build')
+        }
+
+        execDockerComposeCommandByContainer('up', container, options, true);
     }
 
 
@@ -763,7 +827,9 @@ class ComposeModule {
         let services;
 
         if (Request.hasOption('compose')) {
-            services = [Request.getOption('compose')]
+            process.chdir(cwd);
+            services = [getContainerFromCompose(Request.getOption('compose'))];
+            process.chdir(dockerDir);
         } else {
             services = Shell.getArrayResult()
         }
@@ -862,20 +928,20 @@ class ComposeModule {
 
         try {
             Shell.exec('docker-compose up ' + stringOpt);
-        }catch (e) {
+        } catch (e) {
             Output.error(e.message, false);
             process.exit(1)
         }
 
-        for (let data in store) {
+        for (let compose in store) {
 
-            if (!store.hasOwnProperty(data)) {
+            if (!store.hasOwnProperty(compose)) {
                 continue
             }
 
-            let config = store[data].config,
-                values = store[data].values,
-                containerName = store[data].values['container_name'];
+            let config = store[compose].config,
+                values = store[compose].values,
+                containerName = store[compose].values['container_name'];
 
             // Check if container is running, Running, Paused, Restarting
             Shell.run('docker', ['inspect', containerName]);
@@ -901,7 +967,7 @@ class ComposeModule {
             }
 
             let ports = inspect.NetworkSettings.Ports,
-                mes = containerName + ' container is ' + state.Status + ' on ';
+                mes = compose + ' container is ' + state.Status + ' on ';
 
             for (let port in ports) {
 
@@ -911,9 +977,11 @@ class ComposeModule {
 
                 mes += port;
 
-                ports[port].map((p) => {
-                    mes += ' -> ' + p.HostIp + ':' + p.HostPort
-                });
+                if (ports[port]) {
+                    ports[port].map((p) => {
+                        mes += ' -> ' + p.HostIp + ':' + p.HostPort
+                    });
+                }
 
                 break
             }
