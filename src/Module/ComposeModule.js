@@ -416,12 +416,12 @@ function listCompose() {
 
     if (!File.exists(composeListFileName)) {
 
-        Output.writeln('Pulling compose list from ' + Api.protocol + '://' + Api.host + ' ...', false);
+        Output.writeln('Pulling composes list from ' + Api.protocol + '://' + Api.host + ' ...', false);
 
-        Api.get('docker/compose', (response) => {
+        Api.get('docker/composes', (response) => {
 
             if (response.statusCode !== 200) {
-                Output.error('Can not pull compose list from ' + Api.protocol + '://' + Api.host + '.', false);
+                Output.error('Can not pull composes list from ' + Api.protocol + '://' + Api.host + '.', false);
                 process.exit(1)
             }
 
@@ -985,7 +985,7 @@ class ComposeModule {
 
             // Trigger up.after callback if is defined
             if (config.events && config.events.up && config.events.up.after) {
-                config.events.up.after.apply(null)
+                config.events.up.after.apply(null, [values])
             }
 
             // Print messages if container is up.

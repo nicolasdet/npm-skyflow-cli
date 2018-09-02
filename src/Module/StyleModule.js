@@ -33,12 +33,12 @@ function listStyle() {
 
     if (!File.exists(styleListFileName)) {
 
-        Output.writeln('Pulling style list from ' + Api.protocol + '://' + Api.host + ' ...', false);
+        Output.writeln('Pulling styles list from ' + Api.protocol + '://' + Api.host + ' ...', false);
 
-        Api.get('style', (response) => {
+        Api.get('styles', (response) => {
 
             if (response.statusCode !== 200) {
-                Output.error('Can not pull style list from ' + Api.protocol + '://' + Api.host + '.', false);
+                Output.error('Can not pull styles list from ' + Api.protocol + '://' + Api.host + '.', false);
                 process.exit(1)
             }
 

@@ -33,12 +33,12 @@ function listScript() {
 
     if (!File.exists(scriptListFileName)) {
 
-        Output.writeln('Pulling script list from ' + Api.protocol + '://' + Api.host + ' ...', false);
+        Output.writeln('Pulling scripts list from ' + Api.protocol + '://' + Api.host + ' ...', false);
 
-        Api.get('script', (response) => {
+        Api.get('scripts', (response) => {
 
             if (response.statusCode !== 200) {
-                Output.error('Can not pull script list from ' + Api.protocol + '://' + Api.host + '.', false);
+                Output.error('Can not pull scripts list from ' + Api.protocol + '://' + Api.host + '.', false);
                 process.exit(1)
             }
 

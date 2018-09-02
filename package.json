@@ -1,6 +1,6 @@
 {
   "name": "skyflow-cli",
-  "version": "1.2.10-beta.11",
+  "version": "1.2.10-beta.12",
   "description": "Best friend of the developer",
   "main": "index.js",
   "scripts": {
@@ -18,7 +18,11 @@
     "package",
     "react",
     "webpack",
-    "style"
+    "style",
+    "script",
+    "symfony",
+    "python",
+    "prestashop"
   ],
   "author": "Franck DIOMANDE <fkdiomande@gmail.com>",
   "license": "Apache-2.0",

@@ -77,12 +77,12 @@ function listPackage() {
 
     if (!File.exists(pkgListFileName)) {
 
-        Output.writeln('Pulling package list from ' + Api.protocol + '://' + Api.host + ' ...', false);
+        Output.writeln('Pulling packages list from ' + Api.protocol + '://' + Api.host + ' ...', false);
 
-        Api.get('docker/package', (response) => {
+        Api.get('docker/packages', (response) => {
 
             if (response.statusCode !== 200) {
-                Output.error('Can not pull package list from ' + Api.protocol + '://' + Api.host + '.', false);
+                Output.error('Can not pull packages list from ' + Api.protocol + '://' + Api.host + '.', false);
                 process.exit(1)
             }
 
@@ -235,6 +235,12 @@ class PackageModule {
     __package__update() {
 
         return ComposeModule['__compose__update'].apply(ComposeModule);
+
+    }
+
+    __package__up(options) {
+
+        return ComposeModule['__compose__up'].apply(ComposeModule, [options]);
 
     }
 
