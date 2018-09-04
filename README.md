@@ -20,6 +20,11 @@ We also provide **frontend frameworks** for SASS development and a **Javascript 
 
 You can see the the detailed [documentation](https://skyflow.io/doc) for additional details and full modules description.
 
+We also provide step by step [tutorials](https://skyflow.io/doc#skyflow-tutorials) fo specific use cases like :
+- [setup Symfony environment with skyflow](https://skyflow.io/doc#doc-for-tutorials-docker-for-symfony)
+- [setup Prestashop environment with skyflow](https://skyflow.io/doc#doc-for-tutorials-docker-for-prestashop)
+- [run Python app with skyflow](https://skyflow.io/doc#doc-for-tutorials-docker-for-python)
+
 ## What can I do with Skyflow ?
 
 Skyflow is based on a module structure, they are **all installed and available by default** and each one add special features according to specific needs. 
