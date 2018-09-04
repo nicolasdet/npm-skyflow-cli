@@ -6,9 +6,9 @@
 
 <h1 align="center">Best friend of the developer</h1>
 
-**Skyflow-cli** is a command line that makes life easier for developers.
-<br />
-Skyflow is an **aggregation of developer tools** that are put together in order to simplify developers' life. 
+**Skyflow-cli** is a command line interface that makes projects setup easier for developers, even for development and production environments.
+
+It's an **aggregation of developer tools** that are put together in order to simplify developers' life. 
 
 It will help you to **start new projects** on several technologies like React, giving you **boilerplates** to start your development without losing your time in webpack configurations or environment setup. 
 
@@ -22,22 +22,23 @@ You can see the the detailed <a href="https://skyflow.io/doc">documentation</a> 
 
 ## What can I do with Skyflow ?
 
-Skyflow is based on a module structure, they are **all installed and available by default** and each add special features according to specific needs. 
+Skyflow is based on a module structure, they are **all installed and available by default** and each one add special features according to specific needs. 
 
 You can find below the details about the purpose of each module.
 
-<ul>
-    <li>Docker Module - manage your docker environment with simplified commands</li>
-    <li>Docker Compose Module - build docker-compose projects and manage them</li>
-    <li>Docker Package Module - start project from built-in templates and manage them</li>
-    <li>React Module - init react project, create containers and components threw command line interface</li>
-    <li>Style Module - use our CSS framework in your project (written in SAAS)</li>
-    <li>Script Module - use our developer friendly javascript library in your project</li>
-</ul>
+- **Docker Module** - manage your docker environment with simplified commands</li>
+- **Docker Compose Module** - build docker-compose projects and manage them</li>
+- **Docker Package Module** - start project from built-in templates and manage them</li>
+- **React Module** - init react project, create containers and components threw command line interface</li>
+- **Style Module** - use our CSS framework in your project (written in SAAS)</li>
+- **Script Module** - use our developer friendly javascript library in your project</li>
 
 ## Prerequisites
 
-**Skyflow-cli** is developed in Nodejs. You need [Nodejs](https://nodejs.org) version >=6.0.0 or [Yarn](https://yarnpkg.com).
+**Skyflow-cli** is developed in Nodejs. 
+
+You need [Nodejs](https://nodejs.org) version >=6.0.0 or [Yarn](https://yarnpkg.com).
+
 Skyflow-cli was developed for **Mac OX** and **Unix** systems.
 
 ## Installation
