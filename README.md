@@ -18,7 +18,7 @@ We also provide **frontend frameworks** for SASS development and a **Javascript 
 
 **It's time to create, wasting time on setup will no longer be a problem with skyflow.** 🚀
 
-You can see the the detailed <a href="https://skyflow.io/doc">documentation</a> for additional details and full modules description.
+You can see the the detailed [documentation](https://skyflow.io/doc) for additional details and full modules description.
 
 ## What can I do with Skyflow ?
 
@@ -81,7 +81,7 @@ skyflow --help
 
 ## Documentation
 
-Detailed documentation is available <a href="https://skyflow.io/doc">here</a>. 🔥
+Detailed documentation is available [here](https://skyflow.io/doc). 🔥
 
 ## Contributing
 
