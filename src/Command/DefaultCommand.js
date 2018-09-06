@@ -108,7 +108,9 @@ class DefaultCommand {
 
     invalidate(){
 
-        Helper.getUserHome()
+        Skyflow.Directory.remove(resolve(Helper.getUserHome(), '.skyflow'));
+
+        Output.success('Skyflow cache has been successfully removed.');
 
     }
 

@@ -39,6 +39,8 @@ if (!Request.hasCommand()) {
         DefaultCommand.help.apply(null);
     } else if (Request.hasOption('alias')) {
         DefaultCommand.alias.apply(null, [alias]);
+    } else if (Request.hasOption('invalidate')) {
+        DefaultCommand.invalidate.apply(null);
     }
 
 } else {
