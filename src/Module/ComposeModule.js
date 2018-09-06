@@ -18,7 +18,6 @@ const resolve = require('path').resolve,
 Skyflow.getCurrentDockerDir = () => {
 
     let currentDockerDir = 'docker';
-
     Directory.create(currentDockerDir);
 
     return currentDockerDir;
@@ -72,7 +71,6 @@ Skyflow.isPortReachable = (port = 80, host = '0.0.0.0') => {
 Skyflow.addDockerPort = (port = 80, host = '0.0.0.0') => {
     dockerPorts.push(host + ':' + port)
 };
-
 
 function containerIsRunning(container) {
     Shell.run('docker', ['inspect', container]);
@@ -248,6 +246,28 @@ function updateCompose(composes = []) {
             }
 
         }
+
+
+        // Replace dependencies
+
+        let content = File.read(dest);
+
+        content = content.replace(/{{ ?depends:([a-z0-9\.]+) ?}}/g, (m, compose) => {
+
+            if (storage.values[compose]) {
+                return storage.values[compose]['container_name']
+            }
+
+            Output.error("Compose " + compose + " not found! Your docker-compose.yml file is not valid.", false);
+
+            return m
+        });
+
+        File.create(dest, content);
+        if (Skyflow.Helper.isInux()) {
+            fs.chmodSync(dest, '777')
+        }
+
 
         // Create compose values file.
 

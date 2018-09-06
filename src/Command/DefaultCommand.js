@@ -106,6 +106,12 @@ class DefaultCommand {
 
     }
 
+    invalidate(){
+
+        Helper.getUserHome()
+
+    }
+
     modules(){
 
     }

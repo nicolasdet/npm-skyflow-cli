@@ -11,6 +11,12 @@ class Shell {
         this.status = null;
     }
 
+    /**
+     * Run command synchronously without verbose
+     * @param {string} command
+     * @param {array} options
+     * @returns {Shell}
+     */
     run(command, options) {
 
         this.error = false;

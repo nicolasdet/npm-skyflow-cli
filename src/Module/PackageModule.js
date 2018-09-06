@@ -12,6 +12,15 @@ const resolve = require('path').resolve,
     Output = Skyflow.Output,
     ComposeModule = require('./ComposeModule');
 
+Skyflow.getCurrentDockerDir = () => {
+
+    let currentDockerDir = 'docker';
+    Directory.create(currentDockerDir);
+
+    return currentDockerDir;
+};
+
+
 function getPackage(pkg, version = null) {
 
     let pkgDir = resolve(Skyflow.Helper.getUserHome(), '.skyflow', 'docker', 'package', pkg, version);
@@ -35,6 +44,11 @@ function getPackage(pkg, version = null) {
             Api.getDockerComposeOrPackageVersion('compose', compose[0], compose[1], () => {
                 Request.addOption('v', compose[1]);
                 ComposeModule['__compose__add'].apply(ComposeModule, [[compose[0]]]);
+
+                if(Directory.exists(resolve(pkgDir, 'composes'))){
+                    Directory.copy(resolve(pkgDir, 'composes'), resolve(Skyflow.getCurrentDockerDir()))
+                }
+
             });
 
         });
