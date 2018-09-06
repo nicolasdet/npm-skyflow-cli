@@ -20,18 +20,23 @@ We also provide **frontend frameworks** for SASS development and a **Javascript 
 
 You can see the the detailed [documentation](https://skyflow.io/doc) for additional details and full modules description.
 
+We also provide step by step [tutorials](https://skyflow.io/doc#skyflow-tutorials) fo specific use cases like :
+- [setup Symfony environment with skyflow](https://skyflow.io/doc#doc-for-tutorials-docker-for-symfony)
+- [setup Prestashop environment with skyflow](https://skyflow.io/doc#doc-for-tutorials-docker-for-prestashop)
+- [run Python app with skyflow](https://skyflow.io/doc#doc-for-tutorials-docker-for-python)
+
 ## What can I do with Skyflow ?
 
 Skyflow is based on a module structure, they are **all installed and available by default** and each one add special features according to specific needs. 
 
 You can find below the details about the purpose of each module.
 
-- **Docker Module** - manage your docker environment with simplified commands</li>
-- **Docker Compose Module** - build docker-compose projects and manage them</li>
-- **Docker Package Module** - start project from built-in templates and manage them</li>
-- **React Module** - init react project, create containers and components threw command line interface</li>
-- **Style Module** - use our CSS framework in your project (written in SAAS)</li>
-- **Script Module** - use our developer friendly javascript library in your project</li>
+- [**Docker Module**](https://skyflow.io/doc#doc-for-docker-module-what-the-point) - manage your docker environment with simplified commands</li>
+- [**Docker Compose Module**](https://skyflow.io/doc#doc-for-compose-module-what-the-point) - build docker-compose projects and manage them</li>
+- [**Docker Package Module**](https://skyflow.io/doc#doc-for-package-module-what-the-point) - start project from built-in templates and manage them</li>
+- [**React Module**](https://skyflow.io/doc#doc-for-react-module-what-the-point) - init react project, create containers and components threw command line interface</li>
+- [**Style Module**](https://skyflow.io/doc#doc-for-style-module-what-the-point) - use our CSS framework in your project (written in SAAS)</li>
+- [**Script Module**](https://skyflow.io/doc#doc-for-script-module-what-the-point) - use our developer friendly javascript library in your project</li>
 
 ## Prerequisites
 
