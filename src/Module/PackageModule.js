@@ -258,6 +258,12 @@ class PackageModule {
 
     }
 
+    __package__down(options) {
+
+        return ComposeModule['__compose__down'].apply(ComposeModule, [options]);
+
+    }
+
     __package__invalidate() {
 
         let pkg = 'package';
