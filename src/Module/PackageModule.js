@@ -43,9 +43,10 @@ function getPackage(pkg, version = null) {
 
             Api.getDockerComposeOrPackageVersion('compose', compose[0], compose[1], () => {
                 Request.addOption('v', compose[1]);
-                ComposeModule['__compose__add'].apply(ComposeModule, [[compose[0]]]);
 
-                if(Directory.exists(resolve(pkgDir, 'composes'))){
+                Shell.exec("skyflow compose:add " + compose[0] + " -v " + compose[1]);
+
+                if (Directory.exists(resolve(pkgDir, 'composes'))) {
                     Directory.copy(resolve(pkgDir, 'composes'), resolve(Skyflow.getCurrentDockerDir()))
                 }
 

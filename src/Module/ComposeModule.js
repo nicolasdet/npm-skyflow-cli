@@ -155,7 +155,7 @@ function updateCompose(composes = []) {
 
         let dest = resolve(dockerDir, 'docker-compose.yml');
         if (!File.exists(dest)) {
-            let content = "version: \"2\"" + os.EOL + os.EOL +
+            let content = "version: \"2.2\"" + os.EOL + os.EOL +
                 "services:";
             File.create(dest, content);
             if (Skyflow.Helper.isInux()) {
@@ -393,14 +393,6 @@ function getCompose(compose, version = null) {
     Directory.create(destDir);
 
     Directory.copy(composeVersionDir, destDir);
-
-    if (File.exists(resolve(destDir, compose + '.yml'))) {
-        File.rename(resolve(destDir, compose + '.yml'), resolve(destDir, 'docker-compose.dist'))
-    }
-
-    if (File.exists(resolve(destDir, 'Dockerfile'))) {
-        File.rename(resolve(destDir, 'Dockerfile'), resolve(destDir, 'Dockerfile.dist'))
-    }
 
     let config = require(resolve(destDir, 'console.js'));
 
