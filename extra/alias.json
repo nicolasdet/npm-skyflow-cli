@@ -4,5 +4,6 @@
     "P": "package",
     "R": "react",
     "S": "style",
-    "W": "webpack"
+    "W": "webpack",
+    "A": "asset"
 }

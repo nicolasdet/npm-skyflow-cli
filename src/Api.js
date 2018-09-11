@@ -300,6 +300,45 @@ class Api {
     }
 
     /**
+     * Pull assets files.
+     * @param callback
+     * @returns {number}
+     */
+    getAssetsFiles(callback) {
+
+        Output.writeln('Pulling assets files from ' + this.protocol + '://' + this.host + ' ...', false);
+
+        this.get('assets', (response) => {
+
+            if (response.statusCode !== 200) {
+                Output.error('Can not pull assets files from ' + this.protocol + '://' + this.host + '.', false);
+                return 1
+            }
+
+            if (response.body.status !== 200) {
+                Output.error(response.body.error, false);
+                return 1
+            }
+
+            let data = response.body.data;
+
+            let assetDir = resolve(Helper.getUserHome(), '.skyflow', 'asset');
+            Directory.create(assetDir);
+            let assetFile = resolve(assetDir, 'asset.json');
+            File.create(assetFile, JSON.stringify(data));
+            if (Helper.isInux()) {
+                fs.chmodSync(assetFile, '777')
+            }
+
+            callback();
+
+        });
+
+        return 1
+
+    }
+
+    /**
      * Pull style by name.
      * @param name
      * @param callback

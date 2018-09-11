@@ -23,6 +23,16 @@ Skyflow.getCurrentDockerDir = () => {
     return currentDockerDir;
 };
 
+Skyflow.getComposeValues = (compose) => {
+
+    let values = {};
+    let file = resolve(Skyflow.getCurrentDockerDir(), compose, compose + '.values.js');
+    if(File.exists(file)){
+        values = require(file)
+    }
+    return values
+};
+
 function getContainerFromCompose(compose) {
 
     let composeDir = resolve(Skyflow.getCurrentDockerDir(), compose);
@@ -398,7 +408,7 @@ function getCompose(compose, version = null) {
         config.events.add.after.apply(null)
     }
 
-    Output.success(compose + ' added.');
+    Output.success(compose + ' compose added.');
 
     return 0;
 }

@@ -1,6 +1,6 @@
 {
   "name": "skyflow-cli",
-  "version": "1.2.10-beta.17",
+  "version": "1.2.10-beta.18",
   "description": "Best friend of the developer",
   "main": "index.js",
   "scripts": {
