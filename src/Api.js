@@ -561,6 +561,32 @@ class Api {
 
     }
 
+
+    getCliCurrentVersion(callback) {
+
+        this.get("cli-current-version", (response) => {
+
+            if (response.statusCode !== 200) {
+                Output.error('Can not check last version from ' + this.protocol + '://' + this.host + '.', false);
+                return 1
+            }
+
+            if (response.body.status !== 200) {
+                Output.error(response.body.error, false);
+                return 1
+            }
+
+            let data = response.body.data;
+
+            callback.apply(null, [data]);
+
+        });
+
+        return 1
+
+    }
+
+
 }
 
 module.exports = new Api();

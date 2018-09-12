@@ -16,10 +16,52 @@ Skyflow.Api = require(resolve(__dirname, 'src', 'Api'));
 const Request = Skyflow.Request,
     Helper = Skyflow.Helper,
     Output = Skyflow.Output,
+    File = Skyflow.File,
+    Api = Skyflow.Api,
     DefaultCommand = require(resolve(__dirname, 'src', 'Command', 'DefaultCommand')),
     alias = require(resolve(__dirname, 'extra', 'alias.json'));
 
 Skyflow.Package = require('./package.json');
+
+// Check for update
+let delta = 4 * 60 * 60 * 1000,
+    checkFile = resolve("extra", "check.txt");
+
+let lastTime = parseInt(File.read(checkFile)),
+    currentTime = (new Date()).getTime();
+
+if ((currentTime - lastTime) > delta) {
+
+    // Call API
+    Api.getCliCurrentVersion((version) => {
+
+        if(Skyflow.Package.version !== version){
+            Output.newLine();
+            Output.success("+-------------------------------------------------+", false);
+            Output.success("|                                                 |", false);
+            Output.write("|    ", "green");
+            Output.write("A NEW VERSION OF SKYFLOW CLI IS AVAILABLE", null, null, "bold");
+            Output.writeln("    |", "green");
+            Output.success("|                                                 |", false);
+            Output.write("|    ", "green");
+            Output.write("Use this command to update:", null, null, null);
+            Output.writeln("                  |", "green");
+            Output.success("|                                                 |", false);
+            Output.success("|    yarn global add skyflow-cli                  |", false);
+            Output.write("|    ", "green");
+            Output.write("or", null, null, null);
+            Output.writeln("                                           |", "green");
+            Output.success("|    npm install skyflow-cli -g                   |", false);
+            Output.success("|                                                 |", false);
+            Output.success("+-------------------------------------------------+", false);
+            process.exit(0)
+        }
+
+    });
+
+    File.create(checkFile, currentTime)
+}
+
 
 // Todo : List modules
 // Todo : On checking port, check port 80 only
@@ -27,14 +69,10 @@ Skyflow.Package = require('./package.json');
 
 if (!Request.hasCommand() && !Request.hasOption()) {
     DefaultCommand.help.apply(null);
-    process.exit(0);
-}
-
-if (!Request.hasCommand()) {
+}else if (!Request.hasCommand()) {
 
     if (Request.hasOption('v') || Request.hasOption('version')) {
         DefaultCommand.version.apply(null);
-        process.exit(0);
     } else if (Request.hasOption('h') || Request.hasOption('help')) {
         DefaultCommand.help.apply(null);
     } else if (Request.hasOption('alias')) {

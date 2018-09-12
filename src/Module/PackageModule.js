@@ -29,6 +29,16 @@ function getPackage(pkg, version = null) {
         return 1
     }
 
+    function runAfterPull(compose, version) {
+
+        Shell.exec("skyflow compose:add " + compose + " -v " + version);
+
+        if (Directory.exists(resolve(pkgDir, 'composes'))) {
+            Directory.copy(resolve(pkgDir, 'composes'), resolve(Skyflow.getCurrentDockerDir()))
+        }
+
+    }
+
     if (File.exists(resolve(pkgDir, pkg + '.yml'))) {
 
         let pkgContent = File.read(resolve(pkgDir, pkg + '.yml'));
@@ -41,16 +51,18 @@ function getPackage(pkg, version = null) {
                 compose[1] = 'latest';
             }
 
-            Api.getDockerComposeOrPackageVersion('compose', compose[0], compose[1], () => {
-                Request.addOption('v', compose[1]);
+            let version = compose[1];
+            compose = compose[0];
 
-                Shell.exec("skyflow compose:add " + compose[0] + " -v " + compose[1]);
+            let composeDir = resolve(Skyflow.Helper.getUserHome(), '.skyflow', 'docker', 'compose', compose, version);
 
-                if (Directory.exists(resolve(pkgDir, 'composes'))) {
-                    Directory.copy(resolve(pkgDir, 'composes'), resolve(Skyflow.getCurrentDockerDir()))
-                }
-
-            });
+            if(Directory.exists(composeDir)){
+                runAfterPull(compose, version)
+            }else {
+                Api.getDockerComposeOrPackageVersion('compose', compose, version, () => {
+                    runAfterPull(compose, version)
+                });
+            }
 
         });
 
