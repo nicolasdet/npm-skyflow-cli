@@ -25,7 +25,7 @@ Skyflow.Package = require('./package.json');
 
 // Check for update
 let delta = 4 * 60 * 60 * 1000,
-    checkFile = resolve("extra", "check.txt");
+    checkFile = resolve(__dirname, "extra", "check.txt");
 
 let lastTime = parseInt(File.read(checkFile)),
     currentTime = (new Date()).getTime();
