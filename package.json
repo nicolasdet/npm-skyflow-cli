@@ -1,6 +1,6 @@
 {
   "name": "skyflow-cli",
-  "version": "1.2.10-beta.21",
+  "version": "1.2.10-beta.22",
   "description": "Best friend of the developer",
   "main": "index.js",
   "scripts": {
@@ -42,6 +42,7 @@
     "lodash": "^4.17.10",
     "minimist": "^1.2.0",
     "request": "^2.87.0",
+    "shelljs": "^0.8.2",
     "skyflow-core": "^1.0.5",
     "uniqid": "^5.0.3"
   }

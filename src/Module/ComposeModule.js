@@ -12,7 +12,8 @@ const resolve = require('path').resolve,
     Request = Skyflow.Request,
     Output = Skyflow.Output,
     _ = require('lodash'),
-    uniqid = require('uniqid');
+    uniqid = require('uniqid'),
+    shx = require('shelljs');
 
 
 Skyflow.getCurrentDockerDir = () => {
@@ -155,12 +156,10 @@ function updateCompose(composes = []) {
 
         let dest = resolve(dockerDir, 'docker-compose.yml');
         if (!File.exists(dest)) {
-            let content = "version: \"2.2\"" + os.EOL + os.EOL +
+            let content = "version: \"3\"" + os.EOL + os.EOL +
                 "services:";
             File.create(dest, content);
-            if (Skyflow.Helper.isInux()) {
-                fs.chmodSync(dest, '777')
-            }
+            shx.chmod(777, dest);
         }
 
         let storage = {
@@ -220,9 +219,7 @@ function updateCompose(composes = []) {
                 storage.dockerfiles[compose] = dockerfile;
                 let dest = resolve(composeDir, 'Dockerfile');
                 File.create(dest, dockerfile);
-                if (Skyflow.Helper.isInux()) {
-                    fs.chmodSync(dest, '777')
-                }
+                shx.chmod(777, dest);
             }
 
             // Update docker-compose.yml
@@ -249,9 +246,7 @@ function updateCompose(composes = []) {
                 content += dockerCompose;
 
                 File.create(dest, content);
-                if (Skyflow.Helper.isInux()) {
-                    fs.chmodSync(dest, '777')
-                }
+                shx.chmod(777, dest);
 
             }
 
@@ -274,9 +269,7 @@ function updateCompose(composes = []) {
         });
 
         File.create(dest, content);
-        if (Skyflow.Helper.isInux()) {
-            fs.chmodSync(dest, '777')
-        }
+        shx.chmod(777, dest);
 
 
         // Create compose values file.
@@ -308,9 +301,7 @@ function updateCompose(composes = []) {
 
             let valuesFilename = resolve(composeDir, compose + '.values.js');
             File.create(valuesFilename, contents);
-            if (Helper.isInux()) {
-                fs.chmodSync(valuesFilename, '777')
-            }
+            shx.chmod(777, valuesFilename);
 
             let config = null,
                 configFile = resolve(composeDir, 'console.js');
@@ -457,9 +448,7 @@ function listCompose() {
                 let configFile = resolve(directory, d.compose + '.config.json');
 
                 File.create(configFile, d.contents);
-                if (Helper.isInux()) {
-                    fs.chmodSync(configFile, '777')
-                }
+                shx.chmod(777, configFile);
 
                 let compose = require(configFile);
                 compose['versions'] = d.versions;
@@ -470,9 +459,7 @@ function listCompose() {
             });
 
             File.create(composeListFileName, "'use strict';\n\nmodule.exports = " + JSON.stringify(composes));
-            if (Helper.isInux()) {
-                fs.chmodSync(composeListFileName, '777')
-            }
+            shx.chmod(777, composeListFileName);
 
             displayComposeList()
 
@@ -739,9 +726,10 @@ class ComposeModule {
         let dockerDir = Skyflow.getCurrentDockerDir();
 
         let dest = resolve(dockerDir, 'docker-compose.yml');
+        let yml = true;
         if (!File.exists(dest)) {
-            Output.error("docker-compose.yml not found.", false);
-            process.exit(1)
+            Output.warning("docker-compose.yml not found.", false);
+            yml = false
         }
 
         composes.map((compose) => {
@@ -767,19 +755,20 @@ class ComposeModule {
                 config.events.remove.before.apply(null)
             }
 
-            // Remove compose from docker-compose.yml
-            let content = File.read(dest);
-            content = content.replace(new RegExp(
-                os.EOL + os.EOL + "# ------> " + compose + " ------>[\\s\\S]+" +
-                "# <------ " + compose + " <------"
-                , "m"), "");
+            if(yml){
 
-            File.create(dest, content);
-            if (Helper.isInux()) {
-                fs.chmodSync(dest, '777')
+                // Remove compose from docker-compose.yml
+                let content = File.read(dest);
+                content = content.replace(new RegExp(
+                    os.EOL + os.EOL + "# ------> " + compose + " ------>[\\s\\S]+" +
+                    "# <------ " + compose + " <------"
+                    , "m"), "");
+
+                File.create(dest, content);
+                shx.chmod(777, dest);
+
+                Output.success(compose + " removed from docker-compose.yml.");
             }
-
-            Output.success(compose + " removed from docker-compose.yml.");
 
             if (Request.hasOption('dir')) {
                 Directory.remove(resolve(dockerDir, compose));
@@ -903,16 +892,14 @@ class ComposeModule {
                 valuesFile = resolve(dockerDir, compose, compose + '.values.js');
 
             if (!File.exists(configFile)) {
-                Output.error('Configuration file not found for ' + compose + ' compose.', false);
+                Output.warning('Configuration file not found for ' + compose + ' compose.', false);
                 Output.info("Use 'skyflow compose:add " + compose + "' command.", false);
                 Output.newLine();
-                process.exit(1);
             }
             if (!File.exists(valuesFile)) {
-                Output.error('Values file not found for ' + compose + ' compose.', false);
+                Output.warning('Values file not found for ' + compose + ' compose.', false);
                 Output.info("Use 'skyflow compose:update " + compose + "' command.", false);
                 Output.newLine();
-                process.exit(1);
             }
 
             let config = require(configFile),

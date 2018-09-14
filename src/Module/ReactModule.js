@@ -10,7 +10,8 @@ const fs = require("fs"),
     Api = Skyflow.Api,
     Request = Skyflow.Request,
     Output = Skyflow.Output,
-    _ = require('lodash');
+    _ = require('lodash'),
+    shx = require('shelljs');
 
 function runInfo(npmOrYarn) {
 
@@ -84,27 +85,21 @@ class ReactModule {
                 contents = contents.replace(/\{\{ *name *\}\}/g, name).replace(/\{\{ *style *\}\}/g, styleName);
                 let filename = resolve(tmpDir, name + 'Component.jsx');
                 File.create(filename, contents);
-                if (Helper.isInux()) {
-                    fs.chmodSync(filename, '777')
-                }
+                shx.chmod(777, filename);
 
                 // Style file
                 contents = File.read(resolve(sampleDir, 'component.scss.sample'));
                 contents = contents.replace(/\{\{ *name *\}\}/g, name).replace(/\{\{ *style *\}\}/g, styleName);
                 filename = resolve(tmpDir, name + 'Component.scss');
                 File.create(filename, contents);
-                if (Helper.isInux()) {
-                    fs.chmodSync(filename, '777')
-                }
+                shx.chmod(777, filename);
 
                 // Event file
                 contents = File.read(resolve(sampleDir, 'componentEvent.js.sample'));
                 contents = contents.replace(/\{\{ *name *\}\}/g, name).replace(/\{\{ *style *\}\}/g, styleName);
                 filename = resolve(tmpDir, name + 'ComponentEvent.js');
                 File.create(filename, contents);
-                if (Helper.isInux()) {
-                    fs.chmodSync(filename, '777')
-                }
+                shx.chmod(777, filename);
 
                 Output.success(name + 'Component');
 
@@ -159,18 +154,14 @@ class ReactModule {
                 contents = contents.replace(/\{\{ *name *\}\}/g, name).replace(/\{\{ *style *\}\}/g, styleName);
                 let filename = resolve(tmpDir, name + 'Container.jsx');
                 File.create(filename, contents);
-                if (Helper.isInux()) {
-                    fs.chmodSync(filename, '777')
-                }
+                shx.chmod(777, filename);
 
                 // Style file
                 contents = File.read(resolve(sampleDir, 'container.scss.sample'));
                 contents = contents.replace(/\{\{ *name *\}\}/g, name).replace(/\{\{ *style *\}\}/g, styleName);
                 filename = resolve(tmpDir, name + 'Container.scss');
                 File.create(filename, contents);
-                if (Helper.isInux()) {
-                    fs.chmodSync(filename, '777')
-                }
+                shx.chmod(777, filename);
 
                 Output.success(name + 'Container');
 
@@ -203,9 +194,8 @@ class ReactModule {
                 Directory.create(currentDir);
                 let filePath = resolve(currentDir, file.filename);
                 File.create(filePath, file.contents);
-                if (Helper.isInux()) {
-                    fs.chmodSync(filePath, '777')
-                }
+                shx.chmod(777, filePath);
+
                 Output.success(_.trimStart(file.directory + path.sep + file.filename, '/'));
 
             });

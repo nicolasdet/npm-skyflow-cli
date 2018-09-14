@@ -11,6 +11,7 @@ const resolve = require('path').resolve,
     Request = Skyflow.Request,
     Output = Skyflow.Output,
     ComposeModule = require('./ComposeModule');
+const shx = require('shelljs');
 
 Skyflow.getCurrentDockerDir = () => {
 
@@ -123,9 +124,7 @@ function listPackage() {
                 let configFile = resolve(directory, d.pkg + '.config.json');
 
                 File.create(configFile, d.contents);
-                if (Skyflow.Helper.isInux()) {
-                    fs.chmodSync(configFile, '777')
-                }
+                shx.chmod(777, configFile);
 
                 let pkg = require(configFile);
                 pkg['versions'] = d.versions;
@@ -136,9 +135,7 @@ function listPackage() {
             });
 
             File.create(pkgListFileName, "'use strict';\n\nmodule.exports = " + JSON.stringify(packages));
-            if (Skyflow.Helper.isInux()) {
-                fs.chmodSync(pkgListFileName, '777')
-            }
+            shx.chmod(777, pkgListFileName);
 
             displayComposeList()
 

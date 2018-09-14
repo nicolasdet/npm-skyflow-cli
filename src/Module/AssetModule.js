@@ -10,10 +10,8 @@ const fs = require("fs"),
     Api = Skyflow.Api,
     Request = Skyflow.Request,
     Output = Skyflow.Output,
-    _ = require('lodash');
-
-
-const ComposeModule = require("./ComposeModule");
+    _ = require('lodash'),
+    shx = require('shelljs');
 
 function replaceOutputDirectory(){
 
@@ -88,9 +86,7 @@ class AssetModule {
                 Directory.create(currentDir);
                 let filePath = resolve(currentDir, file.filename);
                 File.create(filePath, file.contents);
-                if (Helper.isInux()) {
-                    fs.chmodSync(filePath, '777')
-                }
+                shx.chmod(777, filePath);
                 Output.success(_.trimStart(file.directory + path.sep + file.filename, '/'));
 
             });
