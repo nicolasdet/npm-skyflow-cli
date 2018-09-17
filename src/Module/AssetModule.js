@@ -13,7 +13,7 @@ const fs = require("fs"),
     _ = require('lodash'),
     shx = require('shelljs');
 
-function replaceOutputDirectory(){
+function replaceOutputDirectory() {
 
     let values = Skyflow.getComposeValues('asset'),
         file = resolve(Skyflow.getCurrentAssetDir(), 'webpack', 'webpack.config.dev.js'),
@@ -41,6 +41,120 @@ function runInfo() {
     Output.info("skyflow asset:watch", false);
     Output.writeln('For watching assets.');
 
+}
+
+function listScript() {
+
+    let scriptListFileName = resolve(Skyflow.Helper.getUserHome(), '.skyflow', 'script', 'script.list.js');
+
+    function displayStyleList() {
+
+        let scripts = require(scriptListFileName);
+
+        Output.newLine();
+        Output.writeln('Available scripts', 'blue', null, 'bold');
+        Output.writeln('-'.repeat(50), 'blue', null, 'bold');
+
+        scripts.map((script) => {
+
+            Output.write(script, null, null, 'bold');
+            Output.write(' >>> ');
+            Output.writeln('skyflow asset:add:script ' + script, 'green', null);
+
+        });
+
+    }
+
+    if (!File.exists(scriptListFileName)) {
+
+        Output.writeln('Pulling scripts list from ' + Api.protocol + '://' + Api.host + ' ...', false);
+
+        Api.get('scripts', (response) => {
+
+            if (response.statusCode !== 200) {
+                Output.error('Can not pull scripts list from ' + Api.protocol + '://' + Api.host + '.', false);
+                process.exit(1)
+            }
+
+            let data = response.body.data,
+                scripts = [];
+
+            Directory.create(resolve(Skyflow.Helper.getUserHome(), '.skyflow', 'script'));
+
+            data.map((d) => {
+                scripts.push(d.filename.replace(/\.js/g, ''));
+            });
+
+            File.create(scriptListFileName, "'use strict';\n\nmodule.exports = " + JSON.stringify(scripts));
+            shx.chmod(777, scriptListFileName);
+
+            displayStyleList()
+
+        });
+
+        return 0
+    }
+
+    displayStyleList();
+
+    return 0
+}
+
+function listStyle() {
+
+    let styleListFileName = resolve(Skyflow.Helper.getUserHome(), '.skyflow', 'style', 'style.list.js');
+
+    function displayStyleList() {
+
+        let styles = require(styleListFileName);
+
+        Output.newLine();
+        Output.writeln('Available styles', 'blue', null, 'bold');
+        Output.writeln('-'.repeat(50), 'blue', null, 'bold');
+
+        styles.map((style) => {
+
+            Output.write(style, null, null, 'bold');
+            Output.write(' >>> ');
+            Output.writeln('skyflow asset:add:style ' + style, 'green', null);
+
+        });
+
+    }
+
+    if (!File.exists(styleListFileName)) {
+
+        Output.writeln('Pulling styles list from ' + Api.protocol + '://' + Api.host + ' ...', false);
+
+        Api.get('styles', (response) => {
+
+            if (response.statusCode !== 200) {
+                Output.error('Can not pull styles list from ' + Api.protocol + '://' + Api.host + '.', false);
+                process.exit(1)
+            }
+
+            let data = response.body.data,
+                styles = [];
+
+            Directory.create(resolve(Skyflow.Helper.getUserHome(), '.skyflow', 'style'));
+
+            data.map((d) => {
+                styles.push(d.filename.replace(/^_+|\.scss/g, ''));
+            });
+
+            File.create(styleListFileName, "'use strict';\n\nmodule.exports = " + JSON.stringify(styles));
+            shx.chmod(777, styleListFileName);
+
+            displayStyleList()
+
+        });
+
+        return 0
+    }
+
+    displayStyleList();
+
+    return 0
 }
 
 Skyflow.getCurrentAssetDir = () => {
@@ -140,9 +254,136 @@ class AssetModule {
         Shell.exec("skyflow compose:asset:run \"yarn run watch\"");
     }
 
+    __asset__script() {
+
+        if (Request.hasOption("list") || !Request.hasOption()) {
+            return listScript()
+        }
+
+        return 1
+    }
+
+    __asset__style() {
+
+        if (Request.hasOption("list") || !Request.hasOption()) {
+            return listStyle()
+        }
+
+        return 1
+    }
+
+    __asset__add__script(scripts) {
+
+        if (!scripts[0]) {
+            Output.error('Invalid script name.', false);
+            process.exit(1);
+        }
+
+        let scriptDir = resolve(Skyflow.Helper.getUserHome(), '.skyflow', 'script');
+
+        function runAfterPull(name) {
+
+            name = _.upperFirst(name);
+
+            if (!File.exists(resolve(scriptDir, name + '.js'))) {
+                Output.error(name + ' script not found.', false);
+                return 1
+            }
+
+            let outputInfoDir = Skyflow.getCurrentAssetDir() + path.sep + 'Script',
+                dir = resolve(outputInfoDir);
+            if (Request.hasOption('dir')) {
+                outputInfoDir = Skyflow.getCurrentAssetDir() + path.sep + _.trim(Request.getOption('dir'), '/');
+                dir = resolve(outputInfoDir)
+            }
+
+            dir = resolve(process.cwd(), dir);
+            Directory.create(dir);
+
+            name += '.js';
+
+            if (File.exists(resolve(dir, name))) {
+                Output.info(outputInfoDir + path.sep + name + ' already exists.', false);
+                return 1
+            }
+
+            File.copy(resolve(scriptDir, name), resolve(dir, name));
+            shx.chmod(777, resolve(dir, name));
+
+            Output.success(name);
+        }
+
+        scripts.map((name) => {
+
+            if (File.exists(resolve(scriptDir, name + '.js'))) {
+                runAfterPull(name)
+            } else {
+                Api.getScriptByName(name, runAfterPull);
+            }
+
+        });
+
+        return 0
+    }
+
+    __asset__add__style(styles) {
+
+        if (!styles[0]) {
+            Output.error('Invalid style name.', false);
+            process.exit(1);
+        }
+
+        let styleDir = resolve(Skyflow.Helper.getUserHome(), '.skyflow', 'style');
+
+        function runAfterPull(name) {
+
+            if (!File.exists(resolve(styleDir, '_' + name + '.scss'))) {
+                Output.error(name + ' style not found.', false);
+                return 1
+            }
+
+            let outputInfoDir = Skyflow.getCurrentAssetDir() + path.sep + 'Style',
+                dir = resolve(outputInfoDir);
+            if (Request.hasOption('dir')) {
+                outputInfoDir = Skyflow.getCurrentAssetDir() + path.sep + _.trim(Request.getOption('dir'), '/');
+                dir = resolve(outputInfoDir)
+            }
+
+            dir = resolve(process.cwd(), dir);
+            Directory.create(dir);
+
+            name = '_' + name + '.scss';
+
+            if (File.exists(resolve(dir, name))) {
+                Output.info(outputInfoDir + path.sep + name + ' already exists.', false);
+                return 1
+            }
+
+            File.copy(resolve(styleDir, name), resolve(dir, name));
+            shx.chmod(777, resolve(dir, name));
+
+            Output.success(name);
+        }
+
+        styles.push('variables');
+
+        styles.map((name) => {
+
+            if (File.exists(resolve(styleDir, '_' + name + '.scss'))) {
+                runAfterPull(name)
+            } else {
+                Api.getStyleByName(name, runAfterPull);
+            }
+
+        });
+
+        return 0
+    }
+
     __asset__invalidate() {
-        let assetDir = resolve(Helper.getUserHome(), '.skyflow', 'asset');
-        Directory.remove(assetDir);
+        Directory.remove(resolve(Helper.getUserHome(), '.skyflow', 'asset'));
+        Directory.remove(resolve(Helper.getUserHome(), '.skyflow', 'script'));
+        Directory.remove(resolve(Helper.getUserHome(), '.skyflow', 'style'));
         Output.success('Asset cache has been successfully removed.');
     }
 

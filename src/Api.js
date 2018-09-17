@@ -6,7 +6,8 @@ const Helper = Skyflow.Helper,
     Output = Skyflow.Output,
     File = Skyflow.File,
     Directory = Skyflow.Directory,
-    request = require('request');
+    request = require('request'),
+    shx = require('shelljs');
 
 class Api {
 
@@ -70,9 +71,7 @@ class Api {
                 let filename = resolve(directory, d.filename);
 
                 File.create(filename, d.contents);
-                if (Helper.isInux()) {
-                    fs.chmodSync(filename, '777')
-                }
+                shx.chmod(777, filename);
 
             });
 
@@ -81,7 +80,6 @@ class Api {
         });
 
         return 1
-
     }
 
     /**
@@ -116,9 +114,7 @@ class Api {
                 let filename = resolve(directory, d.filename);
 
                 File.create(filename, d.contents);
-                if (Helper.isInux()) {
-                    fs.chmodSync(filename, '777')
-                }
+                shx.chmod(777, filename);
 
             });
 
@@ -127,7 +123,6 @@ class Api {
         });
 
         return 1
-
     }
 
     /**
@@ -160,16 +155,13 @@ class Api {
                 let filename = resolve(directory, d.filename);
 
                 File.create(filename, d.contents);
-                if (Helper.isInux()) {
-                    fs.chmodSync(filename, '777')
-                }
+                shx.chmod(777, filename);
 
             });
 
         });
 
         return 1
-
     }
 
     /**
@@ -202,9 +194,7 @@ class Api {
                 let filename = resolve(directory, d.filename);
 
                 File.create(filename, d.contents);
-                if (Helper.isInux()) {
-                    fs.chmodSync(filename, '777')
-                }
+                shx.chmod(777, filename);
 
             });
 
@@ -213,7 +203,6 @@ class Api {
         });
 
         return 1
-
     }
 
     /**
@@ -246,9 +235,7 @@ class Api {
                 let filename = resolve(directory, d.filename);
 
                 File.create(filename, d.contents);
-                if (Helper.isInux()) {
-                    fs.chmodSync(filename, '777')
-                }
+                shx.chmod(777, filename);
 
             });
 
@@ -257,7 +244,6 @@ class Api {
         });
 
         return 1
-
     }
 
     /**
@@ -287,16 +273,13 @@ class Api {
             Directory.create(installDir);
             let installFile = resolve(installDir, 'install.js');
             File.create(installFile, "'use strict';\n\nmodule.exports = " + JSON.stringify(data) + ';');
-            if (Helper.isInux()) {
-                fs.chmodSync(installFile, '777')
-            }
+            shx.chmod(777, installFile);
 
             callback();
 
         });
 
         return 1
-
     }
 
     /**
@@ -326,16 +309,13 @@ class Api {
             Directory.create(assetDir);
             let assetFile = resolve(assetDir, 'asset.json');
             File.create(assetFile, JSON.stringify(data));
-            if (Helper.isInux()) {
-                fs.chmodSync(assetFile, '777')
-            }
+            shx.chmod(777, assetFile);
 
             callback();
 
         });
 
         return 1
-
     }
 
     /**
@@ -369,9 +349,7 @@ class Api {
                 let filename = resolve(directory, d.filename);
 
                 File.create(filename, d.contents);
-                if (Helper.isInux()) {
-                    fs.chmodSync(filename, '777')
-                }
+                shx.chmod(777, filename);
 
             });
 
@@ -380,51 +358,6 @@ class Api {
         });
 
         return 1
-
-    }
-
-    /**
-     * Pull all style.
-     * @param callback
-     * @returns {number}
-     */
-    getAllStyles(callback) {
-
-        Output.writeln('Pulling styles from ' + this.protocol + '://' + this.host + ' ...', false);
-
-        this.get('style', (response) => {
-
-            if (response.statusCode !== 200) {
-                Output.error('Can not pull styles from ' + this.protocol + '://' + this.host + '.', false);
-                return 1
-            }
-
-            if (response.body.status !== 200) {
-                Output.error(response.body.error, false);
-                return 1
-            }
-
-            let data = response.body.data;
-
-            data.map((d) => {
-
-                let directory = resolve(Helper.getUserHome(), '.skyflow', d.directory);
-                Directory.create(directory);
-                let filename = resolve(directory, d.filename);
-
-                File.create(filename, d.contents);
-                if (Helper.isInux()) {
-                    fs.chmodSync(filename, '777')
-                }
-
-            });
-
-            callback();
-
-        });
-
-        return 1
-
     }
 
     /**
@@ -458,9 +391,7 @@ class Api {
                 let filename = resolve(directory, d.filename);
 
                 File.create(filename, d.contents);
-                if (Helper.isInux()) {
-                    fs.chmodSync(filename, '777')
-                }
+                shx.chmod(777, filename);
 
             });
 
@@ -469,7 +400,6 @@ class Api {
         });
 
         return 1
-
     }
 
     /**
@@ -503,9 +433,7 @@ class Api {
                 let filename = resolve(directory, d.filename);
 
                 File.create(filename, d.contents);
-                if (Helper.isInux()) {
-                    fs.chmodSync(filename, '777')
-                }
+                shx.chmod(777, filename);
 
             });
 
@@ -514,7 +442,6 @@ class Api {
         });
 
         return 1
-
     }
 
     /**
@@ -547,9 +474,7 @@ class Api {
                 let filename = resolve(directory, d.filename);
 
                 File.create(filename, d.contents);
-                if (Helper.isInux()) {
-                    fs.chmodSync(filename, '777')
-                }
+                shx.chmod(777, filename);
 
             });
 
@@ -558,9 +483,7 @@ class Api {
         });
 
         return 1
-
     }
-
 
     getCliCurrentVersion(callback) {
 
@@ -583,9 +506,7 @@ class Api {
         });
 
         return 1
-
     }
-
 
 }
 
