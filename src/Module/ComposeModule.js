@@ -60,19 +60,13 @@ let dockerPorts = [];
 
 Skyflow.isPortReachable = (port = 80, host = '0.0.0.0') => {
 
-    Shell.run('docker', ['ps', '-a']);
+    Shell.run('docker', ['ps', '--format', "{{.Ports}}"]);
 
-    let lines = Shell.getArrayResult().slice(1);
-
-    lines.map((line) => {
-        let words = line.split(/ +/);
-        dockerPorts.push(words[words.length - 2])
-    });
-
-    let hasPort = false;
+    let dockerPorts = Shell.getArrayResult(),
+        hasPort = false;
 
     dockerPorts.map((o) => {
-        hasPort = hasPort || (o.indexOf(host + ':' + port) > -1);
+        hasPort = hasPort || (o.indexOf(host + ':' + port + '->') > -1);
         return hasPort;
     });
 
@@ -88,14 +82,90 @@ function containerIsRunning(container) {
     if (Shell.hasError()) {
         return false
     }
-    let inspect = JSON.parse(Shell.getResult())[0],
-        state = inspect.State;
-    return state.Running
+    let State = JSON.parse(Shell.getResult())[0]['State'];
+    return State.Running
 }
 
 function containerHasStatus(container) {
     Shell.run('docker', ['inspect', container]);
     return !Shell.hasError()
+}
+
+function displayContainerInfoAfterUp(service){
+
+    let dockerDir = resolve(process.cwd()),
+        compose = service.replace(/_\w+$/, '');
+
+    Shell.run('docker', ['inspect', "--format='{{range $p, $conf := .NetworkSettings.Ports}} {{$p}} -> {{(index $conf 0).HostPort}} {{end}}'", service]);
+    if (Shell.hasError()) {
+        Output.error('An error occurred while checking ports', false);
+        return 1
+    }
+    let ports = _.trim(Shell.getResult(), "' ");
+
+    Shell.run('docker', ['inspect', service]);
+    if (Shell.hasError()) {
+        Output.error('An error occurred while checking the status', false);
+        return 1
+    }
+    let State = JSON.parse(Shell.getResult())[0]['State'];
+
+    if(!State.Running){
+        if(State.ExitCode === 0){
+            Output.success(compose + " is " + State.Status);
+        }else  {
+            Output.error(compose + " is " + State.Status, false);
+            if(State.Error !== ''){
+                Output.error(State.Error, false);
+            }
+        }
+
+        Shell.run('docker', ['rm', '-f', service]);
+
+        return State.ExitCode
+    }
+
+    if(State.Running && ports !== ""){
+        Output.success(compose + " is running on " + ports);
+    }
+
+    let consoleFile = resolve(dockerDir, compose, 'console.js'),
+        valuesFile = resolve(dockerDir, compose, compose + '.values.js'),
+        messages = {},
+        events = {},
+        values = {};
+
+    if (File.exists(valuesFile)) {
+        values = require(valuesFile)
+    }
+
+    // Trigger after up events
+    if (File.exists(consoleFile)) {
+        events = require(consoleFile).events;
+        if (events && events['up'] && events['up']['after']) {
+            events['up']['after'].apply(null, [values])
+        }
+    }
+
+    // Display messages
+    if (File.exists(consoleFile)) {
+        messages = require(consoleFile).messages;
+        if (!messages) {
+            return 1
+        }
+    }
+    for (let type in messages) {
+        if (!messages.hasOwnProperty(type)) {
+            continue
+        }
+        messages[type].map((message) => {
+            message = message.replace(/\{\{ *(\w+) *\}\}/ig, (match, m) => {
+                return values[m]
+            });
+            Output[type](message, false);
+        });
+    }
+
 }
 
 function execDockerComposeCommand(command, options = []) {
@@ -139,7 +209,6 @@ function execDockerComposeCommandByContainer(command, container, options = [], r
     } catch (e) {
         Output.error(e.message, false)
     }
-
 
     process.chdir(cwd)
 }
@@ -251,7 +320,6 @@ function updateCompose(composes = []) {
             }
 
         }
-
 
         // Replace dependencies
 
@@ -658,8 +726,11 @@ class ComposeModule {
         }
 
         execDockerComposeCommandByContainer('up', container, options, true);
-    }
 
+        process.chdir(resolve(Skyflow.getCurrentDockerDir()));
+
+        displayContainerInfoAfterUp(container);
+    }
 
     /*------------ Run for compose ----------*/
 
@@ -851,7 +922,7 @@ class ComposeModule {
                 return 1
             }
 
-            Output.write('Stopping and removing ' + service + ' container ... ', 'blue', null, null);
+            Output.write('Stopping and removing ' + service + ' container ... ', null, null, null);
 
             Shell.run('docker', ['rm', ...options, service]);
 
@@ -865,17 +936,11 @@ class ComposeModule {
 
     __compose__up(options) {
 
-        let dockerDir = resolve(Skyflow.getCurrentDockerDir()), composes = [];
-
-        if (Request.hasOption('compose')) {
-            composes = [Request.getOption('compose')]
-        } else {
-            composes = Directory.read(dockerDir, {directory: true, file: false})
-        }
+        let dockerDir = resolve(Skyflow.getCurrentDockerDir());
 
         process.chdir(dockerDir);
 
-        Output.info('Checking services ...', false);
+        Output.writeln('Checking services ...', false);
 
         Shell.run('docker-compose', ['config', '--services']);
         if (Shell.hasError()) {
@@ -884,43 +949,7 @@ class ComposeModule {
             return 1
         }
         let services = Shell.getArrayResult(),
-            store = {};
-
-        composes.map((compose) => {
-
-            let configFile = resolve(dockerDir, compose, 'console.js'),
-                valuesFile = resolve(dockerDir, compose, compose + '.values.js');
-
-            if (!File.exists(configFile)) {
-                Output.warning('Configuration file not found for ' + compose + ' compose.', false);
-                Output.info("Use 'skyflow compose:add " + compose + "' command.", false);
-                Output.newLine();
-            }
-            if (!File.exists(valuesFile)) {
-                Output.warning('Values file not found for ' + compose + ' compose.', false);
-                Output.info("Use 'skyflow compose:update " + compose + "' command.", false);
-                Output.newLine();
-            }
-
-            let config = require(configFile),
-                values = require(valuesFile),
-                containerName = values['container_name'];
-
-            if (_.indexOf(services, containerName) === -1) {
-                Output.error('Service ' + containerName + ' not found in docker-compose.yml file.', false);
-                Output.info("Use 'skyflow compose:update " + compose + "' command.", false);
-                return 1
-            }
-
-            store[compose] = {config, values};
-
-            if (config.events && config.events.up && config.events.up.before) {
-                config.events.up.before.apply(null)
-            }
-
-        });
-
-        let stringOpt = options.join(' ');
+            stringOpt = options.join(' ');
 
         if (!Request.hasOption('d') && !Request.hasOption('detach') && !Request.hasOption('no-detach')) {
             stringOpt += ' -d';
@@ -934,89 +963,13 @@ class ComposeModule {
             Shell.exec('docker-compose up ' + stringOpt);
         } catch (e) {
             Output.error(e.message, false);
-            process.exit(1)
         }
 
-        for (let compose in store) {
+        services.map((service)=>{
 
-            if (!store.hasOwnProperty(compose)) {
-                continue
-            }
+            displayContainerInfoAfterUp(service)
 
-            let config = store[compose].config,
-                values = store[compose].values,
-                containerName = store[compose].values['container_name'];
-
-            // Check if container is running, Running, Paused, Restarting
-            Shell.run('docker', ['inspect', containerName]);
-            if (Shell.hasError()) {
-                continue
-            }
-
-            let inspect = JSON.parse(Shell.getResult())[0],
-                state = inspect.State;
-
-            if (!state.Running) {
-
-                if (state.ExitCode === 0) {
-                    Output.success(containerName + ' container ' + state.Status + ' successfully.');
-                } else {
-                    Output.error(containerName + ' container ' + state.Status + '.', false);
-                    Output.error(state.Error, false);
-                }
-
-                Shell.run('docker', ['rm', '-f', containerName]);
-
-                continue
-            }
-
-            let ports = inspect.NetworkSettings.Ports,
-                mes = compose + ' container is ' + state.Status + ' on ';
-
-            for (let port in ports) {
-
-                if (!ports.hasOwnProperty(port)) {
-                    continue
-                }
-
-                mes += port;
-
-                if (ports[port]) {
-                    ports[port].map((p) => {
-                        mes += ' -> ' + p.HostIp + ':' + p.HostPort
-                    });
-                }
-
-                break
-            }
-
-            Output.success(mes);
-
-            // Trigger up.after callback if is defined
-            if (config.events && config.events.up && config.events.up.after) {
-                config.events.up.after.apply(null, [values])
-            }
-
-            // Print messages if container is up.
-
-            let messages = config.messages;
-            if (!messages) {
-                continue
-            }
-
-            for (let type in messages) {
-                if (!messages.hasOwnProperty(type)) {
-                    continue
-                }
-                messages[type].map((message) => {
-                    message = message.replace(/\{\{ *(\w+) *\}\}/ig, (match, m) => {
-                        return values[m]
-                    });
-                    Output[type](message, false);
-                });
-            }
-
-        }
+        });
 
     }
 

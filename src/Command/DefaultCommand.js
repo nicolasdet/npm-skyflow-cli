@@ -114,10 +114,6 @@ class DefaultCommand {
 
     }
 
-    modules(){
-
-    }
-
 }
 
 module.exports = new DefaultCommand();

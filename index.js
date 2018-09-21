@@ -17,6 +17,7 @@ const Request = Skyflow.Request,
     Helper = Skyflow.Helper,
     Output = Skyflow.Output,
     File = Skyflow.File,
+    Directory = Skyflow.Directory,
     Api = Skyflow.Api,
     DefaultCommand = require(resolve(__dirname, 'src', 'Command', 'DefaultCommand')),
     alias = require(resolve(__dirname, 'extra', 'alias.json'));
@@ -59,12 +60,13 @@ if ((currentTime - lastTime) > delta) {
 
     });
 
+    Directory.remove(resolve(Helper.getUserHome(), '.skyflow'));
+
     File.create(checkFile, currentTime)
 }
 
 
 // Todo : List modules
-// Todo : On checking port, check port 80 only
 // Todo : React install for Symfony
 
 if (!Request.hasCommand() && !Request.hasOption()) {
