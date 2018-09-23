@@ -442,21 +442,28 @@ function getCompose(compose, version = null) {
     let composeDir = resolve(Helper.getUserHome(), '.skyflow', 'docker', 'compose', compose);
     let composeVersionDir = resolve(composeDir, version);
 
-    if (!Directory.exists(composeDir)) {
-        return 1
+    if (!Directory.exists(composeVersionDir)) {
+        Output.error(compose + ' compose not found!', false);
+        process.exit(1)
     }
 
     let currentDockerDir = Skyflow.getCurrentDockerDir(),
         destDir = resolve(currentDockerDir, compose);
 
-    Directory.create(destDir);
+    if(Request.hasOption('f') || Request.hasOption('force')){
+        shx.rm('-rf', destDir);
+    }
 
-    Directory.copy(composeVersionDir, destDir);
+    if(shx.test('-d', destDir)){
+        Output.error(compose + ' compose directory already exists. Use -f option to continue.', false);
+        process.exit(1)
+    }
 
-    let config = require(resolve(destDir, 'console.js'));
+    shx.cp("-Rfu", composeVersionDir, destDir);
 
-    if (config.events && config.events.add && config.events.add.after) {
-        config.events.add.after.apply(null)
+    let cons = require(resolve(destDir, 'console.js'));
+    if (cons.events && cons.events.add && cons.events.add.after) {
+        cons.events.add.after.apply(null)
     }
 
     Output.success(compose + ' compose added.');
