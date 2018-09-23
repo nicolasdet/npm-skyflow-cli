@@ -15,25 +15,6 @@ const resolve = require('path').resolve,
     uniqid = require('uniqid'),
     shx = require('shelljs');
 
-
-Skyflow.getCurrentDockerDir = () => {
-
-    let currentDockerDir = 'docker';
-    Directory.create(currentDockerDir);
-
-    return currentDockerDir;
-};
-
-Skyflow.getComposeValues = (compose) => {
-
-    let values = {};
-    let file = resolve(Skyflow.getCurrentDockerDir(), compose, compose + '.values.js');
-    if(File.exists(file)){
-        values = require(file)
-    }
-    return values
-};
-
 function getContainerFromCompose(compose) {
 
     let composeDir = resolve(Skyflow.getCurrentDockerDir(), compose);

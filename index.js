@@ -24,6 +24,25 @@ const Request = Skyflow.Request,
 
 Skyflow.Package = require('./package.json');
 
+Skyflow.getCurrentDockerDir = () => {
+
+    let currentDockerDir = 'docker';
+    Directory.create(currentDockerDir);
+
+    return currentDockerDir;
+};
+
+Skyflow.getComposeValues = (compose) => {
+
+    let values = {},
+        file = resolve(Skyflow.getCurrentDockerDir(), compose, compose + '.values.js');
+    if(File.exists(file)){
+        values = require(file)
+    }
+
+    return values
+};
+
 // Check for update
 let delta = 4 * 60 * 60 * 1000,
     checkFile = resolve(__dirname, "extra", "check.txt");

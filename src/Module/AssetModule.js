@@ -32,14 +32,15 @@ function runInfo() {
     Output.newLine();
     Output.writeln('Run:', false, false, 'bold');
     Output.newLine();
-    Output.info("skyflow asset:compile", false);
+    Output.success("skyflow asset:compile", false);
     Output.writeln('Compile assets for development environment.');
     Output.newLine();
-    Output.info("skyflow asset:build", false);
+    Output.success("skyflow asset:build", false);
     Output.writeln('Compile assets for production environment.');
     Output.newLine();
-    Output.info("skyflow asset:watch", false);
+    Output.success("skyflow asset:watch", false);
     Output.writeln('For watching assets.');
+    Output.newLine();
 
 }
 
@@ -190,15 +191,18 @@ class AssetModule {
 
             let currentAssetDir = Skyflow.getCurrentAssetDir();
 
-            Directory.copy(assetDir, resolve(currentAssetDir));
+            shx.cp(assetDir, resolve(currentAssetDir));
 
             let files = require(resolve(assetDir, 'asset.json'));
 
             files.map((file) => {
 
                 let currentDir = resolve(currentAssetDir, file.directory);
-                Directory.create(currentDir);
                 let filePath = resolve(currentDir, file.filename);
+                if(File.exists(filePath)){
+                    return 1
+                }
+                shx.mkdir('-p', currentDir);
                 File.create(filePath, file.contents);
                 shx.chmod(777, filePath);
                 Output.success(_.trimStart(file.directory + path.sep + file.filename, '/'));
@@ -209,7 +213,11 @@ class AssetModule {
                 File.remove(resolve(currentAssetDir, 'asset.json'));
             }
 
-            Shell.exec("skyflow compose:add asset -v latest");
+            try{
+                Shell.exec("skyflow compose:add asset -v latest");
+            }catch (e) {
+                Output.error(e.message, false)
+            }
             Shell.exec("skyflow compose:update asset");
 
             // Replace output directory
