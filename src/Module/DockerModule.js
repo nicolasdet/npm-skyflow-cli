@@ -9,7 +9,7 @@ class DockerModule {
     // Require
     dispatcher(command) {
 
-        Shell.run('docker', ['-v']);
+        Shell.run('docker', ['info']);
         if(Shell.hasError()){
             Output.error('Docker does not respond. Check if it is installed and running.', false);
             return 1

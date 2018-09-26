@@ -32,7 +32,11 @@ function getPackage(pkg, version = null) {
 
     function runAfterPull(compose, version) {
 
-        Shell.exec("skyflow compose:add " + compose + " -v " + version);
+        try {
+            Shell.exec("skyflow compose:add " + compose + " -v " + version)
+        }catch (e) {
+            process.exit(1)
+        }
 
         if (Directory.exists(resolve(pkgDir, 'composes'))) {
             Directory.copy(resolve(pkgDir, 'composes'), resolve(Skyflow.getCurrentDockerDir()))
@@ -154,7 +158,7 @@ class PackageModule {
     // Require
     dispatcher(container, command) {
 
-        Shell.run('docker', ['-v']);
+        Shell.run('docker', ['info']);
         if (Shell.hasError()) {
             Output.error('Docker does not respond. Check if it is installed and running.', false);
             return 1
@@ -206,7 +210,7 @@ class PackageModule {
     }
 
     __package__add(packages) {
-
+        
         if (!packages[0]) {
             Output.error("Missing argument.", false);
             process.exit(1)

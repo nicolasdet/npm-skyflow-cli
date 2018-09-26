@@ -224,7 +224,7 @@ class AssetModule {
             replaceOutputDirectory();
 
             // Install dependencies
-            Shell.exec("skyflow compose:asset:run yarn");
+            Shell.exec("skyflow compose:asset:run yarn install");
 
             runInfo();
         }

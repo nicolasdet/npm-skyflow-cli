@@ -1,0 +1,23 @@
+
+###> symfony/framework-bundle ###
+/.env
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
+
+###> symfony/phpunit-bridge ###
+.phpunit
+/phpunit.xml
+###< symfony/phpunit-bridge ###
+
+###> symfony/web-server-bundle ###
+/.web-server-pid
+###< symfony/web-server-bundle ###
+
+docker/docker-compose.yml
+docker/symfony/symfony.values.js
+docker/symfony/Dockerfile
+docker/symfony/conf/apache2/httpd.conf
+docker/composer/composer.values.js
+docker/mariadb/mariadb.values.js

@@ -116,7 +116,7 @@ if (!Request.hasCommand() && !Request.hasOption()) {
         Module = require(resolve(__dirname, 'src', 'Module', Module + 'Module'));
     } catch (e) {
         Output.error('Module ' + Module + ' not found.', false);
-        process.exit(0);
+        process.exit(1);
     }
 
     commands = commands.splice(1);

@@ -534,7 +534,7 @@ class ComposeModule {
     // Require
     dispatcher(container, command) {
 
-        Shell.run('docker', ['-v']);
+        Shell.run('docker', ['info']);
         if (Shell.hasError()) {
             Output.error('Docker does not respond. Check if it is installed and running.', false);
             return 1
@@ -591,22 +591,25 @@ class ComposeModule {
 
         let container = getContainerFromCompose(compose);
 
-        if (!containerIsRunning(container)) {
-            Output.error(container + ' container is not running.', false);
-            process.exit(1)
+        if (containerIsRunning(container)) {
+            execDockerComposeCommandByContainer('exec', container, options);
+        }else {
+            execDockerComposeCommandByContainer('run --rm', container, options);
         }
-        execDockerComposeCommandByContainer('exec', container, options);
+
     }
 
     __sh(compose) {
 
         let container = getContainerFromCompose(compose);
 
-        if (!containerIsRunning(container)) {
-            Output.error(container + ' container is not running.', false);
-            process.exit(1)
+        if (containerIsRunning(container)) {
+            // Output.error(container + ' container is not running.', false);
+            // process.exit(1)
+            execDockerComposeCommandByContainer('exec', container, ['sh']);
+        }else {
+            execDockerComposeCommandByContainer('run --rm', container, ['sh']);
         }
-        execDockerComposeCommandByContainer('exec', container, ['sh']);
     }
 
     __bash(compose) {
@@ -691,7 +694,12 @@ class ComposeModule {
 
         let container = getContainerFromCompose(compose);
 
-        execDockerComposeCommandByContainer('run --rm', container, commands);
+        if (containerIsRunning(container)) {
+            execDockerComposeCommandByContainer('exec', container, commands);
+        }else {
+            execDockerComposeCommandByContainer('run --rm', container, commands);
+        }
+
     }
 
     __ps(compose, options) {
