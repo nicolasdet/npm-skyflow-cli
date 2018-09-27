@@ -12,6 +12,7 @@ Skyflow.Input = require(resolve(__dirname, 'src', 'Console', 'ConsoleInput'));
 Skyflow.Output = require(resolve(__dirname, 'src', 'Console', 'ConsoleOutput'));
 Skyflow.Request = require(resolve(__dirname, 'src', 'Console', 'ConsoleRequest'));
 Skyflow.Api = require(resolve(__dirname, 'src', 'Api'));
+Skyflow.shx = require('shelljs');
 
 const Request = Skyflow.Request,
     Helper = Skyflow.Helper,
