@@ -1,6 +1,15 @@
 #!/usr/bin/env node
 
-'use strict';
+// 'use strict';
+
+
+
+// let {ApolloClient} = require("apollo-boost");
+
+const ApolloClient = require('apollo-boost').default;
+let gql = require("graphql-tag");
+let fetch = require("node-fetch");
+
 
 require('skyflow-core');
 const _ = require('lodash'),
@@ -23,6 +32,33 @@ const Request = Skyflow.Request,
     DefaultCommand = require(resolve(__dirname, 'src', 'Command', 'DefaultCommand')),
     alias = require(resolve(__dirname, 'extra', 'alias.json'));
 
+const client = new ApolloClient({
+    uri: "http://localhost:4000/graphql",
+    fetch: fetch
+});
+
+async function getData(){
+
+    let data = await client.query({query: gql` { book(id: 1){ name } } `});
+    console.log(data);
+    return data
+}
+
+async function printData(){
+    let data = await getData();
+}
+
+
+getData();
+// console.log(8989);
+// console.log(d.response);
+
+
+
+
+// console.log(9090);
+
+
 Skyflow.Package = require('./package.json');
 
 Skyflow.getCurrentDockerDir = () => {
@@ -37,7 +73,7 @@ Skyflow.getComposeValues = (compose) => {
 
     let values = {},
         file = resolve(Skyflow.getCurrentDockerDir(), compose, compose + '.values.js');
-    if(File.exists(file)){
+    if (File.exists(file)) {
         values = require(file)
     }
 
@@ -56,7 +92,7 @@ if ((currentTime - lastTime) > delta) {
     // Call API
     Api.getCliCurrentVersion((version) => {
 
-        if(Skyflow.Package.version !== version){
+        if (Skyflow.Package.version !== version) {
             Output.newLine();
             Output.success("+-------------------------------------------------+", false);
             Output.success("|                                                 |", false);
@@ -91,7 +127,7 @@ if ((currentTime - lastTime) > delta) {
 
 if (!Request.hasCommand() && !Request.hasOption()) {
     DefaultCommand.help.apply(null);
-}else if (!Request.hasCommand()) {
+} else if (!Request.hasCommand()) {
 
     if (Request.hasOption('v') || Request.hasOption('version')) {
         DefaultCommand.version.apply(null);
