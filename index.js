@@ -12,13 +12,12 @@ Skyflow.Input = require(resolve(__dirname, 'src', 'Console', 'ConsoleInput'));
 Skyflow.Output = require(resolve(__dirname, 'src', 'Console', 'ConsoleOutput'));
 Skyflow.Request = require(resolve(__dirname, 'src', 'Console', 'ConsoleRequest'));
 Skyflow.Api = require(resolve(__dirname, 'src', 'Api'));
-Skyflow.shx = require('shelljs');
 
 const Request = Skyflow.Request,
     Helper = Skyflow.Helper,
     Output = Skyflow.Output,
     File = Skyflow.File,
-    Directory = Skyflow.Directory,
+    Shell = Skyflow.Shell,
     Api = Skyflow.Api,
     DefaultCommand = require(resolve(__dirname, 'src', 'Command', 'DefaultCommand')),
     alias = require(resolve(__dirname, 'extra', 'alias.json'));
@@ -28,9 +27,15 @@ Skyflow.Package = require('./package.json');
 Skyflow.getCurrentDockerDir = () => {
 
     let currentDockerDir = 'docker';
-    Directory.create(currentDockerDir);
+    Shell.mkdir('-p', currentDockerDir);
 
     return currentDockerDir;
+};
+
+Skyflow.getCurrentAssetDir = () => {
+    let currentAssetDir = 'assets';
+    Shell.mkdir('-p', currentAssetDir);
+    return currentAssetDir;
 };
 
 Skyflow.getComposeValues = (compose) => {
@@ -80,7 +85,7 @@ if ((currentTime - lastTime) > delta) {
 
     });
 
-    Directory.remove(resolve(Helper.getUserHome(), '.skyflow'));
+    Shell.rm('-rf', resolve(Helper.getUserHome(), '.skyflow'));
 
     File.create(checkFile, currentTime)
 }

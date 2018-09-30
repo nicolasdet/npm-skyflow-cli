@@ -1,31 +1,15 @@
 'use strict';
 
-const fs = require("fs"),
-    path = require("path"),
+const path = require("path"),
     resolve = path.resolve,
-    Directory = Skyflow.Directory,
     File = Skyflow.File,
+    Directory = Skyflow.Directory,
     Shell = Skyflow.Shell,
     Helper = Skyflow.Helper,
     Api = Skyflow.Api,
     Request = Skyflow.Request,
     Output = Skyflow.Output,
-    _ = require('lodash'),
-    shx = require('shelljs');
-
-function replaceOutputDirectory() {
-
-    let values = Skyflow.getComposeValues('asset'),
-        file = resolve(Skyflow.getCurrentAssetDir(), 'webpack', 'webpack.config.dev.js'),
-        content = File.read(file + '.dist');
-    content = content.replace(/\{\{ ?output_directory ?\}\}/g, values['output_directory']);
-    File.create(file, content);
-
-    file = resolve(Skyflow.getCurrentAssetDir(), 'webpack', 'webpack.config.prod.js');
-    content = File.read(file + '.dist');
-    content = content.replace(/\{\{ ?output_directory ?\}\}/g, values['output_directory']);
-    File.create(file, content)
-}
+    _ = require('lodash');
 
 function runInfo() {
 
@@ -70,7 +54,7 @@ function listScript() {
 
         Output.writeln('Pulling scripts list from ' + Api.protocol + '://' + Api.host + ' ...', false);
 
-        Api.get('scripts', (response) => {
+        Api.get('scripts/doc', (response) => {
 
             if (response.statusCode !== 200) {
                 Output.error('Can not pull scripts list from ' + Api.protocol + '://' + Api.host + '.', false);
@@ -80,14 +64,14 @@ function listScript() {
             let data = response.body.data,
                 scripts = [];
 
-            Directory.create(resolve(Skyflow.Helper.getUserHome(), '.skyflow', 'script'));
+            Shell.mkdir('-p', resolve(Skyflow.Helper.getUserHome(), '.skyflow', 'script'));
 
             data.map((d) => {
-                scripts.push(d.filename.replace(/\.js/g, ''));
+                scripts.push(d.filename.replace(/\.json$/g, ''));
             });
 
             File.create(scriptListFileName, "'use strict';\n\nmodule.exports = " + JSON.stringify(scripts));
-            shx.chmod(777, scriptListFileName);
+            Shell.chmod(777, scriptListFileName);
 
             displayStyleList()
 
@@ -127,7 +111,7 @@ function listStyle() {
 
         Output.writeln('Pulling styles list from ' + Api.protocol + '://' + Api.host + ' ...', false);
 
-        Api.get('styles', (response) => {
+        Api.get('styles/doc', (response) => {
 
             if (response.statusCode !== 200) {
                 Output.error('Can not pull styles list from ' + Api.protocol + '://' + Api.host + '.', false);
@@ -137,14 +121,14 @@ function listStyle() {
             let data = response.body.data,
                 styles = [];
 
-            Directory.create(resolve(Skyflow.Helper.getUserHome(), '.skyflow', 'style'));
+            Shell.mkdir('-p', resolve(Skyflow.Helper.getUserHome(), '.skyflow', 'style'));
 
             data.map((d) => {
-                styles.push(d.filename.replace(/^_+|\.scss/g, ''));
+                styles.push(d.filename.replace(/\.json$/g, ''));
             });
 
             File.create(styleListFileName, "'use strict';\n\nmodule.exports = " + JSON.stringify(styles));
-            shx.chmod(777, styleListFileName);
+            Shell.chmod(777, styleListFileName);
 
             displayStyleList()
 
@@ -157,12 +141,6 @@ function listStyle() {
 
     return 0
 }
-
-Skyflow.getCurrentAssetDir = () => {
-    let currentAssetDir = 'assets';
-    Directory.create(currentAssetDir);
-    return currentAssetDir;
-};
 
 class AssetModule {
 
@@ -182,54 +160,24 @@ class AssetModule {
         return 1
     }
 
-    __asset__install() {
+    __asset__install(type = 'base') {
 
-        let assetDir = resolve(Helper.getUserHome(), '.skyflow', 'asset');
-        let assetFile = resolve(assetDir, 'asset.json');
+        let assetDir = resolve(Helper.getUserHome(), '.skyflow', 'asset', type);
 
         function runAfterPull() {
 
             let currentAssetDir = Skyflow.getCurrentAssetDir();
 
-            shx.cp(assetDir, resolve(currentAssetDir));
-
-            let files = require(resolve(assetDir, 'asset.json'));
-
-            files.map((file) => {
-
-                let currentDir = resolve(currentAssetDir, file.directory);
-                let filePath = resolve(currentDir, file.filename);
-                if(File.exists(filePath)){
-                    return 1
-                }
-                shx.mkdir('-p', currentDir);
-                File.create(filePath, file.contents);
-                shx.chmod(777, filePath);
-                Output.success(_.trimStart(file.directory + path.sep + file.filename, '/'));
-
-            });
-
-            if (File.exists(resolve(currentAssetDir, 'asset.json'))) {
-                File.remove(resolve(currentAssetDir, 'asset.json'));
-            }
+            Directory.copy(assetDir, resolve(currentAssetDir));
 
             try{
                 Shell.exec("skyflow compose:add asset -v latest");
             }catch (e) {
                 Output.error(e.message, false)
             }
-            Shell.exec("skyflow compose:update asset");
-
-            // Replace output directory
-            replaceOutputDirectory();
-
-            // Install dependencies
-            Shell.exec("skyflow compose:asset:run yarn install");
-
-            runInfo();
         }
 
-        if (File.exists(assetFile)) {
+        if (Directory.exists(assetDir)) {
             runAfterPull()
         } else {
             Api.getAssetsFiles(runAfterPull);
@@ -238,14 +186,15 @@ class AssetModule {
         return 0
     }
 
+    __asset__react__install() {
+        return this.__asset__install('react')
+    }
+
     __asset__update() {
         Shell.exec("skyflow compose:update asset");
 
-        // Replace output directory
-        replaceOutputDirectory();
-
         // Update dependencies
-        Shell.exec("skyflow compose:asset:run yarn");
+        Shell.exec("skyflow compose:asset:run \"yarn\"");
 
         runInfo();
     }
@@ -260,6 +209,22 @@ class AssetModule {
 
     __asset__watch() {
         Shell.exec("skyflow compose:asset:run \"yarn run watch\"");
+    }
+
+    __asset__sh() {
+        Shell.exec("skyflow compose:asset:run \"sh\"");
+    }
+
+    __asset__run() {
+        Shell.exec("skyflow compose:asset:run \""+(Object.values(arguments).join(' '))+"\"");
+    }
+
+    __asset__add() {
+        Shell.exec("skyflow compose:asset:run \"yarn add "+(Object.values(arguments).join(' '))+"\"");
+    }
+
+    __asset__remove() {
+        Shell.exec("skyflow compose:asset:run \"yarn remove "+(Object.values(arguments).join(' '))+"\"");
     }
 
     __asset__script() {
@@ -291,14 +256,14 @@ class AssetModule {
 
         function runAfterPull(name) {
 
-            name = _.upperFirst(name);
+            name = _.lowerFirst(name);
 
             if (!File.exists(resolve(scriptDir, name + '.js'))) {
                 Output.error(name + ' script not found.', false);
                 return 1
             }
 
-            let outputInfoDir = Skyflow.getCurrentAssetDir() + path.sep + 'Script',
+            let outputInfoDir = Skyflow.getCurrentAssetDir() + path.sep + 'scripts',
                 dir = resolve(outputInfoDir);
             if (Request.hasOption('dir')) {
                 outputInfoDir = Skyflow.getCurrentAssetDir() + path.sep + _.trim(Request.getOption('dir'), '/');
@@ -306,7 +271,7 @@ class AssetModule {
             }
 
             dir = resolve(process.cwd(), dir);
-            Directory.create(dir);
+            Shell.mkdir('-p', dir);
 
             name += '.js';
 
@@ -316,7 +281,7 @@ class AssetModule {
             }
 
             File.copy(resolve(scriptDir, name), resolve(dir, name));
-            shx.chmod(777, resolve(dir, name));
+            Shell.chmod(777, resolve(dir, name));
 
             Output.success(name);
         }
@@ -350,7 +315,7 @@ class AssetModule {
                 return 1
             }
 
-            let outputInfoDir = Skyflow.getCurrentAssetDir() + path.sep + 'Style',
+            let outputInfoDir = Skyflow.getCurrentAssetDir() + path.sep + 'styles',
                 dir = resolve(outputInfoDir);
             if (Request.hasOption('dir')) {
                 outputInfoDir = Skyflow.getCurrentAssetDir() + path.sep + _.trim(Request.getOption('dir'), '/');
@@ -358,7 +323,7 @@ class AssetModule {
             }
 
             dir = resolve(process.cwd(), dir);
-            Directory.create(dir);
+            Shell.mkdir('-p', dir);
 
             name = '_' + name + '.scss';
 
@@ -368,7 +333,7 @@ class AssetModule {
             }
 
             File.copy(resolve(styleDir, name), resolve(dir, name));
-            shx.chmod(777, resolve(dir, name));
+            Shell.chmod(777, resolve(dir, name));
 
             Output.success(name);
         }
@@ -389,9 +354,9 @@ class AssetModule {
     }
 
     __asset__invalidate() {
-        Directory.remove(resolve(Helper.getUserHome(), '.skyflow', 'asset'));
-        Directory.remove(resolve(Helper.getUserHome(), '.skyflow', 'script'));
-        Directory.remove(resolve(Helper.getUserHome(), '.skyflow', 'style'));
+        Shell.rm('-rf', resolve(Helper.getUserHome(), '.skyflow', 'asset'));
+        Shell.rm('-rf', resolve(Helper.getUserHome(), '.skyflow', 'script'));
+        Shell.rm('-rf', resolve(Helper.getUserHome(), '.skyflow', 'style'));
         Output.success('Asset cache has been successfully removed.');
     }
 

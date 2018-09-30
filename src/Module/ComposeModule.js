@@ -12,8 +12,7 @@ const resolve = require('path').resolve,
     Request = Skyflow.Request,
     Output = Skyflow.Output,
     _ = require('lodash'),
-    uniqid = require('uniqid'),
-    shx = require('shelljs');
+    uniqid = require('uniqid');
 
 function getContainerFromCompose(compose) {
 
@@ -209,7 +208,7 @@ function updateCompose(composes = []) {
             let content = "version: \"3\"" + os.EOL + os.EOL +
                 "services:";
             File.create(dest, content);
-            shx.chmod(777, dest);
+            Shell.chmod(777, dest);
         }
 
         let storage = {
@@ -269,7 +268,7 @@ function updateCompose(composes = []) {
                 storage.dockerfiles[compose] = dockerfile;
                 let dest = resolve(composeDir, 'Dockerfile');
                 File.create(dest, dockerfile);
-                shx.chmod(777, dest);
+                Shell.chmod(777, dest);
             }
 
             // Update docker-compose.yml
@@ -296,7 +295,7 @@ function updateCompose(composes = []) {
                 content += dockerCompose;
 
                 File.create(dest, content);
-                shx.chmod(777, dest);
+                Shell.chmod(777, dest);
 
             }
 
@@ -318,7 +317,7 @@ function updateCompose(composes = []) {
         });
 
         File.create(dest, content);
-        shx.chmod(777, dest);
+        Shell.chmod(777, dest);
 
 
         // Create compose values file.
@@ -350,7 +349,7 @@ function updateCompose(composes = []) {
 
             let valuesFilename = resolve(composeDir, compose + '.values.js');
             File.create(valuesFilename, contents);
-            shx.chmod(777, valuesFilename);
+            Shell.chmod(777, valuesFilename);
 
             let config = null,
                 configFile = resolve(composeDir, 'console.js');
@@ -432,15 +431,15 @@ function getCompose(compose, version = null) {
         destDir = resolve(currentDockerDir, compose);
 
     if(Request.hasOption('f') || Request.hasOption('force')){
-        shx.rm('-rf', destDir);
+        Shell.rm('-rf', destDir);
     }
 
-    if(shx.test('-d', destDir)){
+    if(Directory.exists(destDir)){
         Output.error(compose + ' compose directory already exists. Use -f option to continue.', false);
         process.exit(1)
     }
 
-    shx.cp("-Rfu", composeVersionDir, destDir);
+    Directory.copy(composeVersionDir, destDir);
 
     let cons = require(resolve(destDir, 'console.js'));
     if (cons.events && cons.events.add && cons.events.add.after) {
@@ -504,7 +503,7 @@ function listCompose() {
                 let configFile = resolve(directory, d.compose + '.config.json');
 
                 File.create(configFile, d.contents);
-                shx.chmod(777, configFile);
+                Shell.chmod(777, configFile);
 
                 let compose = require(configFile);
                 compose['versions'] = d.versions;
@@ -515,7 +514,7 @@ function listCompose() {
             });
 
             File.create(composeListFileName, "'use strict';\n\nmodule.exports = " + JSON.stringify(composes));
-            shx.chmod(777, composeListFileName);
+            Shell.chmod(777, composeListFileName);
 
             displayComposeList()
 
@@ -634,6 +633,13 @@ class ComposeModule {
         let container = getContainerFromCompose(compose);
 
         execDockerComposeCommandByContainer('pull', container, options);
+    }
+
+    __build(compose, options) {
+
+        let container = getContainerFromCompose(compose);
+
+        execDockerComposeCommandByContainer('build', container, options, true);
     }
 
     __stop(compose, options) {
@@ -832,7 +838,7 @@ class ComposeModule {
                     , "m"), "");
 
                 File.create(dest, content);
-                shx.chmod(777, dest);
+                Shell.chmod(777, dest);
 
                 Output.success(compose + " removed from docker-compose.yml.");
             }

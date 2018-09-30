@@ -1,13 +1,12 @@
 'use strict';
 
-const fs = require("fs"), resolve = require("path").resolve;
+const resolve = require("path").resolve;
 
 const Helper = Skyflow.Helper,
     Output = Skyflow.Output,
     File = Skyflow.File,
-    Directory = Skyflow.Directory,
-    request = require('request'),
-    shx = require('shelljs');
+    Shell = Skyflow.Shell,
+    request = require('request');
 
 class Api {
 
@@ -67,11 +66,11 @@ class Api {
             data.map((d) => {
 
                 let directory = resolve(Helper.getUserHome(), '.skyflow', d.directory);
-                Directory.create(directory);
+                Shell.mkdir('-p', directory);
                 let filename = resolve(directory, d.filename);
 
                 File.create(filename, d.contents);
-                shx.chmod(777, filename);
+                Shell.chmod(777, filename);
 
             });
 
@@ -110,11 +109,11 @@ class Api {
             data.map((d) => {
 
                 let directory = resolve(Helper.getUserHome(), '.skyflow', d.directory);
-                Directory.create(directory);
+                Shell.mkdir('-p', directory);
                 let filename = resolve(directory, d.filename);
 
                 File.create(filename, d.contents);
-                shx.chmod(777, filename);
+                Shell.chmod(777, filename);
 
             });
 
@@ -151,11 +150,11 @@ class Api {
             data.map((d) => {
 
                 let directory = resolve(Helper.getUserHome(), '.skyflow', d.directory);
-                Directory.create(directory);
+                Shell.mkdir('-p', directory);
                 let filename = resolve(directory, d.filename);
 
                 File.create(filename, d.contents);
-                shx.chmod(777, filename);
+                Shell.chmod(777, filename);
 
             });
 
@@ -190,11 +189,11 @@ class Api {
             data.map((d) => {
 
                 let directory = resolve(Helper.getUserHome(), '.skyflow', d.directory);
-                Directory.create(directory);
+                Shell.mkdir('-p', directory);
                 let filename = resolve(directory, d.filename);
 
                 File.create(filename, d.contents);
-                shx.chmod(777, filename);
+                Shell.chmod(777, filename);
 
             });
 
@@ -231,11 +230,11 @@ class Api {
             data.map((d) => {
 
                 let directory = resolve(Helper.getUserHome(), '.skyflow', d.directory);
-                Directory.create(directory);
+                Shell.mkdir('-p', directory);
                 let filename = resolve(directory, d.filename);
 
                 File.create(filename, d.contents);
-                shx.chmod(777, filename);
+                Shell.chmod(777, filename);
 
             });
 
@@ -270,10 +269,10 @@ class Api {
             let data = response.body.data;
 
             let installDir = resolve(Helper.getUserHome(), '.skyflow', 'react', 'install');
-            Directory.create(installDir);
+            Shell.mkdir('-p', installDir);
             let installFile = resolve(installDir, 'install.js');
             File.create(installFile, "'use strict';\n\nmodule.exports = " + JSON.stringify(data) + ';');
-            shx.chmod(777, installFile);
+            Shell.chmod(777, installFile);
 
             callback();
 
@@ -306,10 +305,18 @@ class Api {
             let data = response.body.data;
 
             let assetDir = resolve(Helper.getUserHome(), '.skyflow', 'asset');
-            Directory.create(assetDir);
-            let assetFile = resolve(assetDir, 'asset.json');
-            File.create(assetFile, JSON.stringify(data));
-            shx.chmod(777, assetFile);
+            Shell.mkdir('-p', assetDir);
+
+            data.map((d) => {
+
+                let directory = resolve(assetDir, d.directory);
+                Shell.mkdir('-p', directory);
+                let filename = resolve(directory, d.filename);
+
+                File.create(filename, d.contents);
+                Shell.chmod(777, filename);
+
+            });
 
             callback();
 
@@ -345,11 +352,11 @@ class Api {
             data.map((d) => {
 
                 let directory = resolve(Helper.getUserHome(), '.skyflow', d.directory);
-                Directory.create(directory);
+                Shell.mkdir('-p', directory);
                 let filename = resolve(directory, d.filename);
 
                 File.create(filename, d.contents);
-                shx.chmod(777, filename);
+                Shell.chmod(777, filename);
 
             });
 
@@ -387,11 +394,11 @@ class Api {
             data.map((d) => {
 
                 let directory = resolve(Helper.getUserHome(), '.skyflow', d.directory);
-                Directory.create(directory);
+                Shell.mkdir('-p', directory);
                 let filename = resolve(directory, d.filename);
 
                 File.create(filename, d.contents);
-                shx.chmod(777, filename);
+                Shell.chmod(777, filename);
 
             });
 
@@ -429,11 +436,11 @@ class Api {
             data.map((d) => {
 
                 let directory = resolve(Helper.getUserHome(), '.skyflow', d.directory);
-                Directory.create(directory);
+                Shell.mkdir('-p', directory);
                 let filename = resolve(directory, d.filename);
 
                 File.create(filename, d.contents);
-                shx.chmod(777, filename);
+                Shell.chmod(777, filename);
 
             });
 
@@ -470,11 +477,11 @@ class Api {
             data.map((d) => {
 
                 let directory = resolve(Helper.getUserHome(), '.skyflow', d.directory);
-                Directory.create(directory);
+                Shell.mkdir('-p', directory);
                 let filename = resolve(directory, d.filename);
 
                 File.create(filename, d.contents);
-                shx.chmod(777, filename);
+                Shell.chmod(777, filename);
 
             });
 

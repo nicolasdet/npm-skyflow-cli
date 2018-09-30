@@ -5,6 +5,7 @@ const resolve = require('path').resolve,
     Helper = Skyflow.Helper,
     File = Skyflow.File,
     Api = Skyflow.Api,
+    Shell = Skyflow.Shell,
     Output = Skyflow.Output;
 
 class DefaultCommand {
@@ -108,7 +109,7 @@ class DefaultCommand {
 
     invalidate(){
 
-        Skyflow.Directory.remove(resolve(Helper.getUserHome(), '.skyflow'));
+        Shell.rm('-rf', resolve(Helper.getUserHome(), '.skyflow'));
 
         Output.success('Skyflow cache has been successfully removed.');
 
