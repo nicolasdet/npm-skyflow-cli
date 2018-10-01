@@ -160,9 +160,9 @@ class AssetModule {
         return 1
     }
 
-    __asset__install(type = 'base') {
+    __asset__install() {
 
-        let assetDir = resolve(Helper.getUserHome(), '.skyflow', 'asset', type);
+        let assetDir = resolve(Helper.getUserHome(), '.skyflow', 'asset', 'base');
 
         function runAfterPull() {
 
@@ -187,7 +187,28 @@ class AssetModule {
     }
 
     __asset__react__install() {
-        return this.__asset__install('react')
+        let assetDir = resolve(Helper.getUserHome(), '.skyflow', 'asset', 'react');
+
+        function runAfterPull() {
+
+            let currentAssetDir = Skyflow.getCurrentAssetDir();
+
+            Directory.copy(assetDir, resolve(currentAssetDir));
+
+            try{
+                Shell.exec("skyflow compose:add asset -v latest");
+            }catch (e) {
+                Output.error(e.message, false)
+            }
+        }
+
+        if (Directory.exists(assetDir)) {
+            runAfterPull()
+        } else {
+            Api.getAssetsFiles(runAfterPull);
+        }
+
+        return 0
     }
 
     __asset__update() {

@@ -248,6 +248,30 @@ class SymfonyModule {
         execSymfonyCommand("translation:update", args)
     }
 
+    __symfony__sh() {
+        Shell.exec("skyflow compose:symfony:sh");e
+    }
+
+    __symfony__composer__install() {
+        Shell.exec("skyflow compose:composer:rm -f -v");
+        Shell.exec("skyflow compose:composer:run \"composer install\"");
+    }
+
+    __symfony__composer__update() {
+        Shell.exec("skyflow compose:composer:rm -f -v");
+        Shell.exec("skyflow compose:composer:run \"composer update\"");
+    }
+
+    __symfony__composer__exec() {
+        Shell.exec("skyflow compose:composer:rm -f -v");
+        Shell.exec("skyflow compose:composer:run \"composer "+(Object.values(arguments).join(' '))+"\"");
+    }
+
+    __symfony__require() {
+        Shell.exec("skyflow compose:composer:rm -f -v");
+        Shell.exec("skyflow compose:composer:run \"composer require "+(Object.values(arguments).join(' '))+"\"");
+    }
+
 }
 
 module.exports = new SymfonyModule();

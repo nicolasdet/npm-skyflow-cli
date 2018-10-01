@@ -603,8 +603,6 @@ class ComposeModule {
         let container = getContainerFromCompose(compose);
 
         if (containerIsRunning(container)) {
-            // Output.error(container + ' container is not running.', false);
-            // process.exit(1)
             execDockerComposeCommandByContainer('exec', container, ['sh']);
         }else {
             execDockerComposeCommandByContainer('run --rm', container, ['sh']);
