@@ -77,10 +77,10 @@ function displayContainerInfoAfterUp(service){
         compose = service.replace(/_\w+$/, '');
 
     Shell.run('docker', ['inspect', "--format='{{range $p, $conf := .NetworkSettings.Ports}} {{$p}} -> {{(index $conf 0).HostPort}} {{end}}'", service]);
-    if (Shell.hasError()) {
-        Output.error('An error occurred while checking ports', false);
-        return 1
-    }
+    // if (Shell.hasError()) {
+    //     Output.error('An error occurred while checking ports', false);
+    //     return 1
+    // }
     let ports = _.trim(Shell.getResult(), "' ");
 
     Shell.run('docker', ['inspect', service]);
