@@ -32,7 +32,7 @@ function getPackage(pkg, version = null) {
     function runAfterPull(compose, version) {
 
         try {
-            Shell.exec("skyflow compose:add " + compose + " -v " + version)
+            Shell.exec("skyflow compose:add " + compose + " -v " + version + " -f")
         }catch (e) {
             process.exit(1)
         }
