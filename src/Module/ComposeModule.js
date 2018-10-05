@@ -439,7 +439,7 @@ function getCompose(compose, version = null) {
         process.exit(1)
     }
 
-    Directory.copy(composeVersionDir, destDir);
+    Shell.cp('-R', composeVersionDir, destDir);
 
     let cons = require(resolve(destDir, 'console.js'));
     if (cons.events && cons.events.add && cons.events.add.after) {

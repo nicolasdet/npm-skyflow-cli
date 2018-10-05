@@ -50,7 +50,7 @@ Skyflow.getComposeValues = (compose) => {
 };
 
 // Check for update
-let delta = 4 * 60 * 60 * 1000,
+let delta = 24 * 60 * 60 * 1000,
     checkFile = resolve(__dirname, "extra", "check.txt");
 
 let lastTime = parseInt(File.read(checkFile)),
