@@ -147,10 +147,6 @@ function displayContainerInfoAfterUp(service){
         });
     }
 
-    Output.newLine();
-
-    Shell.exec('docker-compose ps');
-
 }
 
 function execDockerComposeCommand(command, options = []) {
@@ -735,6 +731,10 @@ class ComposeModule {
         process.chdir(resolve(Skyflow.getCurrentDockerDir()));
 
         displayContainerInfoAfterUp(container);
+
+        Output.newLine();
+
+        Shell.exec('docker-compose ps ' + container);
     }
 
     /*------------ Run for compose ----------*/
@@ -975,6 +975,10 @@ class ComposeModule {
             displayContainerInfoAfterUp(service)
 
         });
+
+        Output.newLine();
+
+        Shell.exec('docker-compose ps');
 
     }
 

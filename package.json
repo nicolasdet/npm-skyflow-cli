@@ -1,6 +1,6 @@
 {
   "name": "skyflow-cli",
-  "version": "1.2.10-beta.34",
+  "version": "1.2.10-beta.35",
   "description": "Best friend of the developer",
   "main": "index.js",
   "scripts": {
@@ -11,18 +11,16 @@
     "url": "git+https://github.com/skyflow-io/npm-skyflow-cli.git"
   },
   "keywords": [
-    "command",
-    "command line",
+    "cli",
     "docker",
     "compose",
     "package",
     "react",
+    "asset",
     "webpack",
     "style",
     "script",
-    "symfony",
-    "python",
-    "prestashop"
+    "symfony"
   ],
   "author": "Franck DIOMANDE <fkdiomande@gmail.com>",
   "license": "Apache-2.0",
