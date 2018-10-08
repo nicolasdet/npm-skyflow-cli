@@ -76,13 +76,6 @@ function displayContainerInfoAfterUp(service){
     let dockerDir = resolve(process.cwd()),
         compose = service.replace(/_\w+$/, '');
 
-    Shell.run('docker', ['inspect', "--format='{{range $p, $conf := .NetworkSettings.Ports}} {{$p}} -> {{(index $conf 0).HostPort}} {{end}}'", service]);
-    // if (Shell.hasError()) {
-    //     Output.error('An error occurred while checking ports', false);
-    //     return 1
-    // }
-    let ports = _.trim(Shell.getResult(), "' ");
-
     Shell.run('docker', ['inspect', service]);
     if (Shell.hasError()) {
         Output.error('An error occurred while checking the status', false);
@@ -105,7 +98,15 @@ function displayContainerInfoAfterUp(service){
         return State.ExitCode
     }
 
-    if(State.Running && ports !== ""){
+    Shell.run('docker', ['inspect', "--format='{{range $p, $conf := .NetworkSettings.Ports}} {{$p}} -> {{(index $conf 0).HostPort}} {{end}}'", service]);
+    let ports = '';
+    if (Shell.hasError()) {
+        Output.info('An error occurred while checking ports for ' + compose + ' container.', false);
+    }else {
+        ports = _.trim(Shell.getResult(), "' ");
+    }
+
+    if(State.Running && ports !== ''){
         Output.success(compose + " is running on " + ports);
     }
 
@@ -145,6 +146,10 @@ function displayContainerInfoAfterUp(service){
             Output[type](message, false);
         });
     }
+
+    Output.newLine();
+
+    Shell.exec('docker-compose ps');
 
 }
 
