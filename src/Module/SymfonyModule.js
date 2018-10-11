@@ -172,6 +172,10 @@ class SymfonyModule {
         execSymfonyCommand("doctrine:migrations:status", args)
     }
 
+    __symfony__fixtures__load(args) {
+        execSymfonyCommand("doctrine:fixtures:load", args)
+    }
+
     __symfony__migrations__version(args) {
         execSymfonyCommand("doctrine:migrations:version", args)
     }
@@ -249,7 +253,7 @@ class SymfonyModule {
     }
 
     __symfony__sh() {
-        Shell.exec("skyflow compose:symfony:sh");e
+        Shell.exec("skyflow compose:symfony:sh");
     }
 
     __symfony__composer__install() {

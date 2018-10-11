@@ -71,7 +71,7 @@ function containerHasStatus(container) {
     return !Shell.hasError()
 }
 
-function displayContainerInfoAfterUp(service){
+function displayContainerInfoAfterUp(service) {
 
     let dockerDir = resolve(process.cwd()),
         compose = service.replace(/_\w+$/, '');
@@ -83,12 +83,12 @@ function displayContainerInfoAfterUp(service){
     }
     let State = JSON.parse(Shell.getResult())[0]['State'];
 
-    if(!State.Running){
-        if(State.ExitCode === 0){
+    if (!State.Running) {
+        if (State.ExitCode === 0) {
             Output.success(compose + " is " + State.Status);
-        }else  {
+        } else {
             Output.error(compose + " is " + State.Status, false);
-            if(State.Error !== ''){
+            if (State.Error !== '') {
                 Output.error(State.Error, false);
             }
         }
@@ -102,11 +102,11 @@ function displayContainerInfoAfterUp(service){
     let ports = '';
     if (Shell.hasError()) {
         Output.info('An error occurred while checking ports for ' + compose + ' container.', false);
-    }else {
+    } else {
         ports = _.trim(Shell.getResult(), "' ");
     }
 
-    if(State.Running && ports !== ''){
+    if (State.Running && ports !== '') {
         Output.success(compose + " is running on " + ports);
     }
 
@@ -204,19 +204,8 @@ function updateCompose(composes = []) {
 
     function questionsCallback(responses) {
 
-        let dest = resolve(dockerDir, 'docker-compose.yml');
-        if (!File.exists(dest)) {
-            let content = "version: \"3\"" + os.EOL + os.EOL +
-                "services:";
-            File.create(dest, content);
-            Shell.chmod(777, dest);
-        }
-
-        let storage = {
-            composes: {},
-            dockerfiles: {},
-            values: {}
-        };
+        let composesValues = {},
+            containersNames = {};
 
         for (let response in responses) {
 
@@ -231,113 +220,26 @@ function updateCompose(composes = []) {
                 return '';
             });
 
-            let composeDir = resolve(dockerDir, compose), config = null,
-                configFile = resolve(composeDir, 'console.js');
-
-            if (File.exists(configFile)) {
-                config = require(configFile);
+            if (!composesValues[compose]) {
+                composesValues[compose] = {};
             }
-
-            if (!storage.values[compose]) {
-                storage.values[compose] = {};
-
-                if (config.events && config.events.update && config.events.update.before) {
-                    config.events.update.before.apply(null)
-                }
-
-            }
-
-            storage.values[compose][response] = responses["__" + compose + "__" + response];
-
-            let dockerfile = "",
-                dockerCompose = "";
-
-            if (File.exists(resolve(composeDir, 'Dockerfile.dist')) && !storage.dockerfiles[compose]) {
-                storage.dockerfiles[compose] = File.read(resolve(composeDir, 'Dockerfile.dist'))
-            }
-            if (File.exists(resolve(composeDir, 'docker-compose.dist')) && !storage.composes[compose]) {
-                storage.composes[compose] = File.read(resolve(composeDir, 'docker-compose.dist'))
-            }
-
-            let regex = new RegExp("\{\{ ?" + response + " ?\}\}", "g");
-
-            // Update Dockerfile
-            dockerfile = storage.dockerfiles[compose];
-
-            if (dockerfile) {
-                dockerfile = dockerfile.replace(regex, responses["__" + compose + "__" + response]);
-                storage.dockerfiles[compose] = dockerfile;
-                let dest = resolve(composeDir, 'Dockerfile');
-                File.create(dest, dockerfile);
-                Shell.chmod(777, dest);
-            }
-
-            // Update docker-compose.yml
-            dockerCompose = storage.composes[compose];
-
-            if (dockerCompose) {
-
-                dockerCompose = dockerCompose.replace(regex, responses["__" + compose + "__" + response]);
-                storage.composes[compose] = dockerCompose;
-
-                dockerCompose = os.EOL + os.EOL + "# ------> " + compose + " ------>" + os.EOL +
-                    dockerCompose + os.EOL +
-                    "# <------ " + compose + " <------";
-
-                dest = resolve(dockerDir, 'docker-compose.yml');
-
-                // Remove previous compose from docker-compose.yml
-                let content = File.read(dest);
-                content = content.replace(new RegExp(
-                    os.EOL + os.EOL + "# ------> " + compose + " ------>[\\s\\S]+" +
-                    "# <------ " + compose + " <------"
-                    , "m"), "");
-
-                content += dockerCompose;
-
-                File.create(dest, content);
-                Shell.chmod(777, dest);
-
-            }
+            composesValues[compose][response] = responses["__" + compose + "__" + response];
 
         }
 
-        // Replace dependencies
+        for (let compose in composesValues) {
 
-        let content = File.read(dest);
-
-        content = content.replace(/{{ ?depends:([a-z0-9\.]+) ?}}/g, (m, compose) => {
-
-            if (storage.values[compose]) {
-                return storage.values[compose]['container_name']
-            }
-
-            Output.error("Compose " + compose + " not found! Your docker-compose.yml file is not valid.", false);
-
-            return m
-        });
-
-        File.create(dest, content);
-        Shell.chmod(777, dest);
-
-
-        // Create compose values file.
-
-        for (let compose in storage.values) {
-
-            if (!storage.values.hasOwnProperty(compose)) {
+            if (!composesValues.hasOwnProperty(compose)) {
                 continue;
             }
 
             let composeDir = resolve(dockerDir, compose);
+            Directory.create(composeDir);
 
-            if (!Directory.exists(composeDir)) {
-                continue;
-            }
             let contents = "'use strict';\n\n";
             contents += 'module.exports = {\n';
 
-            let values = storage.values[compose];
+            let values = composesValues[compose];
 
             for (let c in values) {
                 if (!values.hasOwnProperty(c)) {
@@ -349,8 +251,135 @@ function updateCompose(composes = []) {
             contents += "};";
 
             let valuesFilename = resolve(composeDir, compose + '.values.js');
+            if (File.exists(valuesFilename)) {
+                File.remove(valuesFilename)
+            }
             File.create(valuesFilename, contents);
             Shell.chmod(777, valuesFilename);
+
+        }
+
+        let dockerCompose = resolve(dockerDir, 'docker-compose.yml');
+        if (File.exists(dockerCompose)) {
+            File.remove(dockerCompose);
+        }
+
+        let content = "version: \"3\"" + os.EOL + os.EOL + "services:",
+            composes = Directory.read(dockerDir, {directory: true, file: false}),
+            networks = [];
+
+        composes.map((compose) => {
+
+            let composeDir = resolve(dockerDir, compose),
+                values = {};
+
+            if (composesValues.hasOwnProperty(compose)) {
+                values = composesValues[compose]
+            } else {
+                values = require(resolve(composeDir, compose + '.values.js'));
+            }
+
+            containersNames[compose] = values['container_name'];
+
+            // Update Dockerfile
+            let dockerfileContent = null,
+                dockerfile = resolve(composeDir, 'Dockerfile.dist');
+            if (File.exists(dockerfile)) {
+                dockerfileContent = File.read(dockerfile)
+            }
+            if (dockerfileContent) {
+                for (let key in values) {
+                    if (values.hasOwnProperty(key)) {
+                        let regex = new RegExp("\{\{ ?" + key + " ?\}\}", "g");
+                        dockerfileContent = dockerfileContent.replace(regex, values[key]);
+                    }
+                }
+                let dest = resolve(composeDir, 'Dockerfile');
+                File.create(dest, dockerfileContent);
+                Shell.chmod(777, dest);
+            }
+
+            // Update docker-compose.yml
+            let dockerComposePartContent = null,
+                dockerComposePart = resolve(composeDir, 'docker-compose.dist');
+            if (File.exists(dockerComposePart)) {
+                dockerComposePartContent = File.read(dockerComposePart)
+            }
+            if (dockerComposePartContent) {
+
+                for (let key in values) {
+
+                    if (!values.hasOwnProperty(key)) {
+                        continue
+                    }
+                    let regex = new RegExp("\{\{ ?" + key + " ?\}\}", "g");
+                    dockerComposePartContent = dockerComposePartContent.replace(regex, () => {
+
+                        if (key !== 'networks') {
+                            return values[key]
+                        }
+
+                        // Set local networks
+                        let nwks = _.trim(values[key], "'\" ");
+                        if(nwks === ''){
+                            return ''
+                        }
+
+
+                        let output = 'networks:' + os.EOL;
+
+                        nwks = nwks.split(/[, ]/);
+                        nwks.map((nwk) => {
+                            networks.push(nwk);
+                            output += '            - ' + nwk + os.EOL;
+                        });
+                        return output;
+
+                    });
+
+                }
+
+                dockerComposePartContent = _.trim(dockerComposePartContent, os.EOL);
+
+                content += os.EOL + os.EOL + "# ------> " + compose + " ------>" + os.EOL +
+                    dockerComposePartContent + os.EOL + "# <------ " + compose + " <------";
+
+            }
+
+        });
+
+        // Replace dependencies
+        content = content.replace(/{{ ?depends:([a-z0-9\.]+) ?}}/g, (m, c) => {
+            if (containersNames.hasOwnProperty(c)) {
+                return containersNames[c]
+            }
+            Output.error("Compose " + c + " not found! Your docker-compose.yml file is not valid.", false);
+            return m
+        });
+
+        // Set networks section
+        if (networks[0]) {
+            content += os.EOL + os.EOL + 'networks:';
+            networks.map((network) => {
+                content += os.EOL + '    ' + network + ':';
+            })
+        }
+
+        File.create(dockerCompose, content);
+        Shell.chmod(777, dockerCompose);
+
+        // Trigger after events
+
+        composes.map((compose) => {
+
+            let composeDir = resolve(dockerDir, compose),
+                values = {};
+
+            if (composesValues.hasOwnProperty(compose)) {
+                values = composesValues[compose]
+            } else {
+                values = require(resolve(composeDir, compose + '.values.js'));
+            }
 
             let config = null,
                 configFile = resolve(composeDir, 'console.js');
@@ -359,15 +388,11 @@ function updateCompose(composes = []) {
                 config = require(configFile);
             }
 
-            if (config.events && config.events.update && config.events.update.after) {
+            if (config && config.events && config.events.update && config.events.update.after) {
                 config.events.update.after.apply(null, [values])
             }
 
-        }
-
-        for (let compose in storage.composes) {
-            Output.success(compose + " added into docker-compose.yml.");
-        }
+        });
 
     }
 
@@ -389,7 +414,9 @@ function updateCompose(composes = []) {
         }
 
         if (File.exists(consoleFile)) {
-            let questions = require(consoleFile).questions;
+
+            let config = require(consoleFile),
+                questions = config.questions;
             questions.forEach((question) => {
                 if (values) {
                     question.default = values[question.name]
@@ -397,7 +424,13 @@ function updateCompose(composes = []) {
                 question.message = '[' + compose + '] ' + question.message;
                 question.name = '__' + compose + '__' + question.name;
                 allQuestions.push(question);
-            })
+            });
+
+            // Trigger before events
+            if (config.events && config.events.update && config.events.update.before) {
+                config.events.update.before.apply(null, [values])
+            }
+
         }
 
     });
@@ -431,11 +464,11 @@ function getCompose(compose, version = null) {
     let currentDockerDir = Skyflow.getCurrentDockerDir(),
         destDir = resolve(currentDockerDir, compose);
 
-    if(Request.hasOption('f') || Request.hasOption('force')){
+    if (Request.hasOption('f') || Request.hasOption('force')) {
         Shell.rm('-rf', destDir);
     }
 
-    if(Directory.exists(destDir)){
+    if (Directory.exists(destDir)) {
         Output.error(compose + ' compose directory already exists. Use -f option to continue.', false);
         process.exit(1)
     }
@@ -593,7 +626,7 @@ class ComposeModule {
 
         if (containerIsRunning(container)) {
             execDockerComposeCommandByContainer('exec', container, options);
-        }else {
+        } else {
             execDockerComposeCommandByContainer('run --rm', container, options);
         }
 
@@ -605,7 +638,7 @@ class ComposeModule {
 
         if (containerIsRunning(container)) {
             execDockerComposeCommandByContainer('exec', container, ['sh']);
-        }else {
+        } else {
             execDockerComposeCommandByContainer('run --rm', container, ['sh']);
         }
     }
@@ -701,7 +734,7 @@ class ComposeModule {
 
         if (containerIsRunning(container)) {
             execDockerComposeCommandByContainer('exec', container, commands);
-        }else {
+        } else {
             execDockerComposeCommandByContainer('run --rm', container, commands);
         }
 
@@ -831,7 +864,7 @@ class ComposeModule {
                 config.events.remove.before.apply(null)
             }
 
-            if(yml){
+            if (yml) {
 
                 // Remove compose from docker-compose.yml
                 let content = File.read(dest);
@@ -970,7 +1003,7 @@ class ComposeModule {
             Output.error(e.message, false);
         }
 
-        services.map((service)=>{
+        services.map((service) => {
 
             displayContainerInfoAfterUp(service)
 
@@ -1030,6 +1063,4 @@ class ComposeModule {
 
 }
 
-const _ComposeModule = new ComposeModule();
-
-module.exports = _ComposeModule;
+module.exports = new ComposeModule();
