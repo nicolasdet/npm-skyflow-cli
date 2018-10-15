@@ -330,6 +330,7 @@ function updateCompose(composes = []) {
 
                         nwks = nwks.split(/[, ]/);
                         nwks.map((nwk) => {
+                            networks = _.remove(networks, nwk);
                             networks.push(nwk);
                             output += '            - ' + nwk + os.EOL;
                         });
