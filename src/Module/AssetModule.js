@@ -11,6 +11,8 @@ const path = require("path"),
     Output = Skyflow.Output,
     _ = require('lodash');
 
+const ReactModule = require('./ReactModule.js');
+
 function runInfo() {
 
     Output.newLine();
@@ -379,6 +381,22 @@ class AssetModule {
         Shell.rm('-rf', resolve(Helper.getUserHome(), '.skyflow', 'script'));
         Shell.rm('-rf', resolve(Helper.getUserHome(), '.skyflow', 'style'));
         Output.success('Asset cache has been successfully removed.');
+    }
+
+    __asset__create__component(components) {
+        if (!Request.hasOption('dir')) {
+            Request.addOption('dir', resolve(Skyflow.getCurrentAssetDir(), 'src', 'Component'))
+        }
+
+        return ReactModule['__react__create__component'](components)
+    }
+
+    __asset__create__container(containers) {
+        if (!Request.hasOption('dir')) {
+            Request.addOption('dir', resolve(Skyflow.getCurrentAssetDir(), 'src', 'Container'))
+        }
+
+        return ReactModule['__react__create__container'](containers)
     }
 
 }
