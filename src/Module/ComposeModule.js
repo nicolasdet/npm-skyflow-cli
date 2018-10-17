@@ -330,11 +330,10 @@ function updateCompose(composes = []) {
 
                         nwks = nwks.split(/[, ]/);
                         nwks.map((nwk) => {
-                            networks = _.remove(networks, nwk);
                             networks.push(nwk);
                             output += '            - ' + nwk + os.EOL;
                         });
-                        return output;
+                        return _.trim(output, os.EOL);
 
                     });
 
@@ -361,6 +360,7 @@ function updateCompose(composes = []) {
         // Set networks section
         if (networks[0]) {
             content += os.EOL + os.EOL + 'networks:';
+            networks = _.uniq(networks);
             networks.map((network) => {
                 content += os.EOL + '    ' + network + ':';
             })
