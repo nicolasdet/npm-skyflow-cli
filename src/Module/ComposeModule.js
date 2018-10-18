@@ -657,8 +657,7 @@ class ComposeModule {
 
     __down(compose, options) {
 
-        Request.addOption('compose', compose);
-        this['__compose__down'](options);
+        this['__rm'](compose, options);
     }
 
     __pull(compose, options) {
@@ -940,36 +939,8 @@ class ComposeModule {
             return 1
         }
 
-        let services;
-
-        if (Request.hasOption('compose')) {
-            process.chdir(cwd);
-            services = [getContainerFromCompose(Request.getOption('compose'))];
-            process.chdir(dockerDir);
-        } else {
-            services = Shell.getArrayResult()
-        }
-
-        if (!Request.hasOption('force')) {
-            options.push('--force')
-        }
-
-        services.map((service) => {
-
-            Shell.run('docker', ['inspect', service]);
-            if (Shell.hasError()) {
-                return 1
-            }
-
-            Output.write('Stopping and removing ' + service + ' container ... ', null, null, null);
-
-            Shell.run('docker', ['rm', ...options, service]);
-
-            Output.writeln('OK', 'green', null)
-
-        });
-
         process.chdir(cwd);
+        execDockerComposeCommand('down', options);
         execDockerComposeCommand('ps', []);
     }
 
