@@ -95,13 +95,13 @@ class ConsoleStyle {
         }
         // Apply colors
         if (this.color.type) {
-            text = chalk[this.color.type](this.color.value)(text)
+            text = chalk[this.color.type](this.color.value)(text);
         } else {
             text = chalk[this.color.value] ? chalk[this.color.value](text) : text
         }
         // Apply background colors
         if (this.bg.type) {
-            text = chalk[this.bg.type](this.bg.value)(text)
+            text = chalk[this.bg.type](this.bg.value)(text);
         } else {
             text = chalk[this.bg.value] ? chalk[this.bg.value](text) : text
         }

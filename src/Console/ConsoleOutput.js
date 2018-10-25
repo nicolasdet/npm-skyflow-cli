@@ -39,7 +39,7 @@ class ConsoleOutput {
      * @returns {ConsoleOutput}
      */
     print(message, color, bg, style) {
-        return this.write(message, color, bg, style)
+        return this.write(message, color, bg, style);
     }
 
     /**

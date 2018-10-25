@@ -41,7 +41,7 @@ class ConsoleRequest {
             }
             return false
         }
-        return this.options.hasOwnProperty(option)
+        return this.options.hasOwnProperty(option);
     }
 
     /**
@@ -91,7 +91,7 @@ class ConsoleRequest {
             }
             return false
         }
-        return this.commands.hasOwnProperty(command)
+        return this.commands.hasOwnProperty(command);
     }
 
     /**

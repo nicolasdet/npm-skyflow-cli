@@ -123,7 +123,7 @@ class DockerModule {
         if(Shell.hasError()){
             Output.error('Command failed!', false);
         }else {
-            Output.writeln(Shell.getResult())
+            Output.writeln(Shell.getResult());
         }
 
     }

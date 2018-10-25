@@ -81,134 +81,134 @@ class Shell {
     // More details on the following methods, see https://www.npmjs.com/package/shelljs
 
     chmod(){
-        shx.chmod(...arguments)
+        shx.chmod(...arguments);
     }
 
     cd(){
-        shx.cd(...arguments)
+        shx.cd(...arguments);
     }
 
     cp(){
-        shx.cp(...arguments)
+        shx.cp(...arguments);
     }
 
     pushd(){
-        shx.pushd(...arguments)
+        shx.pushd(...arguments);
     }
 
     popd(){
-        shx.popd(...arguments)
+        shx.popd(...arguments);
     }
 
     dirs(){
-        shx.dirs(...arguments)
+        shx.dirs(...arguments);
     }
 
     echo(){
-        shx.echo(...arguments)
+        shx.echo(...arguments);
     }
 
     /*exec(){
-        shx.exec(...arguments)
+        shx.exec(...arguments);
     }*/
 
     find(){
-        shx.find(...arguments)
+        shx.find(...arguments);
     }
 
     grep(){
-        shx.grep(...arguments)
+        shx.grep(...arguments);
     }
 
     head(){
-        shx.head(...arguments)
+        shx.head(...arguments);
     }
 
     ln(){
-        shx.ln(...arguments)
+        shx.ln(...arguments);
     }
 
     mkdir(){
-        shx.mkdir(...arguments)
+        shx.mkdir(...arguments);
     }
 
     mv(){
-        shx.mv(...arguments)
+        shx.mv(...arguments);
     }
 
     pwd(){
-        shx.pwd(...arguments)
+        shx.pwd(...arguments);
     }
 
     rm(){
-        shx.rm(...arguments)
+        shx.rm(...arguments);
     }
 
     sed(){
-        shx.sed(...arguments)
+        shx.sed(...arguments);
     }
 
     set(){
-        shx.set(...arguments)
+        shx.set(...arguments);
     }
 
     sort(){
-        shx.sort(...arguments)
+        shx.sort(...arguments);
     }
 
     tail(){
-        shx.tail(...arguments)
+        shx.tail(...arguments);
     }
 
     tempdir(){
-        shx.tempdir(...arguments)
+        shx.tempdir(...arguments);
     }
 
     test(){
-        shx.test(...arguments)
+        shx.test(...arguments);
     }
 
     touch(){
-        shx.touch(...arguments)
+        shx.touch(...arguments);
     }
 
     uniq(){
-        shx.uniq(...arguments)
+        shx.uniq(...arguments);
     }
 
     which(){
-        shx.which(...arguments)
+        shx.which(...arguments);
     }
 
     exit(){
-        shx.exit(...arguments)
+        shx.exit(...arguments);
     }
 
     error(){
-        shx.error(...arguments)
+        shx.error(...arguments);
     }
 
     popd(){
-        shx.popd(...arguments)
+        shx.popd(...arguments);
     }
 
     popd(){
-        shx.popd(...arguments)
+        shx.popd(...arguments);
     }
 
     popd(){
-        shx.popd(...arguments)
+        shx.popd(...arguments);
     }
 
     popd(){
-        shx.popd(...arguments)
+        shx.popd(...arguments);
     }
 
     popd(){
-        shx.popd(...arguments)
+        shx.popd(...arguments);
     }
     popd(){
-        shx.popd(...arguments)
+        shx.popd(...arguments);
     }
 
 

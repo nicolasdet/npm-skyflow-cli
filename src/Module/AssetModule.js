@@ -60,7 +60,7 @@ function listScript() {
 
             if (response.statusCode !== 200) {
                 Output.error('Can not pull scripts list from ' + Api.protocol + '://' + Api.host + '.', false);
-                process.exit(1)
+                process.exit(1);
             }
 
             let data = response.body.data,
@@ -75,7 +75,7 @@ function listScript() {
             File.create(scriptListFileName, "'use strict';\n\nmodule.exports = " + JSON.stringify(scripts));
             Shell.chmod(777, scriptListFileName);
 
-            displayStyleList()
+            displayStyleList();
 
         });
 
@@ -117,7 +117,7 @@ function listStyle() {
 
             if (response.statusCode !== 200) {
                 Output.error('Can not pull styles list from ' + Api.protocol + '://' + Api.host + '.', false);
-                process.exit(1)
+                process.exit(1);
             }
 
             let data = response.body.data,
@@ -132,7 +132,7 @@ function listStyle() {
             File.create(styleListFileName, "'use strict';\n\nmodule.exports = " + JSON.stringify(styles));
             Shell.chmod(777, styleListFileName);
 
-            displayStyleList()
+            displayStyleList();
 
         });
 
@@ -175,12 +175,12 @@ class AssetModule {
             try{
                 Shell.exec("skyflow compose:add asset -v latest");
             }catch (e) {
-                Output.error(e.message, false)
+                Output.error(e.message, false);
             }
         }
 
         if (Directory.exists(assetDir)) {
-            runAfterPull()
+            runAfterPull();
         } else {
             Api.getAssetsFiles(runAfterPull);
         }
@@ -200,12 +200,12 @@ class AssetModule {
             try{
                 Shell.exec("skyflow compose:add asset -v latest");
             }catch (e) {
-                Output.error(e.message, false)
+                Output.error(e.message, false);
             }
         }
 
         if (Directory.exists(assetDir)) {
-            runAfterPull()
+            runAfterPull();
         } else {
             Api.getAssetsFiles(runAfterPull);
         }
@@ -253,7 +253,7 @@ class AssetModule {
     __asset__script() {
 
         if (Request.hasOption("list") || !Request.hasOption()) {
-            return listScript()
+            return listScript();
         }
 
         return 1
@@ -262,7 +262,7 @@ class AssetModule {
     __asset__style() {
 
         if (Request.hasOption("list") || !Request.hasOption()) {
-            return listStyle()
+            return listStyle();
         }
 
         return 1
@@ -290,7 +290,7 @@ class AssetModule {
                 dir = resolve(outputInfoDir);
             if (Request.hasOption('dir')) {
                 outputInfoDir = Skyflow.getCurrentAssetDir() + path.sep + _.trim(Request.getOption('dir'), '/');
-                dir = resolve(outputInfoDir)
+                dir = resolve(outputInfoDir);
             }
 
             dir = resolve(process.cwd(), dir);
@@ -312,7 +312,7 @@ class AssetModule {
         scripts.map((name) => {
 
             if (File.exists(resolve(scriptDir, name + '.js'))) {
-                runAfterPull(name)
+                runAfterPull(name);
             } else {
                 Api.getScriptByName(name, runAfterPull);
             }
@@ -342,7 +342,7 @@ class AssetModule {
                 dir = resolve(outputInfoDir);
             if (Request.hasOption('dir')) {
                 outputInfoDir = Skyflow.getCurrentAssetDir() + path.sep + _.trim(Request.getOption('dir'), '/');
-                dir = resolve(outputInfoDir)
+                dir = resolve(outputInfoDir);
             }
 
             dir = resolve(process.cwd(), dir);
@@ -366,7 +366,7 @@ class AssetModule {
         styles.map((name) => {
 
             if (File.exists(resolve(styleDir, '_' + name + '.scss'))) {
-                runAfterPull(name)
+                runAfterPull(name);
             } else {
                 Api.getStyleByName(name, runAfterPull);
             }
@@ -385,18 +385,18 @@ class AssetModule {
 
     __asset__create__component(components) {
         if (!Request.hasOption('dir')) {
-            Request.addOption('dir', resolve(Skyflow.getCurrentAssetDir(), 'src', 'Component'))
+            Request.addOption('dir', resolve(Skyflow.getCurrentAssetDir(), 'src', 'Component'));
         }
 
-        return ReactModule['__react__create__component'](components)
+        return ReactModule['__react__create__component'](components);
     }
 
     __asset__create__container(containers) {
         if (!Request.hasOption('dir')) {
-            Request.addOption('dir', resolve(Skyflow.getCurrentAssetDir(), 'src', 'Container'))
+            Request.addOption('dir', resolve(Skyflow.getCurrentAssetDir(), 'src', 'Container'));
         }
 
-        return ReactModule['__react__create__container'](containers)
+        return ReactModule['__react__create__container'](containers);
     }
 
 }

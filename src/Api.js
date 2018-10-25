@@ -29,7 +29,7 @@ class Api {
             };
 
             if (Helper.isFunction(callback)) {
-                callback.apply(this, [response])
+                callback.apply(this, [response]);
             }
 
         });
