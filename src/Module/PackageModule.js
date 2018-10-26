@@ -32,13 +32,13 @@ function getPackage(pkg, version = null) {
     function runAfterPull(compose, version) {
 
         try {
-            Shell.exec("skyflow compose:add " + compose + " -v " + version + " -f")
+            Shell.exec("skyflow compose:add " + compose + " -v " + version + " -f");
         }catch (e) {
-            process.exit(1)
+            process.exit(1);
         }
 
         if (Directory.exists(resolve(pkgDir, 'composes'))) {
-            Directory.copy(resolve(pkgDir, 'composes'), resolve(Skyflow.getCurrentDockerDir()))
+            Directory.copy(resolve(pkgDir, 'composes'), resolve(Skyflow.getCurrentDockerDir()));
         }
 
     }
@@ -61,10 +61,10 @@ function getPackage(pkg, version = null) {
             let composeDir = resolve(Skyflow.Helper.getUserHome(), '.skyflow', 'docker', 'compose', compose, version);
 
             if(Directory.exists(composeDir)){
-                runAfterPull(compose, version)
+                runAfterPull(compose, version);
             }else {
                 Api.getDockerComposeOrPackageVersion('compose', compose, version, () => {
-                    runAfterPull(compose, version)
+                    runAfterPull(compose, version);
                 });
             }
 
@@ -100,7 +100,7 @@ function listPackage() {
 
             Output.writeln(']', 'gray');
 
-            Output.writeln(compose.description, 'gray')
+            Output.writeln(compose.description, 'gray');
 
         });
 
@@ -114,7 +114,7 @@ function listPackage() {
 
             if (response.statusCode !== 200) {
                 Output.error('Can not pull packages list from ' + Api.protocol + '://' + Api.host + '.', false);
-                process.exit(1)
+                process.exit(1);
             }
 
             let data = response.body.data,
@@ -140,7 +140,7 @@ function listPackage() {
             File.create(pkgListFileName, "'use strict';\n\nmodule.exports = " + JSON.stringify(packages));
             Shell.chmod(777, pkgListFileName);
 
-            displayComposeList()
+            displayComposeList();
 
         });
 
@@ -212,7 +212,7 @@ class PackageModule {
         
         if (!packages[0]) {
             Output.error("Missing argument.", false);
-            process.exit(1)
+            process.exit(1);
         }
 
         let pkg = packages[0],
@@ -228,7 +228,7 @@ class PackageModule {
         function runAfterPull() {
 
             if (version) {
-                return getPackage(pkg, version)
+                return getPackage(pkg, version);
             }
 
             let versions = Directory.read(packageDir, {directory: true, file: false});
@@ -240,14 +240,14 @@ class PackageModule {
                 },
                 versions,
                 answer => {
-                    getPackage(pkg, answer.response)
+                    getPackage(pkg, answer.response);
                 }
             );
 
         }
 
         if (Directory.exists(packageDir)) {
-            runAfterPull()
+            runAfterPull();
         } else {
             if (version) {
                 Api.getDockerComposeOrPackageVersion('package', pkg, version, runAfterPull);
@@ -284,7 +284,7 @@ class PackageModule {
 
         if (Request.hasOption('package')) {
             pkg += ':' + Request.getOption('package');
-            packageDir = resolve(packageDir, ...(pkg.split(':')))
+            packageDir = resolve(packageDir, ...(pkg.split(':')));
         }
 
         Directory.remove(packageDir);

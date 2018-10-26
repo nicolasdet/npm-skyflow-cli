@@ -20,17 +20,17 @@ function getContainerFromCompose(compose) {
 
     if (!Directory.exists(composeDir)) {
         Output.error(compose + ' compose not found.', false);
-        process.exit(1)
+        process.exit(1);
     }
     let valuesFile = resolve(composeDir, compose + '.values.js');
     if (!File.exists(valuesFile)) {
         Output.error(compose + ".values.js file not found for " + compose + " compose. \nTry 'skyflow compose:update " + compose + "' command.", false);
-        process.exit(1)
+        process.exit(1);
     }
     let containerName = require(valuesFile)['container_name'];
     if (!containerName) {
         Output.error("Container name not found for " + compose + " compose. \nTry 'skyflow compose:update " + compose + "' command.", false);
-        process.exit(1)
+        process.exit(1);
     }
 
     return containerName
@@ -54,7 +54,7 @@ Skyflow.isPortReachable = (port = 80, host = '0.0.0.0') => {
 };
 
 Skyflow.addDockerPort = (port = 80, host = '0.0.0.0') => {
-    dockerPorts.push(host + ':' + port)
+    dockerPorts.push(host + ':' + port);
 };
 
 function containerIsRunning(container) {
@@ -68,7 +68,7 @@ function containerIsRunning(container) {
 
 function containerHasStatus(container) {
     Shell.run('docker', ['inspect', container]);
-    return !Shell.hasError()
+    return !Shell.hasError();
 }
 
 function displayContainerInfoAfterUp(service) {
@@ -117,14 +117,14 @@ function displayContainerInfoAfterUp(service) {
         values = {};
 
     if (File.exists(valuesFile)) {
-        values = require(valuesFile)
+        values = require(valuesFile);
     }
 
     // Trigger after up events
     if (File.exists(consoleFile)) {
         events = require(consoleFile).events;
         if (events && events['up'] && events['up']['after']) {
-            events['up']['after'].apply(null, [values])
+            events['up']['after'].apply(null, [values]);
         }
     }
 
@@ -155,9 +155,9 @@ function execDockerComposeCommand(command, options = []) {
     try {
         Shell.exec('docker-compose ' + command + ' ' + options.join(' '));
     } catch (e) {
-        Output.error(e.message, false)
+        Output.error(e.message, false);
     }
-    process.chdir(cwd)
+    process.chdir(cwd);
 }
 
 /**
@@ -174,11 +174,11 @@ function execDockerComposeCommandByContainer(command, container, options = [], r
     if (Shell.hasError()) {
         Output.error(Shell.getError(), false);
         Output.info("Try to use 'skyflow compose:update'", false);
-        process.exit(1)
+        process.exit(1);
     }
     if (_.indexOf(Shell.getArrayResult(), container) === -1) {
         Output.error('Service ' + container + ' not found in docker-compose.yml file.', false);
-        process.exit(1)
+        process.exit(1);
     }
 
     try {
@@ -188,10 +188,10 @@ function execDockerComposeCommandByContainer(command, container, options = [], r
             Shell.exec('docker-compose ' + command + ' ' + container + ' ' + options.join(' '));
         }
     } catch (e) {
-        Output.error(e.message, false)
+        Output.error(e.message, false);
     }
 
-    process.chdir(cwd)
+    process.chdir(cwd);
 }
 
 function updateCompose(composes = []) {
@@ -252,7 +252,7 @@ function updateCompose(composes = []) {
 
             let valuesFilename = resolve(composeDir, compose + '.values.js');
             if (File.exists(valuesFilename)) {
-                File.remove(valuesFilename)
+                File.remove(valuesFilename);
             }
             File.create(valuesFilename, contents);
             Shell.chmod(777, valuesFilename);
@@ -285,7 +285,7 @@ function updateCompose(composes = []) {
             let dockerfileContent = null,
                 dockerfile = resolve(composeDir, 'Dockerfile.dist');
             if (File.exists(dockerfile)) {
-                dockerfileContent = File.read(dockerfile)
+                dockerfileContent = File.read(dockerfile);
             }
             if (dockerfileContent) {
                 for (let key in values) {
@@ -303,7 +303,7 @@ function updateCompose(composes = []) {
             let dockerComposePartContent = null,
                 dockerComposePart = resolve(composeDir, 'docker-compose.dist');
             if (File.exists(dockerComposePart)) {
-                dockerComposePartContent = File.read(dockerComposePart)
+                dockerComposePartContent = File.read(dockerComposePart);
             }
             if (dockerComposePartContent) {
 
@@ -363,7 +363,7 @@ function updateCompose(composes = []) {
             networks = _.uniq(networks);
             networks.map((network) => {
                 content += os.EOL + '    ' + network + ':';
-            })
+            });
         }
 
         File.create(dockerCompose, content);
@@ -390,7 +390,7 @@ function updateCompose(composes = []) {
             }
 
             if (config && config.events && config.events.update && config.events.update.after) {
-                config.events.update.after.apply(null, [values])
+                config.events.update.after.apply(null, [values]);
             }
 
         });
@@ -411,7 +411,7 @@ function updateCompose(composes = []) {
 
         let values = null;
         if (File.exists(valuesFile)) {
-            values = require(valuesFile)
+            values = require(valuesFile);
         }
 
         if (File.exists(consoleFile)) {
@@ -429,7 +429,7 @@ function updateCompose(composes = []) {
 
             // Trigger before events
             if (config.events && config.events.update && config.events.update.before) {
-                config.events.update.before.apply(null, [values])
+                config.events.update.before.apply(null, [values]);
             }
 
         }
@@ -443,10 +443,10 @@ function updateCompose(composes = []) {
     Input.input(allQuestions, (responses) => {
 
         composes.forEach((compose) => {
-            responses['__' + compose + '__container_name'] = uniqid(compose + '_')
+            responses['__' + compose + '__container_name'] = uniqid(compose + '_');
         });
 
-        questionsCallback(responses)
+        questionsCallback(responses);
     });
 
     return 0
@@ -459,7 +459,7 @@ function getCompose(compose, version = null) {
 
     if (!Directory.exists(composeVersionDir)) {
         Output.error(compose + ' compose not found!', false);
-        process.exit(1)
+        process.exit(1);
     }
 
     let currentDockerDir = Skyflow.getCurrentDockerDir(),
@@ -471,14 +471,14 @@ function getCompose(compose, version = null) {
 
     if (Directory.exists(destDir)) {
         Output.error(compose + ' compose directory already exists. Use -f option to continue.', false);
-        process.exit(1)
+        process.exit(1);
     }
 
     Shell.cp('-R', composeVersionDir, destDir);
 
     let cons = require(resolve(destDir, 'console.js'));
     if (cons.events && cons.events.add && cons.events.add.after) {
-        cons.events.add.after.apply(null)
+        cons.events.add.after.apply(null);
     }
 
     Output.success(compose + ' compose added.');
@@ -511,7 +511,7 @@ function listCompose() {
 
             Output.writeln(']', 'gray');
 
-            Output.writeln(compose.description, 'gray')
+            Output.writeln(compose.description, 'gray');
 
         });
 
@@ -525,7 +525,7 @@ function listCompose() {
 
             if (response.statusCode !== 200) {
                 Output.error('Can not pull composes list from ' + Api.protocol + '://' + Api.host + '.', false);
-                process.exit(1)
+                process.exit(1);
             }
 
             let data = response.body.data,
@@ -551,7 +551,7 @@ function listCompose() {
             File.create(composeListFileName, "'use strict';\n\nmodule.exports = " + JSON.stringify(composes));
             Shell.chmod(777, composeListFileName);
 
-            displayComposeList()
+            displayComposeList();
 
         });
 
@@ -650,7 +650,7 @@ class ComposeModule {
 
         if (!containerIsRunning(container)) {
             Output.error(container + ' container is not running.', false);
-            process.exit(1)
+            process.exit(1);
         }
         execDockerComposeCommandByContainer('exec', container, ['bash']);
     }
@@ -687,7 +687,7 @@ class ComposeModule {
 
         if (!containerHasStatus(container)) {
             Output.writeln('No container to start.');
-            process.exit(1)
+            process.exit(1);
         }
         execDockerComposeCommandByContainer('start', container, options);
     }
@@ -697,7 +697,7 @@ class ComposeModule {
         let container = getContainerFromCompose(compose);
 
         if (!Request.hasOption('s') && !Request.hasOption('stop')) {
-            options.push('-s')
+            options.push('-s');
         }
         execDockerComposeCommandByContainer('rm', container, options, true);
     }
@@ -722,7 +722,7 @@ class ComposeModule {
 
         if (!containerHasStatus(container)) {
             Output.writeln('No container to restart.');
-            process.exit(1)
+            process.exit(1);
         }
         execDockerComposeCommandByContainer('restart', container, options, true);
     }
@@ -752,11 +752,11 @@ class ComposeModule {
         let container = getContainerFromCompose(compose);
 
         if (!Request.hasOption('d') && !Request.hasOption('detach') && !Request.hasOption('no-detach')) {
-            options.push('-d')
+            options.push('-d');
         }
 
         if (!Request.hasOption('build') && !Request.hasOption('no-build')) {
-            options.push('--build')
+            options.push('--build');
         }
 
         execDockerComposeCommandByContainer('up', container, options, true);
@@ -776,7 +776,7 @@ class ComposeModule {
 
         if (!composes[0]) {
             Output.error("Missing argument.", false);
-            process.exit(1)
+            process.exit(1);
         }
 
         let compose = composes[0],
@@ -792,7 +792,7 @@ class ComposeModule {
         function runAfterPull() {
 
             if (version) {
-                return getCompose(compose, version)
+                return getCompose(compose, version);
             }
 
             let versions = Directory.read(composeDir, {directory: true, file: false});
@@ -804,14 +804,14 @@ class ComposeModule {
                 },
                 versions,
                 answer => {
-                    getCompose(compose, answer.response)
+                    getCompose(compose, answer.response);
                 }
             );
 
         }
 
         if (Directory.exists(composeDir)) {
-            runAfterPull()
+            runAfterPull();
         } else {
 
             if (version) {
@@ -829,7 +829,7 @@ class ComposeModule {
 
         if (!composes[0]) {
             Output.error("Missing argument.", false);
-            process.exit(1)
+            process.exit(1);
         }
 
         let dockerDir = Skyflow.getCurrentDockerDir();
@@ -861,7 +861,7 @@ class ComposeModule {
             }
 
             if (config.events && config.events.remove && config.events.remove.before) {
-                config.events.remove.before.apply(null)
+                config.events.remove.before.apply(null);
             }
 
             if (yml) {
@@ -885,7 +885,7 @@ class ComposeModule {
             }
 
             if (config.events && config.events.remove && config.events.remove.after) {
-                config.events.remove.after.apply(null)
+                config.events.remove.after.apply(null);
             }
 
         });
@@ -899,7 +899,7 @@ class ComposeModule {
         composes = Object.keys(composes);
         composes = composes.slice(1);
 
-        return updateCompose(composes)
+        return updateCompose(composes);
     }
 
     __compose__ps(options) {
@@ -977,7 +977,7 @@ class ComposeModule {
 
         services.map((service) => {
 
-            displayContainerInfoAfterUp(service)
+            displayContainerInfoAfterUp(service);
 
         });
 
@@ -1009,7 +1009,7 @@ class ComposeModule {
 
     __compose__rm(options) {
         if (!Request.hasOption('s') && !Request.hasOption('stop')) {
-            options.push('-s')
+            options.push('-s');
         }
         execDockerComposeCommand('rm', options);
     }
@@ -1025,7 +1025,7 @@ class ComposeModule {
 
         if (Request.hasOption('compose')) {
             compose += ':' + Request.getOption('compose');
-            composeDir = resolve(composeDir, ...(compose.split(':')))
+            composeDir = resolve(composeDir, ...(compose.split(':')));
         }
 
         Directory.remove(composeDir);

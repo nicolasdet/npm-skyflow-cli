@@ -59,7 +59,7 @@ class ReactModule {
 
             let dir = './';
             if (Request.hasOption('dir')) {
-                dir = Request.getOption('dir')
+                dir = Request.getOption('dir');
             }
 
             dir = resolve(process.cwd(), dir);
@@ -107,7 +107,7 @@ class ReactModule {
         }
 
         if (Directory.exists(sampleDir)) {
-            runAfterPull()
+            runAfterPull();
         } else {
             Api.getReactComponentSamples(runAfterPull);
         }
@@ -128,7 +128,7 @@ class ReactModule {
 
             let dir = './';
             if (Request.hasOption('dir')) {
-                dir = Request.getOption('dir')
+                dir = Request.getOption('dir');
             }
 
             dir = resolve(process.cwd(), dir);
@@ -169,7 +169,7 @@ class ReactModule {
         }
 
         if (Directory.exists(sampleDir)) {
-            runAfterPull()
+            runAfterPull();
         } else {
             Api.getReactContainerSamples(runAfterPull);
         }
@@ -232,7 +232,7 @@ class ReactModule {
         }
 
         if (Directory.exists(installDir)) {
-            runAfterPull()
+            runAfterPull();
         } else {
             Api.getReactInstallFiles(runAfterPull);
         }

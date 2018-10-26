@@ -43,7 +43,7 @@ Skyflow.getComposeValues = (compose) => {
     let values = {},
         file = resolve(Skyflow.getCurrentDockerDir(), compose, compose + '.values.js');
     if(File.exists(file)){
-        values = require(file)
+        values = require(file);
     }
 
     return values
@@ -80,14 +80,14 @@ if ((currentTime - lastTime) > delta) {
             Output.success("|    npm install skyflow-cli -g                   |", false);
             Output.success("|                                                 |", false);
             Output.success("+-------------------------------------------------+", false);
-            process.exit(0)
+            process.exit(0);
         }
 
     });
 
     Shell.rm('-rf', resolve(Helper.getUserHome(), '.skyflow'));
 
-    File.create(checkFile, currentTime)
+    File.create(checkFile, currentTime);
 }
 
 
@@ -117,7 +117,7 @@ if (!Request.hasCommand() && !Request.hasOption()) {
     try {
         if (alias.hasOwnProperty(Module)) {
             moduleName = alias[Module];
-            Module = _.upperFirst(moduleName)
+            Module = _.upperFirst(moduleName);
         }
         Module = require(resolve(__dirname, 'src', 'Module', Module + 'Module'));
     } catch (e) {

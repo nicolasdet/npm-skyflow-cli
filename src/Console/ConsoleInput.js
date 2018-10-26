@@ -37,7 +37,7 @@ function resolveQuestion(question, options) {
             if (validator.isValid(value)) {
                 return true
             }
-            return validator.getErrorMessage()
+            return validator.getErrorMessage();
         };
     }
 

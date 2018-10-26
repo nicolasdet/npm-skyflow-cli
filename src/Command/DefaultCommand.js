@@ -45,8 +45,8 @@ class DefaultCommand {
                 .writeln('-'.repeat(100), 'magenta', null, 'bold');
 
             if(module !== 'default'){
-                Output.newLine()
-            }
+                Output.newLine();
+              }
 
             commands.forEach((command) => {
 
@@ -61,7 +61,7 @@ class DefaultCommand {
 
                     // Description
                     if (command[c]['description']) {
-                        Output.writeln(command[c]['description'])
+                        Output.writeln(command[c]['description']);
                     }
 
                     // Options
@@ -74,7 +74,7 @@ class DefaultCommand {
                     }
 
                     if(module !== 'default'){
-                        Output.newLine()
+                        Output.newLine();
                     }
 
                 }
@@ -83,7 +83,7 @@ class DefaultCommand {
         }
 
         if (File.exists(helpFile)) {
-            runAfterPull()
+            runAfterPull();
         } else {
             Api.getModuleHelp(module, runAfterPull);
         }
