@@ -1,5 +1,3 @@
-"use strict";
-
 const Shell = Skyflow.Shell,
     Output = Skyflow.Output,
     File = Skyflow.File;
@@ -8,9 +6,9 @@ function execSymfonyCommand(command, args = []) {
     try {
         command = command + " " + args.join(" ");
         Output.newLine();
-        Output.write('Running ');
-        Output.write(command, 'green');
-        Output.writeln(' command ...');
+        Output.write("Running ");
+        Output.write(command, "green");
+        Output.writeln(" command ...");
         Output.newLine();
         Shell.exec("skyflow compose:symfony:exec \"php bin/console " + command + "\"")
     }catch (e) {
@@ -24,20 +22,20 @@ class SymfonyModule {
     // Require
     dispatcher() {
 
-        Shell.run('docker', ['info']);
+        Shell.run("docker", ["info"]);
         if (Shell.hasError()) {
-            Output.error('Docker does not respond. Check if it is installed and running.', false);
+            Output.error("Docker does not respond. Check if it is installed and running.", false);
             process.exit(1)
         }
         
-        let method = '__symfony__' + Object.values(arguments).join('__'),
+        let method = "__symfony__" + Object.values(arguments).join("__"),
             args = process.argv.slice(3);
 
         if (this[method]) {
             return this[method].apply(this, [args]);
         }
 
-        Output.error('Command not found in Symfony module.', false);
+        Output.error("Command not found in Symfony module.", false);
 
         process.exit(1)
     }
@@ -45,9 +43,9 @@ class SymfonyModule {
     __symfony__api__install() {
 
         Output.newLine();
-        Output.write('Installing ');
-        Output.write('Symfony API Skeleton', 'green');
-        Output.writeln(' command ...');
+        Output.write("Installing ");
+        Output.write("Symfony API Skeleton", "green");
+        Output.writeln(" command ...");
         Output.newLine();
 
         try {
@@ -55,14 +53,14 @@ class SymfonyModule {
             Shell.exec("skyflow package:add symfony -v latest");
             Shell.exec("skyflow package:update");
 
-            let content = File.read('.gitignore');
+            let content = File.read(".gitignore");
             content += "\ndocker/docker-compose.yml";
             content += "\ndocker/symfony/symfony.values.js";
             content += "\ndocker/symfony/Dockerfile";
             content += "\ndocker/symfony/conf/apache2/httpd.conf";
             content += "\ndocker/composer/composer.values.js";
             content += "\ndocker/mariadb/mariadb.values.js";
-            File.create('.gitignore', content)
+            File.create(".gitignore", content)
 
         }catch (e) {
             Output.error(e.message, false);
@@ -74,9 +72,9 @@ class SymfonyModule {
     __symfony__install() {
 
         Output.newLine();
-        Output.write('Installing ');
-        Output.write('Symfony Website Skeleton', 'green');
-        Output.writeln(' command ...');
+        Output.write("Installing ");
+        Output.write("Symfony Website Skeleton", "green");
+        Output.writeln(" command ...");
         Output.newLine();
 
         try {
@@ -84,14 +82,14 @@ class SymfonyModule {
             Shell.exec("skyflow package:add symfony -v latest");
             Shell.exec("skyflow package:update");
 
-            let content = File.read('.gitignore');
+            let content = File.read(".gitignore");
             content += "\ndocker/docker-compose.yml";
             content += "\ndocker/symfony/symfony.values.js";
             content += "\ndocker/symfony/Dockerfile";
             content += "\ndocker/symfony/conf/apache2/httpd.conf";
             content += "\ndocker/composer/composer.values.js";
             content += "\ndocker/mariadb/mariadb.values.js";
-            File.create('.gitignore', content)
+            File.create(".gitignore", content)
 
         }catch (e) {
             Output.error(e.message, false);
@@ -101,7 +99,7 @@ class SymfonyModule {
     }
 
     __symfony__exec(args) {
-        execSymfonyCommand(args.join(' '))
+        execSymfonyCommand(args.join(" "))
     }
 
     __symfony__about() {
@@ -268,12 +266,12 @@ class SymfonyModule {
 
     __symfony__composer__exec() {
         Shell.exec("skyflow compose:composer:rm -f -v");
-        Shell.exec("skyflow compose:composer:run \"composer "+(Object.values(arguments).join(' '))+"\"");
+        Shell.exec("skyflow compose:composer:run \"composer "+(Object.values(arguments).join(" "))+"\"");
     }
 
     __symfony__require() {
         Shell.exec("skyflow compose:composer:rm -f -v");
-        Shell.exec("skyflow compose:composer:run \"composer require "+(Object.values(arguments).join(' '))+"\"");
+        Shell.exec("skyflow compose:composer:run \"composer require "+(Object.values(arguments).join(" "))+"\"");
     }
 
 }

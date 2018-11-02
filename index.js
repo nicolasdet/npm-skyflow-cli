@@ -49,50 +49,7 @@ Skyflow.getComposeValues = (compose) => {
     return values
 };
 
-// Check for update
-let delta = 24 * 60 * 60 * 1000,
-    checkFile = resolve(__dirname, "extra", "check.txt");
-
-let lastTime = parseInt(File.read(checkFile)),
-    currentTime = (new Date()).getTime();
-
-if ((currentTime - lastTime) > delta) {
-
-    // Call API
-    Api.getCliCurrentVersion((version) => {
-
-        if(Skyflow.Package.version !== version){
-            Output.newLine();
-            Output.success("+-------------------------------------------------+", false);
-            Output.success("|                                                 |", false);
-            Output.write("|    ", "green");
-            Output.write("A NEW VERSION OF SKYFLOW CLI IS AVAILABLE", null, null, "bold");
-            Output.writeln("    |", "green");
-            Output.success("|                                                 |", false);
-            Output.write("|    ", "green");
-            Output.write("Use this command to update:", null, null, null);
-            Output.writeln("                  |", "green");
-            Output.success("|                                                 |", false);
-            Output.success("|    yarn global add skyflow-cli                  |", false);
-            Output.write("|    ", "green");
-            Output.write("or", null, null, null);
-            Output.writeln("                                           |", "green");
-            Output.success("|    npm install skyflow-cli -g                   |", false);
-            Output.success("|                                                 |", false);
-            Output.success("+-------------------------------------------------+", false);
-            process.exit(0)
-        }
-
-    });
-
-    Shell.rm('-rf', resolve(Helper.getUserHome(), '.skyflow'));
-
-    File.create(checkFile, currentTime)
-}
-
-
 // Todo : List modules
-// Todo : React install for Symfony
 
 if (!Request.hasCommand() && !Request.hasOption()) {
     DefaultCommand.help.apply(null);
@@ -103,8 +60,10 @@ if (!Request.hasCommand() && !Request.hasOption()) {
     } else if (Request.hasOption('h') || Request.hasOption('help')) {
         DefaultCommand.help.apply(null);
     } else if (Request.hasOption('alias')) {
-        DefaultCommand.alias.apply(null, [alias]);
-    } else if (Request.hasOption('invalidate')) {
+        DefaultCommand.alias.apply();
+    } else if (Request.hasOption('modules')) {
+        DefaultCommand.modules.apply();
+    } else if (Request.hasOption('invalidate') || Request.hasOption('i')) {
         DefaultCommand.invalidate.apply(null);
     }
 

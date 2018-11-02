@@ -1,5 +1,3 @@
-'use strict';
-
 const {execSync, spawnSync, spawn} = require('child_process'),
     shx = require('shelljs');
 
@@ -210,8 +208,6 @@ class Shell {
     popd(){
         shx.popd(...arguments)
     }
-
-
 }
 
 module.exports = new Shell();

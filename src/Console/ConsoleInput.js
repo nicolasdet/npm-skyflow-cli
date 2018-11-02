@@ -1,5 +1,3 @@
-'use strict';
-
 // https://www.npmjs.com/package/inquirer
 
 const Helper = Skyflow.Helper,
