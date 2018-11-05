@@ -1,6 +1,4 @@
-const Shell = Skyflow.Shell,
-    Output = Skyflow.Output;
-
+const {Shell, Output} = Skyflow;
 
 class DockerModule {
 

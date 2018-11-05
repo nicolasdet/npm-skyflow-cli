@@ -1,6 +1,4 @@
-const Shell = Skyflow.Shell,
-    Output = Skyflow.Output,
-    File = Skyflow.File;
+const {Shell, Output, File} = Skyflow;
 
 function execSymfonyCommand(command, args = []) {
     try {

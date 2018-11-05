@@ -1,13 +1,5 @@
-const path = require("path"),
-    resolve = path.resolve,
-    File = Skyflow.File,
-    Directory = Skyflow.Directory,
-    Shell = Skyflow.Shell,
-    Helper = Skyflow.Helper,
-    Api = Skyflow.Api,
-    Request = Skyflow.Request,
-    Output = Skyflow.Output,
-    _ = require("lodash");
+const {resolve} = require("path"),
+    {Directory, Helper, Shell, Api, Request, Output} = Skyflow;
 
 function runInfo() {
 

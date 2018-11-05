@@ -1,6 +1,6 @@
 // https://www.npmjs.com/package/inquirer
 
-const Helper = Skyflow.Helper,
+const {Helper} = Skyflow,
     inquirer = require('inquirer'),
     fuzzy = require('fuzzy');
 

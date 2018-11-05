@@ -2,16 +2,15 @@ const Helper = Skyflow.Helper,
     Output = Skyflow.Output,
     File = Skyflow.File,
     Shell = Skyflow.Shell,
-    resolve = require("path").resolve,
-    request = require("graphql-request").request;
+    {resolve} = require("path"),
+    {request} = require('graphql-request');
 
 class Api {
 
     constructor() {
 
-        this.protocol = "http";
-        // this.host = "api.skyflow.io";
-        this.host = "localhost:4000/graphql";
+        this.protocol = "https";
+        this.host = "api.skyflow.io";
 
     }
 
@@ -34,7 +33,7 @@ class Api {
             .then(data => {
                 let dir = resolve(Helper.getUserHome(), ".skyflow", "api", type, value);
                 Shell.mkdir("-p", dir);
-                data[type].map((file)=>{
+                data[type].map((file) => {
                     let directory = resolve(dir, file.directory);
                     Shell.mkdir("-p", directory);
                     let filename = resolve(directory, file.filename);
@@ -83,7 +82,6 @@ class Api {
 
         return 1
     }
-
 
     /**
      * Pull skyflow commands line documentation.
@@ -174,7 +172,7 @@ class Api {
             .then(data => {
                 let assetDir = resolve(Helper.getUserHome(), ".skyflow", "api", "asset", type);
                 Shell.mkdir("-p", assetDir);
-                data.asset.map((file)=>{
+                data.asset.map((file) => {
                     let directory = resolve(assetDir, file.directory);
                     Shell.mkdir("-p", directory);
                     let filename = resolve(directory, file.filename);
@@ -189,7 +187,6 @@ class Api {
 
         return 1
     }
-
 
 }
 

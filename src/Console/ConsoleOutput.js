@@ -1,4 +1,4 @@
-const resolve = require('path').resolve,
+const {resolve} = require('path'),
     Style = require(resolve(__dirname, 'ConsoleStyle')),
     Progress = require('cli-progress');
 

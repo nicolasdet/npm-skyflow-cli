@@ -1,12 +1,5 @@
-const resolve = require("path").resolve,
-    File = Skyflow.File,
-    Api = Skyflow.Api,
-    Shell = Skyflow.Shell,
-    Helper = Skyflow.Helper,
-    Directory = Skyflow.Directory,
-    Input = Skyflow.Input,
-    Request = Skyflow.Request,
-    Output = Skyflow.Output,
+const {resolve} = require("path"),
+    {Directory, Helper, Shell, Api, Request, Output, File, Input} = Skyflow,
     ComposeModule = require("./ComposeModule");
 
 function getPackage(pkg, version = null) {
@@ -21,7 +14,7 @@ function getPackage(pkg, version = null) {
 
         try {
             Shell.exec("skyflow compose:add " + compose + " -v " + version + " -f")
-        }catch (e) {
+        } catch (e) {
             process.exit(1)
         }
 
@@ -48,9 +41,9 @@ function getPackage(pkg, version = null) {
 
             let composeDir = resolve(Skyflow.Helper.getUserHome(), ".skyflow", "api", "compose", compose, version);
 
-            if(Directory.exists(composeDir)){
+            if (Directory.exists(composeDir)) {
                 runAfterPull(compose, version)
-            }else {
+            } else {
                 Api.getDockerComposeOrPackage("compose", compose, () => {
                     runAfterPull(compose, version)
                 });
@@ -149,7 +142,7 @@ class PackageModule {
     }
 
     __package__add(packages) {
-        
+
         if (!packages[0]) {
             Output.error("Missing argument.", false);
             process.exit(1)

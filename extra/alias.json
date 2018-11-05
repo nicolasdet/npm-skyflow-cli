@@ -1,10 +1,7 @@
 {
+    "A": "asset",
     "C": "compose",
     "D": "docker",
     "P": "package",
-    "A": "asset",
-    "R": "react",
-    "S": "style",
-    "W": "webpack",
     "SF": "symfony"
 }

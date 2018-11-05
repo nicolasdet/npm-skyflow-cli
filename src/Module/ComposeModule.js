@@ -1,15 +1,8 @@
-const resolve = require("path").resolve,
+const {resolve} = require("path"),
     os = require("os"),
-    Shell = Skyflow.Shell,
-    Api = Skyflow.Api,
-    File = Skyflow.File,
-    Helper = Skyflow.Helper,
-    Directory = Skyflow.Directory,
-    Input = Skyflow.Input,
-    Request = Skyflow.Request,
-    Output = Skyflow.Output,
     _ = require("lodash"),
-    uniqid = require("uniqid");
+    uniqid = require("uniqid"),
+    {Directory, Helper, Shell, Api, Request, Output, File, Input} = Skyflow;
 
 function getContainerFromCompose(compose) {
 
