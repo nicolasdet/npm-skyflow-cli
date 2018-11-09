@@ -234,7 +234,7 @@ function updateCompose(composes = []) {
                 if (!values.hasOwnProperty(c)) {
                     continue;
                 }
-                contents += "    " + c + ": '" + values[c] + "',\n";
+                contents += "    " + c + ": \"" + values[c] + "\",\n";
             }
 
             contents += "};";
@@ -261,6 +261,10 @@ function updateCompose(composes = []) {
 
             let composeDir = resolve(dockerDir, compose),
                 values = {};
+
+            if(!File.exists(resolve(composeDir, compose + ".values.js"))){
+                return compose
+            }
 
             if (composesValues.hasOwnProperty(compose)) {
                 values = composesValues[compose]
@@ -310,7 +314,7 @@ function updateCompose(composes = []) {
 
                         // Set local networks
                         let nwks = _.trim(values[key], "'\" ");
-                        if(nwks === ""){
+                        if (nwks === "") {
                             return ""
                         }
 
@@ -364,6 +368,10 @@ function updateCompose(composes = []) {
 
             let composeDir = resolve(dockerDir, compose),
                 values = {};
+
+            if(!File.exists(resolve(composeDir, compose + ".values.js"))){
+                return compose
+            }
 
             if (composesValues.hasOwnProperty(compose)) {
                 values = composesValues[compose]

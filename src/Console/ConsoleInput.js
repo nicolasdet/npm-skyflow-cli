@@ -30,7 +30,7 @@ function resolveQuestion(question, options) {
 
     const validator = options['validator'],
         validatorType = Helper.getType(validator);
-    if (validatorType === 'Validator') {
+    if (validatorType === 'validator') {
         question['validate'] = value => {
             if (validator.isValid(value)) {
                 return true
@@ -39,7 +39,7 @@ function resolveQuestion(question, options) {
         };
     }
 
-    if (validatorType === 'Function') {
+    if (validatorType === 'function') {
         question['validate'] = validator;
     }
 
