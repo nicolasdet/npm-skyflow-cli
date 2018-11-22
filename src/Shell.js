@@ -30,7 +30,7 @@ class Shell {
         }
 
         this.result = spawn.stdout.toString().trim();
-        this.arrayResult = this.result.split("\n");
+        this.arrayResult = this.result.split(/[(\r\n)|(\n)]/).filter(function(el) {return el.length != 0});
 
         if (this.arrayResult[0] === '') {
             this.arrayResult = [];

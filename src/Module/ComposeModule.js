@@ -166,7 +166,7 @@ function execDockerComposeCommandByContainer(command, container, options = [], r
         Output.info("Try to use 'skyflow compose:update'", false);
         process.exit(1)
     }
-    if (_.indexOf(Shell.getArrayResult(), container) === -1 && _.indexOf(Shell.getArrayResult(), container+'\r') === -1) {
+    if (_.indexOf(Shell.getArrayResult(), container) === -1) {
         Output.error("Service " + container + " not found in docker-compose.yml file.", false);
         process.exit(1)
     }
